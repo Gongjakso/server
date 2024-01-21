@@ -38,10 +38,8 @@ jobs:
       # secret.yml 반영
       - name: Make application-secret.yml
         run: |
-          cd ./src/main
-          mkdir resources
-          cd ./resources
-          touch touch ./application.yml
+          cd ./src/main/resources
+          touch ./application.yml
           echo "${{ secrets.APPLICATION_SECRET}}" > ./application.yml
         shell: bash
 
