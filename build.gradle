@@ -34,6 +34,9 @@ dependencies {
 	// MySQL
 	runtimeOnly 'com.mysql:mysql-connector-j'
 
+	// Redis
+	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+
 	// Swagger UI - spring doc
 	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.0.2'
 
