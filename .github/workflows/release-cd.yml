@@ -1,4 +1,4 @@
-name: Beanstalk Deploy
+name: AWS EC2 Deploy
 
 on:
   push:
