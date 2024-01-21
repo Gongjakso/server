@@ -44,7 +44,7 @@ jobs:
           mkdir resources
           cd ./resources
           touch touch ./application.yml
-          echo "${{ secrets.GCP_APPLICATION_RELEASE}}" > ./application.yml
+          echo "${{ secrets.APPLICATION_SECRET}}" > ./application.yml
         shell: bash
 
       # Gradle clean bootJar
