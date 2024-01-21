@@ -58,7 +58,7 @@ jobs:
       - name: Docker Compose
         uses: appleboy/ssh-action@master
         with:
-          host: ${{ secrets.EC2-SERVER-IP }}
+          host: ${{ secrets.EC2_SERVER_IP }}
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
