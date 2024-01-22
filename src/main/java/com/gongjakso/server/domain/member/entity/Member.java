@@ -1,6 +1,7 @@
 package com.gongjakso.server.domain.member.entity;
 
 import com.gongjakso.server.domain.member.dto.MemberReq;
+import com.gongjakso.server.domain.member.enumerate.LoginType;
 import com.gongjakso.server.domain.member.enumerate.MemberType;
 import com.gongjakso.server.global.common.BaseTimeEntity;
 import jakarta.persistence.*;
@@ -52,12 +53,6 @@ public class Member extends BaseTimeEntity {
 
     public void update(MemberReq memberReq) {
         this.name = memberReq.name();
-    }
-
-    @Builder
-    public Member(Long memberId, String email) {
-        this.memberId = memberId;
-        this.email = email;
     }
 
     @Builder
