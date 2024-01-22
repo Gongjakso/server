@@ -24,7 +24,7 @@ public class Post extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "post_id", nullable = false, columnDefinition = "varchar(20)")
+    @Column(name = "post_id", nullable = false, columnDefinition = "bigint")
     private Long postId;
 
     @Column(name = "title", nullable = false, columnDefinition = "varchar(20)")
@@ -33,23 +33,24 @@ public class Post extends BaseTimeEntity {
     @Column(name = "contents", nullable = false, columnDefinition = "varchar(500)")
     private String contents;
 
+    @Column(name = "status", columnDefinition = "varchar(255)")
     @Enumerated(EnumType.STRING)
     private PostType status;
 
-    @Column(name = "start_date", nullable = false)
+    @Column(name = "start_date", nullable = false, columnDefinition = "timestamp")
     private LocalDateTime startDate;
 
-    @Column(name = "end_date", nullable = false)
+    @Column(name = "end_date", nullable = false, columnDefinition = "timestamp")
     private LocalDateTime endDate;
 
-    @Column(name = "max_person", nullable = false, columnDefinition = "int")
+    @Column(name = "max_person", nullable = false, columnDefinition = "bigint")
     private Long maxPerson;
 
+    @Column(name = "meeting_method", columnDefinition = "varchar(10)")
     @Enumerated(EnumType.STRING)
-    @Column(name = "meeting_method", nullable = true, columnDefinition = "varchar(10)")
     private PostType meetingMethod;
 
-    @Column(name = "meeting_area", nullable = true, columnDefinition = "varchar(100)")
+    @Column(name = "meeting_area", columnDefinition = "varchar(100)")
     private String meetingArea;
 
     @Column(name = "question_method", nullable = false, columnDefinition = "tinyint")
