@@ -5,16 +5,15 @@ import com.gongjakso.server.domain.apply.enumerate.PostType;
 import com.gongjakso.server.domain.member.entity.Member;
 
 public record AddApplyReq(
-        Member memberId,
         String application,
         String recruit_part,
         PostType type,
         Boolean is_pass,
         Boolean is_open
 ) {
-    public Apply toEntity(){
+    public Apply toEntity(Member member){
         return Apply.builder()
-                .member(memberId)
+                .member(member)
                 .application(application)
                 .recruit_part(recruit_part)
                 .type(type)
