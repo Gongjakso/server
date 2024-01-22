@@ -18,11 +18,11 @@ import org.springframework.web.bind.annotation.*;
 public class ApplyController {
     private final ApplyService applyService;
     //지원 요청 api
-    @PostMapping("/1")
-    public ResponseEntity<Apply> addApply(@AuthenticationPrincipal Member member, @RequestBody AddApplyReq req){
-        Apply savedApply = applyService.save(member,req);
-        return ResponseEntity.status(HttpStatus.CREATED).body(savedApply);
-    }
+//    @PostMapping("/1")
+//    public ResponseEntity<Apply> addApply(@AuthenticationPrincipal Member member, @RequestBody AddApplyReq req){
+//        Apply savedApply = applyService.save(member,req);
+//        return ResponseEntity.status(HttpStatus.CREATED).body(savedApply);
+//    }
     //특정 지원자 지원서 가져오는 api
 //    @GetMapping("/apply/{post_id}/application")
 //    public ResponseEntity<ApplyMemberRes> findMemberApplication(@RequestHeader Long member_id){

@@ -20,7 +20,8 @@ public class ApplyService {
         return applyRepository.save(apply);
     }
     public Apply findMemberApplication(Long memberId){
-        return applyRepository.findByMemberId(memberId)
-                .orElse(null);
+//        return applyRepository.findByMemberId(memberId)
+//                .orElse(null);
+        return null;
     }
 }
