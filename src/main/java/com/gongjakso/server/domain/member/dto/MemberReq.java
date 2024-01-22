@@ -1,4 +1,8 @@
 package com.gongjakso.server.domain.member.dto;
 
-public record MemberReq() {
+import lombok.Builder;
+
+@Builder
+public record MemberReq(String email,
+                        String name) {
 }
