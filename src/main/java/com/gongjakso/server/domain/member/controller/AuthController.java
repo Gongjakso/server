@@ -25,7 +25,7 @@ public class AuthController {
     @Operation(summary = "로그인 API", description = "KAKAO 로그인 페이지로 리다이렉트되어 카카오 로그인을 수행할 수 있도록 안내")
     @PostMapping("/sign-in")
     public ResponseEntity<MemberRes> signIn() throws IOException {
-        return oauthService.signIn();
+        return ResponseEntity.ok(oauthService.signIn());
     }
 
     @PostMapping("/sign-out")
