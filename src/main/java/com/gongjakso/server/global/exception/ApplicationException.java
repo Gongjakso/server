@@ -1,4 +1,10 @@
 package com.gongjakso.server.global.exception;
 
-public class ApplicationException {
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+
+@Getter
+@AllArgsConstructor
+public class ApplicationException extends RuntimeException {
+    public ErrorCode errorCode;
 }
