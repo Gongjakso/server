@@ -9,6 +9,10 @@ public record ErrorResponse(
         String message) {
 
     public ErrorResponse(ErrorCode errorcode) {
-        this(LocalDateTime.now().withNano(0), errorcode.getCode(), errorcode.getMessage());
+        this(LocalDateTime.now(), errorcode.getCode(), errorcode.getMessage());
+    }
+
+    public ErrorResponse(String message) {
+        this(LocalDateTime.now(), ErrorCode.INTERNAL_SERVER_EXCEPTION.getCode(), message);
     }
 }
