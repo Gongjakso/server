@@ -8,6 +8,7 @@ public record KakaoToken(
         String refresh_token,
         String token_type,
         Integer expires_in,
-        Integer refresh_token_expires_in
+        Integer refresh_token_expires_in,
+        String scope
 ) {
 }

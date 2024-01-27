@@ -1,8 +1,15 @@
 package com.gongjakso.server.global.security.jwt;
 
 import com.gongjakso.server.domain.member.entity.Member;
+import com.gongjakso.server.domain.member.enumerate.MemberType;
 import com.gongjakso.server.domain.member.repository.MemberRepository;
 import com.gongjakso.server.global.security.jwt.dto.TokenDto;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jws;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.io.Decoders;
+import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -24,7 +31,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class TokenProvider {
 
-    @Value("${jwt.secret")
+    @Value("${jwt.secret}")
     private String secretKey;
     private Key key;
     private final MemberRepository memberRepository;
@@ -47,11 +54,11 @@ public class TokenProvider {
 
     /**
      * ATK 생성
-     * @param user - 사용자 정보를 추출하여 액세스 토큰 생성
+     * @param member - 사용자 정보를 추출하여 액세스 토큰 생성
      * @return 생성된 액세스 토큰 정보 반환
      */
     private String createAccessToken(Member member) {
-        Claims claims = getClaims(user);
+        Claims claims = getClaims(member);
 
         Date now = new Date();
 
@@ -66,11 +73,11 @@ public class TokenProvider {
 
     /**
      * RTK 생성
-     * @param user - 사용자 정보를 추출하여 리프레쉬 토큰 생성
+     * @param member - 사용자 정보를 추출하여 리프레쉬 토큰 생성
      * @return 생성된 리프레쉬 토큰 정보 반환
      */
     private String createRefreshToken(Member member) {
-        Claims claims = getClaims(user);
+        Claims claims = getClaims(member);
 
         Date now = new Date();
 
@@ -84,13 +91,13 @@ public class TokenProvider {
 
     /**
      * 로그인 시, 액세스 토큰과 리프레쉬 토큰 발급
-     * @param user - 로그인한 사용자 정보
+     * @param member - 로그인한 사용자 정보
      * @return 액세스 토큰과 리프레쉬 토큰이 담긴 TokenDto 반환
      */
     public TokenDto createToken(Member member) {
         return TokenDto.builder()
-                .accessToken(createAccessToken(user))
-                .refreshToken(createRefreshToken(user))
+                .accessToken(createAccessToken(member))
+                .refreshToken(createRefreshToken(member))
                 .build();
     }
 
@@ -115,10 +122,10 @@ public class TokenProvider {
      */
     public TokenDto accessTokenReissue(String token) {
         String email = getEmail(token);
-        UserRole role = getRole(token);
+        MemberType type = getType(token);
 
-        Member member = memberRepository.findByEmailAndRole(email, role).orElseThrow(RuntimeException::new); // Exception은 실제 개발에서는 커스텀 필요
-        String storedRefreshToken = redisTemplate.opsForValue().get(email + role.toString()); // Key는 email + role로 저장되어 있으며, value가 해당 정보에 대한 refreshToken임.
+        Member member = memberRepository.findMemberByEmailAndDeletedAtIsNull(email).orElseThrow(RuntimeException::new); // Exception은 실제 개발에서는 커스텀 필요
+        String storedRefreshToken = (String) redisTemplate.opsForValue().get(email + type.toString()); // Key는 email + role로 저장되어 있으며, value가 해당 정보에 대한 refreshToken임.
         if(storedRefreshToken == null || !storedRefreshToken.equals(token)) {
             throw new RuntimeException();
         }
@@ -128,8 +135,8 @@ public class TokenProvider {
         // 해당 부분에 refreshToken의 만료기간이 얼마 남지 않았을 때, 자동 재발급하는 로직을 추가할 수 있음.
 
         return TokenDto.builder()
-                .atk(accessToken)
-                .rtk(token)
+                .accessToken(accessToken)
+                .refreshToken(token)
                 .build();
     }
 
@@ -140,11 +147,11 @@ public class TokenProvider {
      */
     public Authentication getAuthentication(String token) {
         String email = getEmail(token);
-        UserRole role = getRole(token);
+        MemberType type = getType(token);
 
-        User user = userRepository.findByEmailAndRole(email, role).orElseThrow(RuntimeException::new); // Exception은 실제 개발에서는 커스텀 필요
+        Member member = memberRepository.findMemberByEmailAndDeletedAtIsNull(email).orElseThrow(RuntimeException::new); // Exception은 실제 개발에서는 커스텀 필요
         Collection<? extends GrantedAuthority> authorities =
-                Arrays.stream(user.getRole().toString().split(","))
+                Arrays.stream(member.getMemberType().toString().split(","))
                         .map(SimpleGrantedAuthority::new)
                         .collect(Collectors.toList());
 
@@ -164,12 +171,12 @@ public class TokenProvider {
 
     /**
      * Claims 정보 생성
-     * @param user - 사용자 정보 중 사용자를 구분할 수 있는 정보 두 개를 활용함
+     * @param member - 사용자 정보 중 사용자를 구분할 수 있는 정보 두 개를 활용함
      * @return 사용자 구분 정보인 이메일과 역할을 저장한 Claims 객체 반환
      */
-    private Claims getClaims(User user) {
-        Claims claims = Jwts.claims().setSubject(user.getEmail());
-        claims.put("role", user.getRole());
+    private Claims getClaims(Member member) {
+        Claims claims = Jwts.claims().setSubject(member.getEmail());
+        claims.put("role", member.getMemberType());
 
         return claims;
     }
@@ -188,8 +195,8 @@ public class TokenProvider {
      * @param token - 일반적으로 액세스 토큰 / 토큰 재발급 요청 시에는 리프레쉬 토큰이 들어옴
      * @return 사용자의 역할 반환 (UserRole)
      */
-    private UserRole getRole(String token) {
-        return UserRole.valueOf((String) Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody().get("role"));
+    private MemberType getType(String token) {
+        return MemberType.valueOf((String) Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody().get("role"));
     }
 
 }

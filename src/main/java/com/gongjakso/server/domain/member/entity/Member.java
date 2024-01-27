@@ -56,8 +56,16 @@ public class Member extends BaseTimeEntity {
     }
 
     @Builder
-    public Member(Long memberId, String email) {
+    public Member(Long memberId, String email, String password, String name, String profileUrl, String memberType, String loginType, String status, String major, String job) {
         this.memberId = memberId;
         this.email = email;
+        this.password = password;
+        this.name = name;
+        this.profileUrl = profileUrl;
+        this.memberType = MemberType.valueOf(memberType);
+        this.loginType = LoginType.valueOf(loginType);
+        this.status = status;
+        this.major = major;
+        this.job = job;
     }
 }

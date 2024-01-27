@@ -4,6 +4,7 @@ import com.gongjakso.server.domain.member.dto.MemberReq;
 import com.gongjakso.server.domain.member.dto.MemberRes;
 import com.gongjakso.server.domain.member.entity.Member;
 import com.gongjakso.server.domain.member.service.MemberService;
+import com.gongjakso.server.global.common.ApplicationResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +24,7 @@ public class MemberController {
     private final MemberService memberService;
 
     @PutMapping("")
-    public ResponseEntity<MemberRes> update(@AuthenticationPrincipal Member member, @Valid @RequestBody MemberReq memberReq) {
-        return ResponseEntity.ok(memberService.update(member, memberReq));
+    public ApplicationResponse<MemberRes> update(@AuthenticationPrincipal Member member, @Valid @RequestBody MemberReq memberReq) {
+        return ApplicationResponse.ok(memberService.update(member, memberReq));
     }
 }

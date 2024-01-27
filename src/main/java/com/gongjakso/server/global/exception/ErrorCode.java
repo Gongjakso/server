@@ -20,7 +20,8 @@ public enum ErrorCode {
     ALREADY_DELETE_EXCEPTION(HttpStatus.BAD_REQUEST, 2004, "이미 삭제된 리소스입니다."),
 
     // 3000: Auth Error
-    KAKAO_TOKEN_EXCEPTION(HttpStatus.INTERNAL_SERVER_ERROR, 3000, "인가 코드 발급에서 오류가 발생했습니다.");
+    KAKAO_TOKEN_EXCEPTION(HttpStatus.INTERNAL_SERVER_ERROR, 3000, "토큰 발급에서 오류가 발생했습니다."),
+    KAKAO_USER_EXCEPTION(HttpStatus.INTERNAL_SERVER_ERROR, 3001, "카카오 프로필 정보를 가져오는 과정에서 오류가 발생했습니디.");
 
     private final HttpStatus httpStatus;
     private final Integer code;

@@ -1,16 +1,15 @@
 package com.gongjakso.server.global.security.kakao;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.gongjakso.server.global.exception.ApplicationException;
-import com.gongjakso.server.global.exception.ErrorCode;
-import com.gongjakso.server.global.security.kakao.dto.KakaoMemberInfo;
+import com.gongjakso.server.global.security.kakao.dto.KakaoProfile;
 import com.gongjakso.server.global.security.kakao.dto.KakaoToken;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 
 @Slf4j
@@ -27,28 +26,37 @@ public class KakaoClient {
     @Value("${spring.security.oauth2.client.registration.kakao.authorization-grant-type}")
     private String kakaoGrantType;
 
-    @Value("${spring.security.oauth2.client.provider.kakao.authorization-uri}")
-    private String kakaoAuthorizationUri;
-
     @Value("${spring.security.oauth2.client.registration.kakao.redirect-uri}")
-    private String redirectUri;
+    private String kakaoRedirectUri;
 
+    @Value("${spring.security.oauth2.client.provider.kakao.token-uri}")
+    private String kakaoTokenUri;
+
+    @Value("${spring.security.oauth2.client.provider.kakao.user-info-uri}")
+    private String kakaoUserInfoUri;
+
+    /**
+     * 카카오 서버에 인가코드 기반으로 사용자의 토큰 정보를 조회하는 메소드
+     * @param code - 카카오에서 발급해준 인가 코드
+     * @return - 카카오에서 반환한 응답 토큰 객체
+     */
     public KakaoToken getKakaoAccessToken(String code) {
         // 요청 보낼 객체 기본 생성
-        WebClient webClient = WebClient.builder()
-                .baseUrl(kakaoAuthorizationUri)
-                .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE) // 헤더 설정
-                .build();
+        WebClient webClient = WebClient.create(kakaoTokenUri);
+
+        //요청 본문
+        MultiValueMap<String , String> params = new LinkedMultiValueMap<>();
+        params.add("grant_type", kakaoGrantType);
+        params.add("client_id", kakaoClientId);
+        params.add("redirect_uri", kakaoRedirectUri);
+        params.add("code", code);
+        params.add("client_secret", kakaoClientSecret);
 
         // 요청 보내기 및 응답 수신
         String response = webClient.post()
-                .uri(uriBuilder -> uriBuilder
-                        .queryParam("grant_type", kakaoGrantType)
-                        .queryParam("client_id", kakaoClientId)
-                        .queryParam("client_secret", kakaoClientSecret)
-                        .queryParam("redirect_uri", redirectUri)
-                        .queryParam("code", code)
-                        .build())
+                .uri(kakaoTokenUri)
+                .header("Content-type", "application/x-www-form-urlencoded")
+                .body(BodyInserters.fromFormData(params))
                 .retrieve() // 데이터 받는 방식, 스프링에서는 exchange는 메모리 누수 가능성 때문에 retrieve 권장
                 .bodyToMono(String.class) // (Mono는 단일 데이터, Flux는 복수 데이터)
                 .block();// 비동기 방식의 데이터 수신
@@ -59,13 +67,34 @@ public class KakaoClient {
         try {
             kakaoToken = objectMapper.readValue(response, KakaoToken.class);
         } catch (Exception e) {
-            throw new ApplicationException(ErrorCode.KAKAO_TOKEN_EXCEPTION);
+            throw new RuntimeException(e);
         }
 
         return kakaoToken;
     }
-    public KakaoMemberInfo getMemberInfo(KakaoToken kakaoToken) {
-        return null;
+    public KakaoProfile getMemberInfo(KakaoToken kakaoToken) {
+        // 요청 기본 객체 생성
+        WebClient webClient = WebClient.create(kakaoUserInfoUri);
+
+        // 요청 보내서 응답 받기
+        String response = webClient.post()
+                .uri(kakaoUserInfoUri)
+                .header("Content-Type", "application/x-www-form-urlencoded;charset=utf-8")
+                .header("Authorization", "Bearer " + kakaoToken.access_token())
+                .retrieve()
+                .bodyToMono(String.class)
+                .block();
+
+        // 수신된 응답 Mapping
+        ObjectMapper objectMapper = new ObjectMapper();
+        KakaoProfile kakaoProfile;
+        try {
+            kakaoProfile = objectMapper.readValue(response, KakaoProfile.class);
+
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+        return kakaoProfile;
     }
 }
-//https://velog.io/@dab2in/Spring-boot-%EC%B9%B4%EC%B9%B4%EC%98%A4-%EC%86%8C%EC%85%9C-%EB%A1%9C%EA%B7%B8%EC%9D%B8
