@@ -53,6 +53,9 @@ public class Member extends BaseTimeEntity {
 
     public void update(MemberReq memberReq) {
         this.name = memberReq.name();
+        this.status = memberReq.status();
+        this.major = memberReq.major();
+        this.job = memberReq.job();
     }
 
     @Builder
