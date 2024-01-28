@@ -1,5 +1,9 @@
 package com.gongjakso.server.global.config;
 
+import com.gongjakso.server.global.security.jwt.JwtAccessDeniedHandler;
+import com.gongjakso.server.global.security.jwt.JwtAuthenticationEntryPoint;
+import com.gongjakso.server.global.security.jwt.JwtFilter;
+import com.gongjakso.server.global.security.jwt.TokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -11,6 +15,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -21,6 +26,10 @@ import java.util.List;
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
+
+    private final TokenProvider tokenProvider;
+    private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
+    private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
 
     /**
      * FilterChain 설정
@@ -41,6 +50,14 @@ public class SecurityConfig {
         http.httpBasic(AbstractHttpConfigurer::disable)
             .formLogin(AbstractHttpConfigurer::disable);
 
+        // JWT 관련 필터 설정 및 예외 처리
+        http.exceptionHandling((exceptionHandling) ->
+            exceptionHandling
+                    .accessDeniedHandler(jwtAccessDeniedHandler)
+                    .authenticationEntryPoint(jwtAuthenticationEntryPoint)
+        );
+        http.addFilterBefore(new JwtFilter(tokenProvider), UsernamePasswordAuthenticationFilter.class);
+
         // 요청 URI별 권한 설정
         http.authorizeHttpRequests((authorize) ->
                 // Swagger UI 외부 접속 허용
@@ -50,6 +67,9 @@ public class SecurityConfig {
                         // 메인 페이지, 공고 페이지 등에 한해 인증 정보 없이 접근 가능 (추후 추가)
                         // 이외의 모든 요청은 인증 정보 필요
                         .anyRequest().permitAll());
+
+        // JWT 관련 환경 설정
+
 
         return http.build();
     }

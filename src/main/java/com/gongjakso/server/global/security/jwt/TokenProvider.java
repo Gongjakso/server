@@ -38,7 +38,7 @@ public class TokenProvider {
     private final RedisTemplate<String, Object> redisTemplate;
 
     // ATK 만료시간: 1일
-    private static final long accessTokenExpirationTime = 24 * 60 * 60 * 1000L;
+    private static final long accessTokenExpirationTime = 7 * 24 * 60 * 60 * 1000L;
 
     // RTK 만료시간: 30일
     private static final long refreshTokenExpirationTime = 30 * 24 * 60 * 60 * 1000L;

@@ -8,6 +8,7 @@ import com.gongjakso.server.global.security.jwt.dto.TokenDto;
 import com.gongjakso.server.global.security.kakao.KakaoClient;
 import com.gongjakso.server.global.security.kakao.dto.KakaoProfile;
 import com.gongjakso.server.global.security.kakao.dto.KakaoToken;
+import com.gongjakso.server.global.util.redis.RedisClient;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -19,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class OauthService {
 
     private final KakaoClient kakaoClient;
+    private final RedisClient redisClient;
     private final TokenProvider tokenProvider;
     private final MemberRepository memberRepository;
 
@@ -47,6 +49,10 @@ public class OauthService {
         }
 
         TokenDto tokenDto = tokenProvider.createToken(member);
+
+        // Redis에 RefreshToken 저장
+        // TODO: timeout 관련되어 constant가 아닌 tokenProvider 내의 메소드로 관리할 수 있도록 수정 필요
+        redisClient.setValue(member.getEmail(), tokenDto.refreshToken(), 30 * 24 * 60 * 60 * 1000L);
 
         // Response
         return LoginRes.of(member, tokenDto);
