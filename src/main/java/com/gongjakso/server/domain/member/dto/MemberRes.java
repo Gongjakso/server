@@ -25,6 +25,13 @@ public record MemberRes(
         return MemberRes.builder()
                 .memberId(member.getMemberId())
                 .email(member.getEmail())
+                .name(member.getName())
+                .profileUrl(member.getProfileUrl())
+                .memberType(member.getMemberType())
+                .loginType(member.getLoginType())
+                .status(member.getStatus())
+                .major(member.getMajor())
+                .job(member.getJob())
                 .build();
     }
 }

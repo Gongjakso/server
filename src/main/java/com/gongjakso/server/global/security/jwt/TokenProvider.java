@@ -3,6 +3,9 @@ package com.gongjakso.server.global.security.jwt;
 import com.gongjakso.server.domain.member.entity.Member;
 import com.gongjakso.server.domain.member.enumerate.MemberType;
 import com.gongjakso.server.domain.member.repository.MemberRepository;
+import com.gongjakso.server.global.exception.ApplicationException;
+import com.gongjakso.server.global.exception.ErrorCode;
+import com.gongjakso.server.global.security.PrincipalDetails;
 import com.gongjakso.server.global.security.jwt.dto.TokenDto;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
@@ -13,19 +16,12 @@ import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.Date;
-import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
@@ -35,7 +31,6 @@ public class TokenProvider {
     private String secretKey;
     private Key key;
     private final MemberRepository memberRepository;
-    private final RedisTemplate<String, Object> redisTemplate;
 
     // ATK 만료시간: 1일
     private static final long accessTokenExpirationTime = 7 * 24 * 60 * 60 * 1000L;
@@ -122,14 +117,9 @@ public class TokenProvider {
      */
     public TokenDto accessTokenReissue(String token) {
         String email = getEmail(token);
-        MemberType type = getType(token);
+        MemberType memberType = getType(token);
 
-        Member member = memberRepository.findMemberByEmailAndDeletedAtIsNull(email).orElseThrow(RuntimeException::new); // Exception은 실제 개발에서는 커스텀 필요
-        String storedRefreshToken = (String) redisTemplate.opsForValue().get(email + type.toString()); // Key는 email + role로 저장되어 있으며, value가 해당 정보에 대한 refreshToken임.
-        if(storedRefreshToken == null || !storedRefreshToken.equals(token)) {
-            throw new RuntimeException();
-        }
-
+        Member member = memberRepository.findMemberByEmailAndMemberTypeAndDeletedAtIsNull(email, memberType).orElseThrow(() -> new ApplicationException(ErrorCode.NOT_FOUND_EXCEPTION));
         String accessToken = createAccessToken(member);
 
         // 해당 부분에 refreshToken의 만료기간이 얼마 남지 않았을 때, 자동 재발급하는 로직을 추가할 수 있음.
@@ -147,17 +137,11 @@ public class TokenProvider {
      */
     public Authentication getAuthentication(String token) {
         String email = getEmail(token);
-        MemberType type = getType(token);
+        MemberType memberType = getType(token);
+        Member member = memberRepository.findMemberByEmailAndMemberTypeAndDeletedAtIsNull(email, memberType).orElseThrow(() -> new ApplicationException(ErrorCode.NOT_FOUND_EXCEPTION));
+        PrincipalDetails principalDetails = new PrincipalDetails(member);
 
-        Member member = memberRepository.findMemberByEmailAndDeletedAtIsNull(email).orElseThrow(RuntimeException::new); // Exception은 실제 개발에서는 커스텀 필요
-        Collection<? extends GrantedAuthority> authorities =
-                Arrays.stream(member.getMemberType().toString().split(","))
-                        .map(SimpleGrantedAuthority::new)
-                        .collect(Collectors.toList());
-
-        UserDetails details = new org.springframework.security.core.userdetails.User(email, "", authorities);
-
-        return new UsernamePasswordAuthenticationToken(details, "", authorities);
+        return new UsernamePasswordAuthenticationToken(principalDetails, "", principalDetails.getAuthorities());
     }
 
     /**
