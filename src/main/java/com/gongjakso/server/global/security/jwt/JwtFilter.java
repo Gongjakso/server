@@ -1,5 +1,8 @@
 package com.gongjakso.server.global.security.jwt;
 
+import com.gongjakso.server.global.exception.ApplicationException;
+import com.gongjakso.server.global.exception.ErrorCode;
+import com.gongjakso.server.global.util.redis.RedisClient;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -8,20 +11,24 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
 @Slf4j
+@Component
 @RequiredArgsConstructor
 public class JwtFilter extends OncePerRequestFilter {
 
     private final TokenProvider tokenProvider;
+    private final RedisClient redisClient;
+
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String token = resolveToken(request);
-        String requestURI = request.getRequestURI();
+        // String requestURI = request.getRequestURI();
 
         // 토큰이 존재할 경우, Authentication에 인증 정보 저장 및 로그 출력
         if (StringUtils.hasText(token) && tokenProvider.validateToken(token)) {
@@ -37,9 +44,16 @@ public class JwtFilter extends OncePerRequestFilter {
     private String resolveToken(HttpServletRequest request) {
         String token = request.getHeader("Authorization");
 
-        // Token 정보가 존재할 경우 Bearer 문자열 제거
+        // Token 정보 존재 여부 및 Bearer 토큰인지 확인
         if (StringUtils.hasText(token) && token.startsWith("Bearer ")) {
-            return token.substring(7);
+            // 블랙리스트 토큰인 경우
+            String substringToken = token.substring(7);
+            String value = redisClient.getValue(substringToken);
+            if (value.equals("logout")) {
+                throw new ApplicationException(ErrorCode.NOT_FOUND_EXCEPTION);
+            }
+
+            return substringToken;
         }
 
         return null;

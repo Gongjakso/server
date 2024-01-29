@@ -65,7 +65,6 @@ public class TokenProvider {
                 .compact();
     }
 
-
     /**
      * RTK 생성
      * @param member - 사용자 정보를 추출하여 리프레쉬 토큰 생성
@@ -111,22 +110,23 @@ public class TokenProvider {
     }
 
     /**
-     * 리프레쉬 토큰 기반으로 액세스 토큰 재발급
-     * @param token - 리프레쉬 토큰
+     * 리프레쉬 토큰 기반으로 액세스 토큰 재발급 + 리프레쉬 토큰의 유효기간이 액세스 토큰의 유효기간보다 짧을 경우, 리프레쉬 토큰도 재발급
+     * @param member - 재발급을 요청한 사용자 정보
+     * @param refreshToken - 재발급을 요청했던 리프레쉬 토큰
      * @return 재발급된 액세스 토큰을 담은 TokenDto 객체 반환
      */
-    public TokenDto accessTokenReissue(String token) {
-        String email = getEmail(token);
-        MemberType memberType = getType(token);
-
-        Member member = memberRepository.findMemberByEmailAndMemberTypeAndDeletedAtIsNull(email, memberType).orElseThrow(() -> new ApplicationException(ErrorCode.NOT_FOUND_EXCEPTION));
+    public TokenDto reissue(Member member, String refreshToken) {
+        // 액세스 토큰 재발급
         String accessToken = createAccessToken(member);
 
-        // 해당 부분에 refreshToken의 만료기간이 얼마 남지 않았을 때, 자동 재발급하는 로직을 추가할 수 있음.
+        // 리프레쉬 토큰 재발급 조건 및 로직
+        if(getExpiration(refreshToken) <= getExpiration(accessToken)) {
+            refreshToken = createRefreshToken(member);
+        }
 
         return TokenDto.builder()
                 .accessToken(accessToken)
-                .refreshToken(token)
+                .refreshToken(refreshToken)
                 .build();
     }
 
@@ -145,12 +145,30 @@ public class TokenProvider {
     }
 
     /**
+     * 토큰에서 email 정보 반환
+     * @param token - 일반적으로 액세스 토큰 / 토큰 재발급 요청 시에는 리프레쉬 토큰이 들어옴
+     * @return 사용자의 email 반환
+     */
+    public String getEmail(String token) {
+        return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody().getSubject();
+    }
+
+    /**
+     * 토큰에서 사용자의 역할 반환
+     * @param token - 일반적으로 액세스 토큰 / 토큰 재발급 요청 시에는 리프레쉬 토큰이 들어옴
+     * @return 사용자의 역할 반환 (UserRole)
+     */
+    public MemberType getType(String token) {
+        return MemberType.valueOf((String) Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody().get("role"));
+    }
+
+    /**
      * 토큰의 만료기한 반환
      * @param token - 일반적으로 액세스 토큰 / 토큰 재발급 요청 시에는 리프레쉬 토큰이 들어옴
      * @return 해당 토큰의 만료정보를 반환
      */
-    public Date getExpiration(String token) {
-        return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody().getExpiration();
+    public Long getExpiration(String token) {
+        return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody().getExpiration().getTime();
     }
 
     /**
@@ -164,23 +182,4 @@ public class TokenProvider {
 
         return claims;
     }
-
-    /**
-     * 토큰에서 email 정보 반환
-     * @param token - 일반적으로 액세스 토큰 / 토큰 재발급 요청 시에는 리프레쉬 토큰이 들어옴
-     * @return 사용자의 email 반환
-     */
-    private String getEmail(String token) {
-        return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody().getSubject();
-    }
-
-    /**
-     * 토큰에서 사용자의 역할 반환
-     * @param token - 일반적으로 액세스 토큰 / 토큰 재발급 요청 시에는 리프레쉬 토큰이 들어옴
-     * @return 사용자의 역할 반환 (UserRole)
-     */
-    private MemberType getType(String token) {
-        return MemberType.valueOf((String) Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody().get("role"));
-    }
-
 }

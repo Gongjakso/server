@@ -5,6 +5,7 @@ import com.gongjakso.server.global.exception.ErrorCode;
 import com.gongjakso.server.global.exception.ErrorResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.stereotype.Component;
@@ -12,7 +13,10 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 
 @Component
+@RequiredArgsConstructor
 public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
+
+    private final ObjectMapper objectMapper;
 
     // 인증 관련 에러 처리, 401
     @Override
@@ -36,7 +40,6 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
         response.setStatus(errorCode.getHttpStatus().value());
 
         ErrorResponse errorResponse = new ErrorResponse(errorCode);
-        ObjectMapper objectMapper = new ObjectMapper();
         String errorJson = objectMapper.writeValueAsString(errorResponse);
 
         response.getWriter().write(errorJson);

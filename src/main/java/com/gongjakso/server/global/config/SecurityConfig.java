@@ -1,9 +1,9 @@
 package com.gongjakso.server.global.config;
 
+import com.gongjakso.server.global.security.ExceptionFilter;
 import com.gongjakso.server.global.security.jwt.JwtAccessDeniedHandler;
 import com.gongjakso.server.global.security.jwt.JwtAuthenticationEntryPoint;
 import com.gongjakso.server.global.security.jwt.JwtFilter;
-import com.gongjakso.server.global.security.jwt.TokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -27,7 +27,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    private final TokenProvider tokenProvider;
+    private final JwtFilter jwtFilter;
+    private final ExceptionFilter exceptionFilter;
     private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
 
@@ -56,7 +57,8 @@ public class SecurityConfig {
                     .accessDeniedHandler(jwtAccessDeniedHandler)
                     .authenticationEntryPoint(jwtAuthenticationEntryPoint)
         );
-        http.addFilterBefore(new JwtFilter(tokenProvider), UsernamePasswordAuthenticationFilter.class);
+        http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+        http.addFilterBefore(exceptionFilter, JwtFilter.class);
 
         // 요청 URI별 권한 설정
         http.authorizeHttpRequests((authorize) ->

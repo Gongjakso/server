@@ -3,13 +3,14 @@ package com.gongjakso.server.domain.member.service;
 import com.gongjakso.server.domain.member.dto.LoginRes;
 import com.gongjakso.server.domain.member.entity.Member;
 import com.gongjakso.server.domain.member.repository.MemberRepository;
+import com.gongjakso.server.global.exception.ApplicationException;
+import com.gongjakso.server.global.exception.ErrorCode;
 import com.gongjakso.server.global.security.jwt.TokenProvider;
 import com.gongjakso.server.global.security.jwt.dto.TokenDto;
 import com.gongjakso.server.global.security.kakao.KakaoClient;
 import com.gongjakso.server.global.security.kakao.dto.KakaoProfile;
 import com.gongjakso.server.global.security.kakao.dto.KakaoToken;
 import com.gongjakso.server.global.util.redis.RedisClient;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,7 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
-public class OauthService {
+public class AuthService {
 
     private final KakaoClient kakaoClient;
     private final RedisClient redisClient;
@@ -58,20 +59,41 @@ public class OauthService {
         return LoginRes.of(member, tokenDto);
     }
 
-    public void signOut(HttpServletRequest httpServletRequest) {
+    public void signOut(String token, Member member) {
         // Validation
+        String accessToken = token.substring(7);
+        tokenProvider.validateToken(accessToken);
 
-        // Business Logic
+        // Business Logic - Refresh Token 삭제 및 Access Token 블랙리스트 등록
+        String key = member.getEmail();
+        redisClient.deleteValue(key);
+        redisClient.setValue(accessToken, "logout", tokenProvider.getExpiration(accessToken));
 
         // Response
     }
 
-    public TokenDto reissue() {
+    @Transactional
+    public void withdrawal(Member member) {
         // Validation
 
-        // Business Logic
+        // Business Logic - 회원 논리적 삭제 진행
+        memberRepository.delete(member);
 
         // Response
-        return null;
+    }
+
+    public TokenDto reissue(String token, Member member) {
+        // Validation - RefreshToken 유효성 검증
+        String refreshToken = token.substring(7);
+        tokenProvider.validateToken(refreshToken);
+        String email = tokenProvider.getEmail(refreshToken);
+        String redisRefreshToken = redisClient.getValue(email);
+        // 입력받은 refreshToken과 Redis의 RefreshToken 간의 일치 여부 검증
+        if(refreshToken.isBlank() || redisRefreshToken.isEmpty() || !redisRefreshToken.equals(refreshToken)) {
+            throw new ApplicationException(ErrorCode.WRONG_TOKEN_EXCEPTION);
+        }
+
+        // Business Logic & Response - Access Token 새로 발급 + Refresh Token의 유효 기간이 Access Token의 유효 기간보다 짧아졌을 경우 Refresh Token도 재발급
+        return tokenProvider.reissue(member, refreshToken);
     }
 }
