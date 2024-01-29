@@ -21,26 +21,24 @@ public class PostService {
         Post entity = postRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException());
         entity.modify(req);
-        entity.setModifiedAt(LocalDateTime.now());
-        Post modifiedPost = postRepository.save(entity);
 
         return PostRes.builder()
-                .postId(modifiedPost.getPostId())
-                .memberId(modifiedPost.getMember().getMemberId())
-                .title(modifiedPost.getTitle())
-                .contents(modifiedPost.getContents())
-                .status(modifiedPost.getStatus())
-                .startDate(modifiedPost.getStartDate())
-                .endDate(modifiedPost.getEndDate())
-                .maxPerson(modifiedPost.getMaxPerson())
-                .meetingMethod(modifiedPost.getMeetingMethod())
-                .meetingArea(modifiedPost.getMeetingArea())
-                .questionMethod(modifiedPost.isQuestionMethod())
-                .questionLink(modifiedPost.getQuestionLink())
-                .isProject(modifiedPost.isProject())
-                .createdAt(modifiedPost.getCreatedAt())
-                .modifiedAt(modifiedPost.getModifiedAt())
-                .deletedAt(modifiedPost.getDeletedAt())
+                .postId(entity.getPostId())
+                .memberId(entity.getMember().getMemberId())
+                .title(entity.getTitle())
+                .contents(entity.getContents())
+                .status(entity.getStatus())
+                .startDate(entity.getStartDate())
+                .endDate(entity.getEndDate())
+                .maxPerson(entity.getMaxPerson())
+                .meetingMethod(entity.getMeetingMethod())
+                .meetingArea(entity.getMeetingArea())
+                .questionMethod(entity.isQuestionMethod())
+                .questionLink(entity.getQuestionLink())
+                .isProject(entity.isProject())
+                .createdAt(entity.getCreatedAt())
+                .modifiedAt(entity.getModifiedAt())
+                .deletedAt(entity.getDeletedAt())
                 .build();
 
     }
