@@ -1,20 +1,15 @@
 package com.gongjakso.server.domain.post.entity;
 
-import com.gongjakso.server.domain.post.enumerate.PostType;
+import com.gongjakso.server.domain.member.entity.Member;
+import com.gongjakso.server.domain.post.dto.PostReq;
+import com.gongjakso.server.domain.post.enumerate.MeetingMethod;
+import com.gongjakso.server.domain.post.enumerate.PostStatus;
 import com.gongjakso.server.global.common.BaseTimeEntity;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
+
 import java.time.LocalDateTime;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+
+import lombok.*;
 
 @Getter
 @Entity
@@ -27,6 +22,10 @@ public class Post extends BaseTimeEntity {
     @Column(name = "post_id", nullable = false, columnDefinition = "bigint")
     private Long postId;
 
+    @ManyToOne(targetEntity = Member.class, fetch = FetchType.LAZY)
+    @JoinColumn(name = "member_id")
+    private Member member;
+
     @Column(name = "title", nullable = false, columnDefinition = "varchar(20)")
     private String title;
 
@@ -35,7 +34,7 @@ public class Post extends BaseTimeEntity {
 
     @Column(name = "status", columnDefinition = "varchar(255)")
     @Enumerated(EnumType.STRING)
-    private PostType status;
+    private PostStatus status;
 
     @Column(name = "start_date", nullable = false, columnDefinition = "timestamp")
     private LocalDateTime startDate;
@@ -48,7 +47,7 @@ public class Post extends BaseTimeEntity {
 
     @Column(name = "meeting_method", columnDefinition = "varchar(10)")
     @Enumerated(EnumType.STRING)
-    private PostType meetingMethod;
+    private MeetingMethod meetingMethod;
 
     @Column(name = "meeting_area", columnDefinition = "varchar(100)")
     private String meetingArea;
@@ -63,8 +62,11 @@ public class Post extends BaseTimeEntity {
     private boolean isProject;
 
     @Builder
-    public Post(Long postId, String title, String contents, PostType status, LocalDateTime startDate, LocalDateTime endDate, Long maxPerson, PostType meetingMethod, String meetingArea, boolean questionMethod, String questionLink, boolean isProject) {
+    public Post(Long postId, Member member, String title, String contents, PostStatus status, LocalDateTime startDate,
+                LocalDateTime endDate, Long maxPerson, MeetingMethod meetingMethod, String meetingArea, boolean questionMethod,
+                String questionLink, boolean isProject) {
         this.postId = postId;
+        this.member = member;
         this.title = title;
         this.contents = contents;
         this.status = status;
@@ -76,5 +78,18 @@ public class Post extends BaseTimeEntity {
         this.questionMethod = questionMethod;
         this.questionLink = questionLink;
         this.isProject = isProject;
+    }
+
+    public void modify(PostReq req) {
+        this.title = req.getTitle();
+        this.contents = req.getContents();
+        this.status = req.getStatus();
+        this.startDate = req.getStartDate();
+        this.endDate = req.getEndDate();
+        this.maxPerson = req.getMaxPerson();
+        this.meetingMethod = req.getMeetingMethod();
+        this.meetingArea = req.getMeetingArea();
+        this.questionMethod = req.isQuestionMethod();
+        this.questionLink = req.getQuestionLink();
     }
 }
