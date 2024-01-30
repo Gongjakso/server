@@ -7,6 +7,7 @@ import com.gongjakso.server.domain.member.entity.Member;
 import com.gongjakso.server.domain.post.entity.Post;
 import com.gongjakso.server.domain.post.repository.PostRepository;
 import com.gongjakso.server.domain.post.service.PostService;
+import com.gongjakso.server.global.common.ApplicationResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
@@ -26,6 +27,17 @@ public class ApplyService {
         }
         Apply apply = req.toEntity(member, post);
         return applyRepository.save(apply);
+    }
+
+    public ApplicationResponse<Void> updateOpen(Long apply_id){
+        Apply apply = applyRepository.findById(apply_id).orElseThrow(()->new NotFoundException("Apply not found with id: " + apply_id));
+        apply.setIs_open(true);
+        return ApplicationResponse.ok();
+    }
+    public ApplicationResponse<Void> updateRecruit(Long apply_id){
+        Apply apply = applyRepository.findById(apply_id).orElseThrow(()->new NotFoundException("Apply not found with id: " + apply_id));
+        apply.setIs_pass(true);
+        return ApplicationResponse.ok();
     }
     public Apply findMemberApplication(Long memberId){
 //        return applyRepository.findByMemberId(memberId)
