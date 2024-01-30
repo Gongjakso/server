@@ -47,7 +47,8 @@ public class PostController {
     }
 
     @PatchMapping("/?{id}")
-    public ResponseEntity<PostDeleteRes> modify(@PathVariable("id") Long id){
+    public ResponseEntity<PostDeleteRes> delete(@PathVariable("id") Long id){
         return ResponseEntity.ok(postService.delete(id));
     }
+    
 }
