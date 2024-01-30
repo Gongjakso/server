@@ -92,4 +92,8 @@ public class Post extends BaseTimeEntity {
         this.questionMethod = req.isQuestionMethod();
         this.questionLink = req.getQuestionLink();
     }
+
+    public void delete(){
+        super.deletedAt = LocalDateTime.now();
+    }
 }
