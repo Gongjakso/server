@@ -5,7 +5,7 @@ import com.gongjakso.server.domain.apply.enumerate.PostType;
 import com.gongjakso.server.domain.member.entity.Member;
 import com.gongjakso.server.domain.post.entity.Post;
 
-public record AddApplyReq(
+public record ApplyReq(
         String application,
         String recruit_part,
         String type,

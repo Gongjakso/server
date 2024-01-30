@@ -1,7 +1,8 @@
 package com.gongjakso.server.domain.apply.controller;
 
-import com.gongjakso.server.domain.apply.dto.AddApplyReq;
+import com.gongjakso.server.domain.apply.dto.ApplyReq;
 import com.gongjakso.server.domain.apply.dto.ApplicationRes;
+import com.gongjakso.server.domain.apply.dto.ApplyRes;
 import com.gongjakso.server.domain.apply.repository.ApplyRepository;
 import com.gongjakso.server.domain.apply.service.ApplyService;
 import com.gongjakso.server.global.common.ApplicationResponse;
@@ -20,13 +21,14 @@ public class ApplyController {
     private final ApplyRepository applyRepository;
     //지원 요청 api
     @PostMapping("/{post_id}")
-    public ApplicationResponse<Void> addApply(@AuthenticationPrincipal PrincipalDetails principalDetails, @PathVariable("post_id") Long postId, @RequestBody AddApplyReq req){
+    public ApplicationResponse<Void> addApply(@AuthenticationPrincipal PrincipalDetails principalDetails, @PathVariable("post_id") Long postId, @RequestBody ApplyReq req){
         applyService.save(principalDetails.getMember(),postId,req);
         return ApplicationResponse.created();
     }
+    //프로젝트 지원서 요청 api
     @GetMapping("/{post_id}")
-    public ApplicationResponse<Void> getApply(@PathVariable("post_id") Long postId, @RequestBody AddApplyReq req){
-       return ApplicationResponse.ok();
+    public ApplicationResponse<ApplyRes> getApply(@PathVariable("post_id") Long postId){
+       return applyService.findApply(postId);
     }
     @PatchMapping("/{apply_id}/open")
     public ApplicationResponse<Void> updateIsOpenStatus(@AuthenticationPrincipal PrincipalDetails principalDetails,@PathVariable("apply_id") Long applyId){
