@@ -8,7 +8,7 @@ import com.gongjakso.server.domain.post.entity.Post;
 public record AddApplyReq(
         String application,
         String recruit_part,
-        PostType type,
+        String type,
         Boolean is_pass,
         Boolean is_open
 ) {
@@ -18,7 +18,7 @@ public record AddApplyReq(
                 .post(post_id)
                 .application(application)
                 .recruit_part(recruit_part)
-                .type(type)
+                .type(PostType.valueOf(type))
                 .is_pass(false)
                 .is_open(false)
                 .build();
