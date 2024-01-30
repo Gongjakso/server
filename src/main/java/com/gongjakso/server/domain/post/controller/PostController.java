@@ -1,5 +1,6 @@
 package com.gongjakso.server.domain.post.controller;
 
+import com.gongjakso.server.domain.post.dto.PostDeleteRes;
 import com.gongjakso.server.domain.post.dto.PostReq;
 import com.gongjakso.server.domain.post.dto.PostRes;
 import com.gongjakso.server.domain.post.service.PostService;
@@ -43,5 +44,10 @@ public class PostController {
     @PutMapping("/?{id}")
     public ResponseEntity<PostRes> modify(@PathVariable("id") Long id, @RequestBody PostReq req) {
         return ResponseEntity.ok(postService.modify(id, req));
+    }
+
+    @PatchMapping("/?{id}")
+    public ResponseEntity<PostDeleteRes> modify(@PathVariable("id") Long id){
+        return ResponseEntity.ok(postService.delete(id));
     }
 }
