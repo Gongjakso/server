@@ -91,6 +91,7 @@ public class Post extends BaseTimeEntity {
         this.meetingArea = req.getMeetingArea();
         this.questionMethod = req.isQuestionMethod();
         this.questionLink = req.getQuestionLink();
+        this.isProject = req.isProject();
     }
 
     public void delete(){
