@@ -30,15 +30,17 @@ public class ApplyController {
     public ApplicationResponse<ApplyRes> getApply(@PathVariable("post_id") Long postId){
        return applyService.findApply(postId);
     }
+    //지원서 열람 요청 api
     @PatchMapping("/{apply_id}/open")
     public ApplicationResponse<Void> updateIsOpenStatus(@AuthenticationPrincipal PrincipalDetails principalDetails,@PathVariable("apply_id") Long applyId){
         return applyService.updateOpen(applyId);
     }
+    //지원서 지원 요청 api
     @PatchMapping("/{apply_id}/recruit")
     public ApplicationResponse<Void> updateIsRecruitStatus(@AuthenticationPrincipal PrincipalDetails principalDetails,@PathVariable("apply_id") Long applyId){
         return applyService.updateRecruit(applyId);
     }
-//    특정 지원자 지원서 가져오는 api
+    // 특정 지원자 지원서 가져오는 api
     @GetMapping("/{apply_id}/application")
     public ApplicationResponse<ApplicationRes> findApplication(@AuthenticationPrincipal PrincipalDetails principalDetails,@PathVariable("apply_id") Long applyId){
         return applyService.findApplication(applyId);

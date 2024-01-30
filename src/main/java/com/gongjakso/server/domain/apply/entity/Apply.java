@@ -15,8 +15,8 @@ import lombok.*;
 public class Apply extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "list_id",nullable = false,columnDefinition = "bigint")
-    private Long listID;
+    @Column(name = "apply_id",nullable = false,columnDefinition = "bigint")
+    private Long applyId;
 
     @ManyToOne(targetEntity = Member.class, fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
@@ -42,8 +42,8 @@ public class Apply extends BaseTimeEntity {
     private Boolean is_open;
 
     @Builder
-    public Apply(Long listID, Member member,Post post, String application,String recruit_part,PostType type, Boolean is_pass,Boolean is_open){
-        this.listID=listID;
+    public Apply(Long applyId, Member member,Post post, String application,String recruit_part,PostType type, Boolean is_pass,Boolean is_open){
+        this.applyId=applyId;
         this.member=member;
         this.post=post;
         this.application=application;

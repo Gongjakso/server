@@ -14,7 +14,7 @@ public record ApplyRes(
         int current_person,
         List<ApplyList> apply_list
 ) {
-    public static ApplyRes of(Post post, Apply apply,int current_person,List<ApplyList> apply_list){
+    public static ApplyRes of(Post post, int current_person,List<ApplyList> apply_list){
         return new ApplyRes(post.getStartDate(),post.getEndDate(),post.getMaxPerson(),current_person,apply_list);
     }
 }

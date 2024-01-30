@@ -1,5 +1,6 @@
 package com.gongjakso.server.domain.apply.service;
 
+import com.gongjakso.server.domain.apply.dto.ApplyList;
 import com.gongjakso.server.domain.apply.dto.ApplyReq;
 import com.gongjakso.server.domain.apply.dto.ApplicationRes;
 import com.gongjakso.server.domain.apply.dto.ApplyRes;
@@ -13,6 +14,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
 import org.webjars.NotFoundException;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -32,7 +36,20 @@ public class ApplyService {
 
     public ApplicationResponse<ApplyRes> findApply(Long post_id){
         Post post = postRepository.findById(post_id).orElseThrow(()->new NotFoundException("Post not found with id: " + post_id));
-
+        int current_person = (int) applyRepository.countApplyByPost(post);
+        List<Apply> applies = applyRepository.findAllByPost(post);
+        List<ApplyList> applyLists = applies.stream()
+                .map(apply -> ApplyList.of(apply, decisionState(apply)))
+                .collect(Collectors.toList());
+        ApplyRes applyRes = ApplyRes.of(post,current_person,applyLists);
+        return ApplicationResponse.ok(applyRes);
+    }
+    private String decisionState(Apply apply){
+        if(apply.getIs_pass()==true) {
+            return "합류 완료";
+        }else if(apply.getIs_open()==true){
+            return "열람 완료";
+        }else return "미선발";
     }
 
     public ApplicationResponse<Void> updateOpen(Long apply_id){
