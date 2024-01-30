@@ -1,6 +1,7 @@
 package com.gongjakso.server.domain.apply.service;
 
 import com.gongjakso.server.domain.apply.dto.AddApplyReq;
+import com.gongjakso.server.domain.apply.dto.ApplicationRes;
 import com.gongjakso.server.domain.apply.entity.Apply;
 import com.gongjakso.server.domain.apply.repository.ApplyRepository;
 import com.gongjakso.server.domain.member.entity.Member;
@@ -39,9 +40,10 @@ public class ApplyService {
         apply.setIs_pass(true);
         return ApplicationResponse.ok();
     }
-    public Apply findMemberApplication(Long memberId){
-//        return applyRepository.findByMemberId(memberId)
-//                .orElse(null);
-        return null;
+    public ApplicationResponse<ApplicationRes> findApplication(Long apply_id){
+        Apply apply = applyRepository.findById(apply_id).orElseThrow(()->new NotFoundException("Apply not found with id: " + apply_id));
+//        ApplicationRes applicationRes = ApplicationRes.builder().application(apply.getApplication()).recruit_part(apply.getRecruit_part()).build();
+        ApplicationRes applicationRes = ApplicationRes.of(apply);
+        return ApplicationResponse.ok(applicationRes);
     }
 }

@@ -1,6 +1,7 @@
 package com.gongjakso.server.domain.apply.controller;
 
 import com.gongjakso.server.domain.apply.dto.AddApplyReq;
+import com.gongjakso.server.domain.apply.dto.ApplicationRes;
 import com.gongjakso.server.domain.apply.repository.ApplyRepository;
 import com.gongjakso.server.domain.apply.service.ApplyService;
 import com.gongjakso.server.global.common.ApplicationResponse;
@@ -23,18 +24,21 @@ public class ApplyController {
         applyService.save(principalDetails.getMember(),postId,req);
         return ApplicationResponse.created();
     }
+    @GetMapping("/{post_id}")
+    public ApplicationResponse<Void> getApply(@PathVariable("post_id") Long postId, @RequestBody AddApplyReq req){
+       return ApplicationResponse.ok();
+    }
     @PatchMapping("/{apply_id}/open")
-    public ApplicationResponse<Void> updateIsOpenStatus(@PathVariable("apply_id") Long applyId){
+    public ApplicationResponse<Void> updateIsOpenStatus(@AuthenticationPrincipal PrincipalDetails principalDetails,@PathVariable("apply_id") Long applyId){
         return applyService.updateOpen(applyId);
     }
     @PatchMapping("/{apply_id}/recruit")
-    public ApplicationResponse<Void> updateIsRecruitStatus(@PathVariable("apply_id") Long applyId){
+    public ApplicationResponse<Void> updateIsRecruitStatus(@AuthenticationPrincipal PrincipalDetails principalDetails,@PathVariable("apply_id") Long applyId){
         return applyService.updateRecruit(applyId);
     }
 //    특정 지원자 지원서 가져오는 api
-//    @GetMapping("/apply/{post_id}/application")
-//    public ResponseEntity<ApplyMemberRes> findMemberApplication(@RequestHeader Long member_id){
-//        ApplyMemberRes applyMemberRes = applyService.findMemberApplication(member_id);
-//        return ResponseEntity.ok().body(applyMemberRes);
-//    }
+    @GetMapping("/{apply_id}/application")
+    public ApplicationResponse<ApplicationRes> findApplication(@AuthenticationPrincipal PrincipalDetails principalDetails,@PathVariable("apply_id") Long applyId){
+        return applyService.findApplication(applyId);
+    }
 }
