@@ -5,10 +5,14 @@ import com.gongjakso.server.domain.apply.dto.ApplyMemberRes;
 import com.gongjakso.server.domain.apply.entity.Apply;
 import com.gongjakso.server.domain.apply.service.ApplyService;
 import com.gongjakso.server.domain.member.entity.Member;
+import com.gongjakso.server.domain.post.entity.Post;
+import com.gongjakso.server.domain.post.service.PostService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.*;
 
 @RequiredArgsConstructor
@@ -18,12 +22,13 @@ import org.springframework.web.bind.annotation.*;
 public class ApplyController {
     private final ApplyService applyService;
     //지원 요청 api
-//    @PostMapping("/1")
-//    public ResponseEntity<Apply> addApply(@AuthenticationPrincipal Member member, @RequestBody AddApplyReq req){
-//        Apply savedApply = applyService.save(member,req);
-//        return ResponseEntity.status(HttpStatus.CREATED).body(savedApply);
-//    }
-    //특정 지원자 지원서 가져오는 api
+    @PostMapping("/{post_id}")
+    public ResponseEntity<Apply> addApply(@AuthenticationPrincipal Member member, @PathVariable Post post_id, @RequestBody AddApplyReq req){
+        Post post = PostService.findById(post_id);
+        Apply savedApply = applyService.save(member,post,req);
+        return ResponseEntity.status(HttpStatus.CREATED).body(savedApply);
+    }
+//    특정 지원자 지원서 가져오는 api
 //    @GetMapping("/apply/{post_id}/application")
 //    public ResponseEntity<ApplyMemberRes> findMemberApplication(@RequestHeader Long member_id){
 //        ApplyMemberRes applyMemberRes = applyService.findMemberApplication(member_id);
