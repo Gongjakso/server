@@ -32,7 +32,12 @@ public class RedisClient {
      */
     public String getValue(String key) {
         ValueOperations<String, Object> values = redisTemplate.opsForValue();
-        return Objects.requireNonNull(values.get(key)).toString();
+
+        if(values.get(key) == null) {
+            return "";
+        }
+
+        return values.get(key).toString();
     }
 
     /**
