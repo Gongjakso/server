@@ -1,5 +1,6 @@
 package com.gongjakso.server.domain.post.service;
 
+import com.gongjakso.server.domain.post.dto.PostDeleteRes;
 import com.gongjakso.server.domain.post.dto.PostReq;
 import com.gongjakso.server.domain.post.dto.PostRes;
 import com.gongjakso.server.domain.post.entity.Post;
@@ -8,7 +9,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 
 @Service
 @Transactional(readOnly = true)
@@ -41,5 +41,19 @@ public class PostService {
                 .deletedAt(entity.getDeletedAt())
                 .build();
 
+    }
+
+
+    @Transactional
+    public PostDeleteRes delete(Long id) {
+        Post entity = postRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException());
+        entity.delete();
+
+        return PostDeleteRes.builder()
+                .postId(entity.getPostId())
+                .memberId(entity.getMember().getMemberId())
+                .deletedAt(entity.getDeletedAt())
+                .build();
     }
 }
