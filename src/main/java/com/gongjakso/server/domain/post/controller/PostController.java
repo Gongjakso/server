@@ -5,10 +5,12 @@ import com.gongjakso.server.domain.post.dto.PostReq;
 import com.gongjakso.server.domain.post.dto.PostRes;
 import com.gongjakso.server.domain.post.entity.Post;
 import com.gongjakso.server.domain.post.service.PostService;
+import com.gongjakso.server.global.security.PrincipalDetails;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.pulsar.PulsarProperties.Authentication;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -25,8 +27,8 @@ public class PostController {
 //    }
 
     @PostMapping("")
-    public ResponseEntity<PostRes> create(@RequestBody PostReq req) {
-        return ResponseEntity.ok(postService.create(req));
+    public ResponseEntity<PostRes> create(@AuthenticationPrincipal PrincipalDetails principalDetails, @RequestBody PostReq req) {
+        return ResponseEntity.ok(postService.create(principalDetails.getMember(), req));
     }
 
     @PutMapping("/?{id}")

@@ -19,13 +19,13 @@ public class PostService {
     private final MemberRepository memberRepository;
 
     @Transactional
-    public PostRes create(PostReq req) {
+    public PostRes create(Member member, PostReq req) {
 //        validateMemberId(memberId);
-        Post post = new Post(req);
+        Post post = new Post(member, req);
         postRepository.save(post);
         return PostRes.builder()
                 .postId(post.getPostId())
-//                .memberId(post.getMember().getMemberId())
+                .memberId(post.getMember().getMemberId())
                 .title(post.getTitle())
                 .contents(post.getContents())
                 .status(post.getStatus())

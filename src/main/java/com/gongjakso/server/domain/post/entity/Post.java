@@ -62,8 +62,9 @@ public class Post extends BaseTimeEntity {
     private boolean isProject;
 
     @Builder
-    public Post(PostReq req) {
+    public Post(Member member, PostReq req) {
         this.title = req.getTitle();
+        this.member = member;
         this.contents = req.getContents();
         this.status = req.getStatus();
         this.startDate = req.getStartDate();
