@@ -45,21 +45,24 @@ public class ApplyService {
         return ApplicationResponse.ok(applyRes);
     }
     private String decisionState(Apply apply){
-        if(apply.getIs_pass()==true) {
+        if(apply.getIs_pass()) {
             return "합류 완료";
-        }else if(apply.getIs_open()==true){
-            return "열람 완료";
-        }else return "미선발";
+        }else {
+            if(apply.getIs_open()){
+                return "열람 완료";
+            }else {
+                return "미선발";
+            }
+        }
     }
-
     public ApplicationResponse<Void> updateOpen(Long apply_id){
         Apply apply = applyRepository.findById(apply_id).orElseThrow(()->new NotFoundException("Apply not found with id: " + apply_id));
         apply.setIs_open(true);
         return ApplicationResponse.ok();
     }
-    public ApplicationResponse<Void> updateRecruit(Long apply_id){
+    public ApplicationResponse<Void> updateRecruit(Long apply_id, Boolean isRecruit){
         Apply apply = applyRepository.findById(apply_id).orElseThrow(()->new NotFoundException("Apply not found with id: " + apply_id));
-        apply.setIs_pass(true);
+        apply.setIs_pass(isRecruit);
         return ApplicationResponse.ok();
     }
     public ApplicationResponse<ApplicationRes> findApplication(Long apply_id){
