@@ -9,10 +9,12 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.SQLDelete;
 
 @Getter
 @Entity
 @Table(name = "member")
+@SQLDelete(sql = "UPDATE member SET deleted_at = NOW() where member_id = ?")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Member extends BaseTimeEntity {
 
@@ -53,11 +55,22 @@ public class Member extends BaseTimeEntity {
 
     public void update(MemberReq memberReq) {
         this.name = memberReq.name();
+        this.status = memberReq.status();
+        this.major = memberReq.major();
+        this.job = memberReq.job();
     }
 
     @Builder
-    public Member(Long memberId, String email) {
+    public Member(Long memberId, String email, String password, String name, String profileUrl, String memberType, String loginType, String status, String major, String job) {
         this.memberId = memberId;
         this.email = email;
+        this.password = password;
+        this.name = name;
+        this.profileUrl = profileUrl;
+        this.memberType = MemberType.valueOf(memberType);
+        this.loginType = LoginType.valueOf(loginType);
+        this.status = status;
+        this.major = major;
+        this.job = job;
     }
 }
