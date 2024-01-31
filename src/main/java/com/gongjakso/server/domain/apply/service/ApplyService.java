@@ -31,12 +31,19 @@ public class ApplyService {
         Post post = postRepository.findByPostId(post_id);
         if (post == null) {
             throw new ApplicationException(ErrorCode.NOT_FOUND_POST_EXCEPTION);
-        }
-        if(post.getEndDate().isAfter(LocalDateTime.now())){
-            throw new ApplicationException(ErrorCode.NOT_APPLY_EXCEPTION);
         }else {
-            Apply apply = req.toEntity(member, post);
-            return applyRepository.save(apply);
+            //재지원 판단
+            if(applyRepository.findAllByMemberAndPost(member, post)==null){
+                //지원 기간인지 판단
+                if(post.getEndDate().isAfter(LocalDateTime.now())){
+                    throw new ApplicationException(ErrorCode.NOT_APPLY_EXCEPTION);
+                }else {
+                    Apply apply = req.toEntity(member, post);
+                    return applyRepository.save(apply);
+                }
+            }else {
+                throw new ApplicationException(ErrorCode.ALREADY_APPLY_EXCEPTION);
+            }
         }
     }
 
