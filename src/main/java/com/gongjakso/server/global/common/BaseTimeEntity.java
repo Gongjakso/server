@@ -25,5 +25,5 @@ public abstract class BaseTimeEntity {
     private LocalDateTime modifiedAt;
 
     @Column(name = "deleted_at", columnDefinition = "TIMESTAMP")
-    protected LocalDateTime deletedAt;
+    private LocalDateTime deletedAt;
 }
