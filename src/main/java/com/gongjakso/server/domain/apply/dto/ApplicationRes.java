@@ -1,7 +1,6 @@
 package com.gongjakso.server.domain.apply.dto;
 
 import com.gongjakso.server.domain.apply.entity.Apply;
-import com.gongjakso.server.domain.apply.enumerate.PostType;
 import lombok.Builder;
 
 @Builder
