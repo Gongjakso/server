@@ -6,14 +6,18 @@ import com.gongjakso.server.domain.post.enumerate.MeetingMethod;
 import com.gongjakso.server.domain.post.enumerate.PostStatus;
 import com.gongjakso.server.global.common.BaseTimeEntity;
 import jakarta.persistence.*;
+import lombok.AccessLevel;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import org.hibernate.annotations.SQLDelete;
 
 import java.time.LocalDateTime;
-
-import lombok.*;
 
 @Getter
 @Entity
 @Table(name = "post")
+@SQLDelete(sql="UPDATE post SET deleted_at = NOW() where post_id=?")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Post extends BaseTimeEntity {
 
@@ -42,6 +46,9 @@ public class Post extends BaseTimeEntity {
     @Column(name = "end_date", nullable = false, columnDefinition = "timestamp")
     private LocalDateTime endDate;
 
+    @Column(name = "finish_date", nullable = false, columnDefinition = "timestamp")
+    private LocalDateTime finishDate;
+
     @Column(name = "max_person", nullable = false, columnDefinition = "bigint")
     private Long maxPerson;
 
@@ -58,26 +65,28 @@ public class Post extends BaseTimeEntity {
     @Column(name = "question_link", nullable = false, columnDefinition = "text")
     private String questionLink;
 
-    @Column(name = "is_project", nullable = false, columnDefinition = "tinyint")
-    private boolean isProject;
+    @Column(name = "post_type", nullable = false, columnDefinition = "tinyint")
+    private boolean postType;
+
+
 
     @Builder
-    public Post(Long postId, Member member, String title, String contents, PostStatus status, LocalDateTime startDate,
-                LocalDateTime endDate, Long maxPerson, MeetingMethod meetingMethod, String meetingArea, boolean questionMethod,
-                String questionLink, boolean isProject) {
-        this.postId = postId;
-        this.member = member;
+    public Post(String title, Member member, String contents, PostStatus status, LocalDateTime startDate,
+                LocalDateTime endDate, LocalDateTime finishDate, Long maxPerson, MeetingMethod meetingMethod,
+                String meetingArea, boolean questionMethod, String questionLink, boolean postType) {
         this.title = title;
+        this.member = member;
         this.contents = contents;
         this.status = status;
         this.startDate = startDate;
+        this.finishDate = finishDate;
         this.endDate = endDate;
         this.maxPerson = maxPerson;
         this.meetingMethod = meetingMethod;
         this.meetingArea = meetingArea;
         this.questionMethod = questionMethod;
         this.questionLink = questionLink;
-        this.isProject = isProject;
+        this.postType = postType;
     }
 
     public void modify(PostReq req) {
@@ -86,15 +95,13 @@ public class Post extends BaseTimeEntity {
         this.status = req.getStatus();
         this.startDate = req.getStartDate();
         this.endDate = req.getEndDate();
+        this.finishDate = req.getFinishDate();
         this.maxPerson = req.getMaxPerson();
         this.meetingMethod = req.getMeetingMethod();
         this.meetingArea = req.getMeetingArea();
         this.questionMethod = req.isQuestionMethod();
         this.questionLink = req.getQuestionLink();
-        this.isProject = req.isProject();
+        this.postType = req.isPostType();
     }
 
-    public void delete(){
-        super.deletedAt = LocalDateTime.now();
-    }
 }
