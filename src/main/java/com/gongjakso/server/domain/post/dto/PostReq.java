@@ -17,12 +17,13 @@ public class PostReq {
     private PostStatus status;
     private LocalDateTime startDate;
     private LocalDateTime endDate;
+    private LocalDateTime finishDate;
     private Long maxPerson;
     private MeetingMethod meetingMethod;
     private String meetingArea;
     private boolean questionMethod;
     private String questionLink;
-    private boolean isProject;
+    private boolean postType;
 
     /*
      * @Builder
