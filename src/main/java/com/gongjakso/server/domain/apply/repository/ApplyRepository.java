@@ -10,5 +10,5 @@ import java.util.List;
 public interface ApplyRepository extends JpaRepository<Apply,Long> {
     long countApplyByPost(Post post);
     List<Apply> findAllByPost(Post post);
-    List<Apply> findAllByMemberAndPost(Member member, Post post);
+    boolean existsApplyByMemberAndPost(Member member,Post post);
 }

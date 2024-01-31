@@ -33,9 +33,9 @@ public class ApplyService {
             throw new ApplicationException(ErrorCode.NOT_FOUND_POST_EXCEPTION);
         }else {
             //재지원 판단
-            if(applyRepository.findAllByMemberAndPost(member, post)==null){
+            if(!applyRepository.existsApplyByMemberAndPost(member, post)){
                 //지원 기간인지 판단
-                if(post.getEndDate().isAfter(LocalDateTime.now())){
+                if(post.getEndDate().isBefore(LocalDateTime.now())){
                     throw new ApplicationException(ErrorCode.NOT_APPLY_EXCEPTION);
                 }else {
                     Apply apply = req.toEntity(member, post);
