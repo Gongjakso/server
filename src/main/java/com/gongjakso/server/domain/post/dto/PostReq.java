@@ -23,24 +23,4 @@ public class PostReq {
     private boolean questionMethod;
     private String questionLink;
     private boolean isProject;
-
-    /*
-     * @Builder
-     * public PostReq(String title, String contents, PostStatus status, LocalDateTime
-     * startDate, LocalDateTime endDate,
-     * Long maxPerson, PostType meetingMethod, String meetingArea, boolean
-     * questionMethod, String questionLink, boolean isProject){
-     * this.title = title;
-     * this.contents = contents;
-     * this.status = status;
-     * this.startDate = startDate;
-     * this.endDate = endDate;
-     * this.maxPerson = maxPerson;
-     * this.meetingArea = meetingArea;
-     * this.meetingMethod = meetingMethod;
-     * this.questionMethod = questionMethod;
-     * this.questionLink = questionLink;
-     * this.isProject = isProject;
-     * }
-     */
 }

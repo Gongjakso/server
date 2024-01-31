@@ -62,23 +62,35 @@ public class Post extends BaseTimeEntity {
     private boolean isProject;
 
     @Builder
-    public Post(Long postId, Member member, String title, String contents, PostStatus status, LocalDateTime startDate,
-                LocalDateTime endDate, Long maxPerson, MeetingMethod meetingMethod, String meetingArea, boolean questionMethod,
-                String questionLink, boolean isProject) {
-        this.postId = postId;
-        this.member = member;
-        this.title = title;
-        this.contents = contents;
-        this.status = status;
-        this.startDate = startDate;
-        this.endDate = endDate;
-        this.maxPerson = maxPerson;
-        this.meetingMethod = meetingMethod;
-        this.meetingArea = meetingArea;
-        this.questionMethod = questionMethod;
-        this.questionLink = questionLink;
-        this.isProject = isProject;
+    public Post(PostReq req) {
+        this.title = req.getTitle();
+        this.contents = req.getContents();
+        this.status = req.getStatus();
+        this.startDate = req.getStartDate();
+        this.endDate = req.getEndDate();
+        this.maxPerson = req.getMaxPerson();
+        this.meetingMethod = req.getMeetingMethod();
+        this.meetingArea = req.getMeetingArea();
+        this.questionMethod = req.isQuestionMethod();
+        this.questionLink = req.getQuestionLink();
+        this.isProject = req.isProject();
     }
+
+//    public Post(String title, String contents, PostStatus status, LocalDateTime startDate,
+//                LocalDateTime endDate, Long maxPerson, MeetingMethod meetingMethod, String meetingArea, boolean questionMethod,
+//                String questionLink, boolean isProject) {
+//        this.title = title;
+//        this.contents = contents;
+//        this.status = status;
+//        this.startDate = startDate;
+//        this.endDate = endDate;
+//        this.maxPerson = maxPerson;
+//        this.meetingMethod = meetingMethod;
+//        this.meetingArea = meetingArea;
+//        this.questionMethod = questionMethod;
+//        this.questionLink = questionLink;
+//        this.isProject = isProject;
+//    }
 
     public void modify(PostReq req) {
         this.title = req.getTitle();
@@ -91,5 +103,6 @@ public class Post extends BaseTimeEntity {
         this.meetingArea = req.getMeetingArea();
         this.questionMethod = req.isQuestionMethod();
         this.questionLink = req.getQuestionLink();
+        this.isProject = req.isProject();
     }
 }

@@ -25,7 +25,6 @@ public class PostRes {
     private boolean isProject;
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
-
     private LocalDateTime deletedAt;
 
     @Builder
@@ -33,7 +32,7 @@ public class PostRes {
                    Long maxPerson, MeetingMethod meetingMethod, String meetingArea, boolean questionMethod, String questionLink,
                    boolean isProject, LocalDateTime createdAt, LocalDateTime modifiedAt, LocalDateTime deletedAt) {
         this.postId = postId;
-        this.memberId = memberId;
+//        this.memberId = memberId;
         this.title = title;
         this.contents = contents;
         this.status = status;
