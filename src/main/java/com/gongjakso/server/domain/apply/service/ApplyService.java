@@ -10,11 +10,14 @@ import com.gongjakso.server.domain.member.entity.Member;
 import com.gongjakso.server.domain.post.entity.Post;
 import com.gongjakso.server.domain.post.repository.PostRepository;
 import com.gongjakso.server.global.common.ApplicationResponse;
+import com.gongjakso.server.global.exception.ApplicationException;
+import com.gongjakso.server.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
 import org.webjars.NotFoundException;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -27,11 +30,14 @@ public class ApplyService {
     public Apply save(Member member, Long post_id, ApplyReq req){
         Post post = postRepository.findByPostId(post_id);
         if (post == null) {
-            // Handle the case where the Post entity with the given post_id is not found
-            throw new NotFoundException("Post not found with id: " + post_id);
+            throw new ApplicationException(ErrorCode.NOT_FOUND_POST_EXCEPTION);
         }
-        Apply apply = req.toEntity(member, post);
-        return applyRepository.save(apply);
+        if(post.getEndDate().isAfter(LocalDateTime.now())){
+            throw new ApplicationException(ErrorCode.NOT_APPLY_EXCEPTION);
+        }else {
+            Apply apply = req.toEntity(member, post);
+            return applyRepository.save(apply);
+        }
     }
 
     public ApplicationResponse<ApplyRes> findApply(Long post_id){
@@ -56,17 +62,17 @@ public class ApplyService {
         }
     }
     public ApplicationResponse<Void> updateOpen(Long apply_id){
-        Apply apply = applyRepository.findById(apply_id).orElseThrow(()->new NotFoundException("Apply not found with id: " + apply_id));
+        Apply apply = applyRepository.findById(apply_id).orElseThrow(()->new ApplicationException(ErrorCode.NOT_FOUND_APPLY_EXCEPTION));
         apply.setIs_open(true);
         return ApplicationResponse.ok();
     }
     public ApplicationResponse<Void> updateRecruit(Long apply_id, Boolean isRecruit){
-        Apply apply = applyRepository.findById(apply_id).orElseThrow(()->new NotFoundException("Apply not found with id: " + apply_id));
+        Apply apply = applyRepository.findById(apply_id).orElseThrow(()->new ApplicationException(ErrorCode.NOT_FOUND_APPLY_EXCEPTION));
         apply.setIs_pass(isRecruit);
         return ApplicationResponse.ok();
     }
     public ApplicationResponse<ApplicationRes> findApplication(Long apply_id){
-        Apply apply = applyRepository.findById(apply_id).orElseThrow(()->new NotFoundException("Apply not found with id: " + apply_id));
+        Apply apply = applyRepository.findById(apply_id).orElseThrow(()->new ApplicationException(ErrorCode.NOT_FOUND_APPLY_EXCEPTION));
 //        ApplicationRes applicationRes = ApplicationRes.builder().application(apply.getApplication()).recruit_part(apply.getRecruit_part()).build();
         ApplicationRes applicationRes = ApplicationRes.of(apply);
         return ApplicationResponse.ok(applicationRes);
