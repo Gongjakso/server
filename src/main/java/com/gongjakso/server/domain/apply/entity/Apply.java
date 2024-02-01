@@ -2,26 +2,29 @@ package com.gongjakso.server.domain.apply.entity;
 
 import com.gongjakso.server.domain.apply.enumerate.PostType;
 import com.gongjakso.server.domain.member.entity.Member;
+import com.gongjakso.server.domain.post.entity.Post;
 import com.gongjakso.server.global.common.BaseTimeEntity;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Getter
+@Setter
 @Entity
 @Table(name = "apply")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Apply extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "list_id",nullable = false,columnDefinition = "bigint")
-    private Long listID;
+    @Column(name = "apply_id",nullable = false,columnDefinition = "bigint")
+    private Long applyId;
 
     @ManyToOne(targetEntity = Member.class, fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
     private Member member;
+
+    @ManyToOne(targetEntity = Post.class, fetch = FetchType.LAZY)
+    @JoinColumn(name = "post_id")
+    private Post post;
 
     @Column(name = "application",nullable = false,columnDefinition = "varchar(500)")
     private String application;
@@ -39,9 +42,10 @@ public class Apply extends BaseTimeEntity {
     private Boolean is_open;
 
     @Builder
-    public Apply(Long listID, Member member, String application,String recruit_part,PostType type, Boolean is_pass,Boolean is_open){
-        this.listID=listID;
+    public Apply(Long applyId, Member member,Post post, String application,String recruit_part,PostType type, Boolean is_pass,Boolean is_open){
+        this.applyId=applyId;
         this.member=member;
+        this.post=post;
         this.application=application;
         this.recruit_part=recruit_part;
         this.type=type;

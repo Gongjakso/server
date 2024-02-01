@@ -40,4 +40,12 @@ public record ApplicationResponse<T>(
                 .data(data)
                 .build();
     }
+
+    public static <T> ApplicationResponse<T> created() {
+        return ApplicationResponse.<T>builder()
+                .timestamp(LocalDateTime.now())
+                .code(ErrorCode.SUCCESS.getCode())
+                .message(ErrorCode.SUCCESS.getMessage())
+                .build();
+    }
 }
