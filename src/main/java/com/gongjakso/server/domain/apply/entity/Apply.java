@@ -41,8 +41,11 @@ public class Apply extends BaseTimeEntity {
     @Column(name = "is_open", columnDefinition = "boolean" )
     private Boolean is_open;
 
+    @Column(name = "is_decision", columnDefinition = "boolean" )
+    private Boolean is_decision;
+
     @Builder
-    public Apply(Long applyId, Member member,Post post, String application,String recruit_part,PostType type, Boolean is_pass,Boolean is_open){
+    public Apply(Long applyId, Member member,Post post, String application,String recruit_part,PostType type, Boolean is_pass,Boolean is_open,Boolean is_decision){
         this.applyId=applyId;
         this.member=member;
         this.post=post;
@@ -51,5 +54,6 @@ public class Apply extends BaseTimeEntity {
         this.type=type;
         this.is_pass=is_pass;
         this.is_open=is_open;
+        this.is_decision=is_decision;
     }
 }

@@ -10,7 +10,8 @@ public record ApplyReq(
         String recruit_part,
         String type,
         Boolean is_pass,
-        Boolean is_open
+        Boolean is_open,
+        Boolean is_decision
 ) {
     public Apply toEntity(Member member, Post post_id){
         return Apply.builder()
@@ -21,6 +22,7 @@ public record ApplyReq(
                 .type(PostType.valueOf(type))
                 .is_pass(false)
                 .is_open(false)
+                .is_decision(false)
                 .build();
     }
 }

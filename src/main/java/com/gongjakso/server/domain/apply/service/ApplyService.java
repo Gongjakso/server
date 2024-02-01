@@ -58,15 +58,20 @@ public class ApplyService {
         return ApplicationResponse.ok(applyRes);
     }
     private String decisionState(Apply apply){
-        if(apply.getIs_pass()) {
-            return "합류 완료";
+        if(apply.getIs_decision()){
+            if(apply.getIs_pass()) {
+                return "합류 완료";
+            }else {
+                return "미선발";
+            }
         }else {
             if(apply.getIs_open()){
                 return "열람 완료";
             }else {
-                return "미선발";
+                return "미열람";
             }
         }
+
     }
     public ApplicationResponse<Void> updateOpen(Long apply_id){
         Apply apply = applyRepository.findById(apply_id).orElseThrow(()->new ApplicationException(ErrorCode.NOT_FOUND_APPLY_EXCEPTION));
@@ -75,8 +80,14 @@ public class ApplyService {
     }
     public ApplicationResponse<Void> updateRecruit(Long apply_id, Boolean isRecruit){
         Apply apply = applyRepository.findById(apply_id).orElseThrow(()->new ApplicationException(ErrorCode.NOT_FOUND_APPLY_EXCEPTION));
-        apply.setIs_pass(isRecruit);
-        return ApplicationResponse.ok();
+        if(!apply.getIs_decision()){
+            apply.setIs_pass(isRecruit);
+            apply.setIs_decision(true);
+            return ApplicationResponse.ok();
+        }else {
+            throw new ApplicationException(ErrorCode.ALREADY_DECISION_EXCEPION);
+        }
+
     }
     public ApplicationResponse<ApplicationRes> findApplication(Long apply_id){
         Apply apply = applyRepository.findById(apply_id).orElseThrow(()->new ApplicationException(ErrorCode.NOT_FOUND_APPLY_EXCEPTION));
