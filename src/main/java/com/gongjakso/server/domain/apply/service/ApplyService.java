@@ -1,9 +1,6 @@
 package com.gongjakso.server.domain.apply.service;
 
-import com.gongjakso.server.domain.apply.dto.ApplyList;
-import com.gongjakso.server.domain.apply.dto.ApplyReq;
-import com.gongjakso.server.domain.apply.dto.ApplicationRes;
-import com.gongjakso.server.domain.apply.dto.ApplyRes;
+import com.gongjakso.server.domain.apply.dto.*;
 import com.gongjakso.server.domain.apply.entity.Apply;
 import com.gongjakso.server.domain.apply.repository.ApplyRepository;
 import com.gongjakso.server.domain.member.entity.Member;
@@ -48,7 +45,7 @@ public class ApplyService {
     }
 
     public ApplicationResponse<ApplyRes> findApply(Long post_id){
-        Post post = postRepository.findById(post_id).orElseThrow(()->new NotFoundException("Post not found with id: " + post_id));
+        Post post = postRepository.findById(post_id).orElseThrow(()->new ApplicationException(ErrorCode.NOT_FOUND_POST_EXCEPTION));
         int current_person = (int) applyRepository.countApplyByPost(post);
         List<Apply> applies = applyRepository.findAllByPost(post);
         List<ApplyList> applyLists = applies.stream()
@@ -89,6 +86,31 @@ public class ApplyService {
         }
 
     }
+//    public ApplicationResponse<Void> updatePostState(Long post_id,String state){
+//        Post post = postRepository.findById(post_id).orElseThrow(()->new ApplicationException(ErrorCode.NOT_FOUND_POST_EXCEPTION));
+//        if(post.getStatus()==RECRUITING){
+//            if(state.equals("close")){
+//                post.setStatus(PostStatus.CLOSE);
+//                return ApplicationResponse.ok();
+//            } else {
+//                post.setStatus(PostStatus.CANCEL);
+//                return ApplicationResponse.ok();
+//            }
+//        }else {
+//            throw new ApplicationException(ErrorCode.NOT_RECRUITING_EXCEPION);
+//        }
+//    }
+    public ApplicationResponse<Void> updatePostPeriod(Long post_id, PeriodReq req) {
+        Post post = postRepository.findById(post_id).orElseThrow(()->new ApplicationException(ErrorCode.NOT_FOUND_POST_EXCEPTION));
+        LocalDateTime extendedPeriod = post.getEndDate().plusDays(req.addDateNum());
+//        if(post.getStatus()==RECRUITING){
+            post.setEndDate(extendedPeriod);
+            return ApplicationResponse.ok();
+//        }else {
+//            throw new ApplicationException(ErrorCode.NOT_RECRUITING_EXCEPION);
+//        }
+    }
+
     public ApplicationResponse<ApplicationRes> findApplication(Long apply_id){
         Apply apply = applyRepository.findById(apply_id).orElseThrow(()->new ApplicationException(ErrorCode.NOT_FOUND_APPLY_EXCEPTION));
 //        ApplicationRes applicationRes = ApplicationRes.builder().application(apply.getApplication()).recruit_part(apply.getRecruit_part()).build();
