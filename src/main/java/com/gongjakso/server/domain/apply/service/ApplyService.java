@@ -88,6 +88,7 @@ public class ApplyService {
     }
 //    public ApplicationResponse<Void> updatePostState(Long post_id,String state){
 //        Post post = postRepository.findById(post_id).orElseThrow(()->new ApplicationException(ErrorCode.NOT_FOUND_POST_EXCEPTION));
+//        //공고 상태가 모집 중인지 판단
 //        if(post.getStatus()==RECRUITING){
 //            if(state.equals("close")){
 //                post.setStatus(PostStatus.CLOSE);
@@ -103,6 +104,7 @@ public class ApplyService {
     public ApplicationResponse<Void> updatePostPeriod(Long post_id, PeriodReq req) {
         Post post = postRepository.findById(post_id).orElseThrow(()->new ApplicationException(ErrorCode.NOT_FOUND_POST_EXCEPTION));
         LocalDateTime extendedPeriod = post.getEndDate().plusDays(req.addDateNum());
+//        //공고 상태가 모집 중인지 판단
 //        if(post.getStatus()==RECRUITING){
             post.setEndDate(extendedPeriod);
             return ApplicationResponse.ok();
