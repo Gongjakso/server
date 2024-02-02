@@ -42,9 +42,9 @@ public class ApplyController {
         return applyService.updateRecruit(applyId,false);
     }
     // 특정 지원자 지원서 가져오는 api
-    @GetMapping("/{apply_id}/application")
-    public ApplicationResponse<ApplicationRes> findApplication(@AuthenticationPrincipal PrincipalDetails principalDetails,@PathVariable("apply_id") Long applyId){
-        return applyService.findApplication(applyId);
+    @GetMapping("/{post_id}/{apply_id}/application")
+    public ApplicationResponse<ApplicationRes> findApplication(@AuthenticationPrincipal PrincipalDetails principalDetails,@PathVariable("apply_id") Long applyId,@PathVariable("post_id") Long postId){
+        return applyService.findApplication(applyId,postId);
     }
     //공고 카테고리 요청 api
     @GetMapping("/{post_id}/category")

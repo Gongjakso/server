@@ -137,10 +137,21 @@ public class ApplyService {
 //        }
     }
 
-    public ApplicationResponse<ApplicationRes> findApplication(Long apply_id){
+    public ApplicationResponse<ApplicationRes> findApplication(Long apply_id,Long post_id){
         Apply apply = applyRepository.findById(apply_id).orElseThrow(()->new ApplicationException(ErrorCode.NOT_FOUND_APPLY_EXCEPTION));
-//        ApplicationRes applicationRes = ApplicationRes.builder().application(apply.getApplication()).recruit_part(apply.getRecruit_part()).build();
-        ApplicationRes applicationRes = ApplicationRes.of(apply);
+        Post post = postRepository.findById(post_id).orElseThrow(()->new ApplicationException(ErrorCode.NOT_FOUND_POST_EXCEPTION));
+        List<Category> categoryList = categoryRepository.findCategoryByPost(post);
+        List<String> list = new ArrayList<>();
+        if(categoryList!=null) {
+            for (Category category : categoryList) {
+                for (int i = 0; i < category.getSize(); i++) {
+                    list.add(String.valueOf(category.getCategoryType()));
+                }
+            }
+        }else {
+            throw new ApplicationException(ErrorCode.NOT_FOUND_CATEGORY_EXCEPTION);
+        }
+        ApplicationRes applicationRes = ApplicationRes.of(apply,list);
         return ApplicationResponse.ok(applicationRes);
     }
 }
