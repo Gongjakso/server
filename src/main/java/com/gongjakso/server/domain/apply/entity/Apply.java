@@ -32,6 +32,9 @@ public class Apply extends BaseTimeEntity {
     @Column(name = "recruit_part",nullable = false,columnDefinition = "varchar(50)")
     private String recruit_part;
 
+    @Column(name = "recruit_role",columnDefinition = "varchar(50)")
+    private String recruit_role;
+
     @Enumerated(EnumType.STRING)
     private PostType type;
 
@@ -45,12 +48,13 @@ public class Apply extends BaseTimeEntity {
     private Boolean is_decision;
 
     @Builder
-    public Apply(Long applyId, Member member,Post post, String application,String recruit_part,PostType type, Boolean is_pass,Boolean is_open,Boolean is_decision){
+    public Apply(Long applyId, Member member,Post post, String application,String recruit_part,String recruit_role,PostType type, Boolean is_pass,Boolean is_open,Boolean is_decision){
         this.applyId=applyId;
         this.member=member;
         this.post=post;
         this.application=application;
         this.recruit_part=recruit_part;
+        this.recruit_role=recruit_role;
         this.type=type;
         this.is_pass=is_pass;
         this.is_open=is_open;
