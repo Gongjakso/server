@@ -34,7 +34,8 @@ public enum ErrorCode {
     ALREADY_APPLY_EXCEPTION(HttpStatus.BAD_REQUEST,4003,"이미 지원했습니다."),
     ALREADY_DECISION_EXCEPION(HttpStatus.BAD_REQUEST,4004,"이미 지원 결정했습니다."),
     NOT_RECRUITING_EXCEPION(HttpStatus.BAD_REQUEST,4005,"이 공고는 모집 중이 아닙니다."),
-    NOT_FOUND_CATEGORY_EXCEPTION(HttpStatus.NOT_FOUND,4006,"카테고리가 없습니다");
+    NOT_FOUND_CATEGORY_EXCEPTION(HttpStatus.NOT_FOUND,4006,"카테고리가 없습니다"),
+    OVER_APPLY_EXCEPTION(HttpStatus.NOT_FOUND,4007,"지원 파트 정원이 찼습니다.");
 
     private final HttpStatus httpStatus;
     private final Integer code;

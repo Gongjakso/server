@@ -6,6 +6,7 @@ import com.gongjakso.server.domain.apply.repository.ApplyRepository;
 import com.gongjakso.server.domain.member.entity.Member;
 import com.gongjakso.server.domain.post.entity.Category;
 import com.gongjakso.server.domain.post.entity.Post;
+import com.gongjakso.server.domain.post.enumerate.CategoryType;
 import com.gongjakso.server.domain.post.repository.CategoryRepository;
 import com.gongjakso.server.domain.post.repository.PostRepository;
 import com.gongjakso.server.global.common.ApplicationResponse;
@@ -40,7 +41,13 @@ public class ApplyService {
                     throw new ApplicationException(ErrorCode.NOT_APPLY_EXCEPTION);
                 }else {
                     Apply apply = req.toEntity(member, post);
-                    return applyRepository.save(apply);
+                    Category category = categoryRepository.findCategoryByPostAndCategoryType(post, CategoryType.valueOf(req.recruit_part()));
+                    if(category.getSize()-1<=0){
+                        throw new ApplicationException(ErrorCode.OVER_APPLY_EXCEPTION);
+                    }else {
+                        category.setSize(category.getSize()-1);
+                        return applyRepository.save(apply);
+                    }
                 }
             }else {
                 throw new ApplicationException(ErrorCode.ALREADY_APPLY_EXCEPTION);

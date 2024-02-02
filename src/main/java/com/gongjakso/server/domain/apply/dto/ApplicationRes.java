@@ -10,9 +10,9 @@ public record ApplicationRes(
         Boolean is_decision,
         String application,
         String recruit_part,
-        List<String> list
+        List<String> category
 ) {
-    public static ApplicationRes of(Apply apply,List<String> list){
-        return new ApplicationRes(apply.getIs_decision(),apply.getApplication(), apply.getRecruit_part(),list);
+    public static ApplicationRes of(Apply apply,List<String> category){
+        return new ApplicationRes(apply.getIs_decision(),apply.getApplication(), apply.getRecruit_part(),category);
     }
 }
