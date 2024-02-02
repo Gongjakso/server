@@ -4,7 +4,9 @@ import com.gongjakso.server.domain.apply.dto.*;
 import com.gongjakso.server.domain.apply.entity.Apply;
 import com.gongjakso.server.domain.apply.repository.ApplyRepository;
 import com.gongjakso.server.domain.member.entity.Member;
+import com.gongjakso.server.domain.post.entity.Category;
 import com.gongjakso.server.domain.post.entity.Post;
+import com.gongjakso.server.domain.post.repository.CategoryRepository;
 import com.gongjakso.server.domain.post.repository.PostRepository;
 import com.gongjakso.server.global.common.ApplicationResponse;
 import com.gongjakso.server.global.exception.ApplicationException;
@@ -15,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.webjars.NotFoundException;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -24,6 +27,7 @@ import java.util.stream.Collectors;
 public class ApplyService {
     private final ApplyRepository applyRepository;
     private final PostRepository postRepository;
+    private final CategoryRepository categoryRepository;
     public Apply save(Member member, Long post_id, ApplyReq req){
         Post post = postRepository.findByPostId(post_id);
         if (post == null) {
@@ -53,6 +57,26 @@ public class ApplyService {
                 .collect(Collectors.toList());
         ApplyRes applyRes = ApplyRes.of(post,current_person,applyLists);
         return ApplicationResponse.ok(applyRes);
+    }
+    public ApplicationResponse<CategoryRes> findPostCategory(Long post_id){
+        Post post = postRepository.findByPostId(post_id);
+        if (post == null) {
+            throw new ApplicationException(ErrorCode.NOT_FOUND_POST_EXCEPTION);
+        }else {
+            List<Category> categoryList = categoryRepository.findCategoryByPost(post);
+            List<String> list = new ArrayList<>();
+            if(categoryList!=null){
+                for (Category category : categoryList){
+                    for(int i=0;i<category.getSize();i++){
+                        list.add(String.valueOf(category.getCategoryType()));
+                    }
+                }
+                CategoryRes categoryRes = new CategoryRes(list);
+                return ApplicationResponse.ok(categoryRes);
+            }else {
+                throw new ApplicationException(ErrorCode.NOT_FOUND_CATEGORY_EXCEPTION);
+            }
+        }
     }
     private String decisionState(Apply apply){
         if(apply.getIs_decision()){

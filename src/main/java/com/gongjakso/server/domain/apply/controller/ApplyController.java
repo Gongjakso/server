@@ -1,9 +1,6 @@
 package com.gongjakso.server.domain.apply.controller;
 
-import com.gongjakso.server.domain.apply.dto.ApplyReq;
-import com.gongjakso.server.domain.apply.dto.ApplicationRes;
-import com.gongjakso.server.domain.apply.dto.ApplyRes;
-import com.gongjakso.server.domain.apply.dto.PeriodReq;
+import com.gongjakso.server.domain.apply.dto.*;
 import com.gongjakso.server.domain.apply.service.ApplyService;
 import com.gongjakso.server.global.common.ApplicationResponse;
 import com.gongjakso.server.global.security.PrincipalDetails;
@@ -48,6 +45,11 @@ public class ApplyController {
     @GetMapping("/{apply_id}/application")
     public ApplicationResponse<ApplicationRes> findApplication(@AuthenticationPrincipal PrincipalDetails principalDetails,@PathVariable("apply_id") Long applyId){
         return applyService.findApplication(applyId);
+    }
+    //공고 카테고리 요청 api
+    @GetMapping("/{post_id}/category")
+    public ApplicationResponse<CategoryRes> getCategory(@PathVariable("post_id") Long postId){
+        return applyService.findPostCategory(postId);
     }
 //    //공고 마감 요청 api
 //    @PatchMapping("/{post_id}/close")
