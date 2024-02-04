@@ -1,6 +1,6 @@
-package com.gongjakso.server.domain.setting.entity;
+package com.gongjakso.server.domain.banner.entity;
 
-import com.gongjakso.server.domain.setting.enumerate.DomainType;
+import com.gongjakso.server.domain.banner.enumerate.DomainType;
 import com.gongjakso.server.global.common.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -10,14 +10,14 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @Entity
-@Table(name = "setting")
+@Table(name = "banner")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Setting extends BaseTimeEntity {
+public class Banner extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "setting_id", nullable = false, columnDefinition = "bigint")
-    private Long settingId;
+    @Column(name = "banner_id", nullable = false, columnDefinition = "bigint")
+    private Long bannerId;
 
     @Column(name = "domain_type", columnDefinition = "varchar(100)")
     @Enumerated(EnumType.STRING)
@@ -29,10 +29,18 @@ public class Setting extends BaseTimeEntity {
     @Column(name = "link_url", columnDefinition = "text")
     private String linkUrl;
 
+    @Column(name = "priority", nullable = false, columnDefinition = "int")
+    private Integer priority;
+
+    @Column(name = "is_post", nullable = false, columnDefinition = "tinyint")
+    private Boolean isPost;
+
     @Builder
-    public Setting(String domainType, String imageUrl, String linkUrl) {
+    public Banner(String domainType, String imageUrl, String linkUrl, Integer priority) {
         this.domainType = DomainType.valueOf(domainType);
         this.imageUrl = imageUrl;
         this.linkUrl = linkUrl;
+        this.priority = priority;
+        this.isPost = Boolean.TRUE;
     }
 }
