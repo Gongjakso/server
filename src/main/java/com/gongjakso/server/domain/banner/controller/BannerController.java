@@ -14,7 +14,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/setting")
+@RequestMapping("/api/v1/banner")
 @Tag(name = "Banner", description = "메인 페이지, 공고 페이지 등의 배너 이미지 정보 반환 API")
 public class BannerController {
 
