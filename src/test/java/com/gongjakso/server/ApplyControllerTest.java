@@ -30,7 +30,7 @@ public class ApplyControllerTest {
     }
     @AfterEach
     public void cleanUp(){
-//        ApplyRepository.deleteAll();
+        applyRepository.deleteAll();
     }
 
     @DisplayName("createApply : 지원하기에 성공한다.")
@@ -38,5 +38,6 @@ public class ApplyControllerTest {
     public void createApply() throws Exception{
         final String url = "/api/v1/apply/1";
 //        Apply savedApply = applyRepository.save(new Apply(1L, ))
+
     }
 }

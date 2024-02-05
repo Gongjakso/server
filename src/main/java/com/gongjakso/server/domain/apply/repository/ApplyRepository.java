@@ -11,4 +11,7 @@ public interface ApplyRepository extends JpaRepository<Apply,Long> {
     long countApplyByPost(Post post);
     List<Apply> findAllByPost(Post post);
     boolean existsApplyByMemberAndPost(Member member,Post post);
+
+    @Override
+    void deleteAll();
 }
