@@ -33,7 +33,7 @@ public class BannerController {
     }
 
     @Operation(description = "공모전 공고 페이지 배너 리스트 반환")
-    @GetMapping("/project")
+    @GetMapping("/content")
     public ApplicationResponse<List<BannerRes>> getContestImageList() {
         return ApplicationResponse.ok(bannerService.getContestImageList());
     }
