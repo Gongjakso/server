@@ -41,13 +41,7 @@ public class ApplyService {
                     throw new ApplicationException(ErrorCode.NOT_APPLY_EXCEPTION);
                 }else {
                     Apply apply = req.toEntity(member, post);
-                    Category category = categoryRepository.findCategoryByPostAndCategoryType(post, CategoryType.valueOf(req.recruit_part()));
-                    if(category.getSize()-1<=0){
-                        throw new ApplicationException(ErrorCode.OVER_APPLY_EXCEPTION);
-                    }else {
-                        category.setSize(category.getSize()-1);
-                        return applyRepository.save(apply);
-                    }
+                    return applyRepository.save(apply);
                 }
             }else {
                 throw new ApplicationException(ErrorCode.ALREADY_APPLY_EXCEPTION);
@@ -111,7 +105,16 @@ public class ApplyService {
         if(!apply.getIs_decision()){
             apply.setIs_pass(isRecruit);
             apply.setIs_decision(true);
-            return ApplicationResponse.ok();
+            Post post = apply.getPost();
+            //지원 파트 size 감소
+            Category category = categoryRepository.findCategoryByPostAndCategoryType(post, CategoryType.valueOf(apply.getRecruit_part()));
+            System.out.println("null"+",post:"+post+",categroy:"+apply.getRecruit_part());
+            if(category.getSize()-1<=0){
+                throw new ApplicationException(ErrorCode.OVER_APPLY_EXCEPTION);
+            }else {
+                category.setSize(category.getSize()-1);
+                return ApplicationResponse.ok();
+            }
         }else {
             throw new ApplicationException(ErrorCode.ALREADY_DECISION_EXCEPION);
         }
