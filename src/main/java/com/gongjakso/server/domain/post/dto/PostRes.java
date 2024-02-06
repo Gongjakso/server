@@ -25,7 +25,6 @@ public class PostRes {
     private boolean postType;
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
-
     private LocalDateTime deletedAt;
 
     @Builder
