@@ -2,9 +2,11 @@ package com.gongjakso.server.domain.post.dto;
 
 import com.gongjakso.server.domain.post.enumerate.PostStatus;
 import lombok.Builder;
+import lombok.Getter;
 
 import java.time.LocalDateTime;
 
+@Getter
 public class GetProjectRes {
     private Long postId;
     private String title;
@@ -13,6 +15,7 @@ public class GetProjectRes {
     private LocalDateTime startDate;
 
     private LocalDateTime finishDate;
+
 
     @Builder
     public GetProjectRes(Long postId, String title, String name, PostStatus status, LocalDateTime startDate, LocalDateTime finishDate){
