@@ -15,9 +15,8 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     //Page<Post> findByCategory(StackName stackname, Pageable pageable);
     Post findByPostId(Long postId); //applyService
     @Query("SELECT new com.gongjakso.server.domain.post.dto.GetProjectRes(p.postId, p.title, m.name, p.status, p.startDate, p.finishDate) " +
-            "FROM Post p JOIN p.member m")
+            "FROM Post p JOIN p.member m WHERE p.postType = true")
     Page<GetProjectRes> findAllProjects(Pageable pageable);
-
 
     Optional<Post> findByPostIdAndDeletedAtIsNull(Long postId);
 }
