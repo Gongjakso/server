@@ -68,8 +68,6 @@ public class Post extends BaseTimeEntity {
     @Column(name = "post_type", nullable = false, columnDefinition = "tinyint")
     private boolean postType;
 
-
-
     @Builder
     public Post(String title, Member member, String contents, PostStatus status, LocalDateTime startDate,
                 LocalDateTime endDate, LocalDateTime finishDate, Long maxPerson, MeetingMethod meetingMethod,

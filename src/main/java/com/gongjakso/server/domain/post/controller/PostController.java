@@ -30,4 +30,12 @@ public class PostController {
     public ApplicationResponse<PostDeleteRes> delete(@AuthenticationPrincipal PrincipalDetails principalDetails, @PathVariable("id") Long id){
         return ApplicationResponse.ok(postService.delete(principalDetails.getMember(), id));
     }
+
+    /*
+
+    @GetMapping("/project")
+    public ApplicationResponse<Page<GetProjectRes>> list(@PageableDefault(size = 6, sort = "created_at") Pageable pageable) {
+        return ApplicationResponse.ok(postService.getProjects(pageable));
+    }
+    */
 }

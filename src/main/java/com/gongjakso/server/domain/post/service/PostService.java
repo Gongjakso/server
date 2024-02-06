@@ -102,11 +102,15 @@ public class PostService {
             return postRepository.findAll(page).map(projects -> new GetProjectRes(
                     projects.getPostId(),
                     projects.getTitle(),
-                    projects.getMeetingArea());
-        } catch (Exception e) {
+                    projects.getMeetingArea(),
+                    projects.getStatus(),
+                    projects.getStartDate(),
+                    projects.getFinishDate()
+            ));} catch (Exception e) {
+            e.printStackTrace();
             throw new ApplicationException(INVALID_VALUE_EXCEPTION);
         }
     }
+    */
 
-*/
 }
