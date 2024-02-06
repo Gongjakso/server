@@ -1,6 +1,8 @@
 package com.gongjakso.server.domain.post.service;
 
 import com.gongjakso.server.domain.member.entity.Member;
+import com.gongjakso.server.domain.post.common.Pagination;
+import com.gongjakso.server.domain.post.dto.GetProjectRes;
 import com.gongjakso.server.domain.post.dto.PostDeleteRes;
 import com.gongjakso.server.domain.post.dto.PostReq;
 import com.gongjakso.server.domain.post.dto.PostRes;
@@ -8,11 +10,13 @@ import com.gongjakso.server.domain.post.entity.Post;
 import com.gongjakso.server.domain.post.repository.PostRepository;
 import com.gongjakso.server.global.exception.ApplicationException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import static com.gongjakso.server.global.exception.ErrorCode.NOT_FOUND_EXCEPTION;
-import static com.gongjakso.server.global.exception.ErrorCode.UNAUTHORIZED_EXCEPTION;
+import static com.gongjakso.server.global.exception.ErrorCode.*;
 
 
 @Service
@@ -96,21 +100,30 @@ public class PostService {
                 .build();
     }
 
-    /*
-    public Page<GetProjectRes> getProjects(Pageable page) throws ApplicationException {
+
+    public Page<GetProjectRes> getProjects(int page, int size) throws ApplicationException {
         try {
-            return postRepository.findAll(page).map(projects -> new GetProjectRes(
-                    projects.getPostId(),
-                    projects.getTitle(),
-                    projects.getMeetingArea(),
-                    projects.getStatus(),
-                    projects.getStartDate(),
-                    projects.getFinishDate()
-            ));} catch (Exception e) {
+            Pagination pagination = new Pagination((int) postRepository.count(), page, size);
+            System.out.println("Total Count: " + postRepository.count());
+
+            // Pageable 인덱스 조정
+            Pageable pageable = PageRequest.of(pagination.getPage(), size);
+
+            return postRepository.findAllProjects(pageable).map(post -> new GetProjectRes(
+                    post.getPostId(),
+                    post.getTitle(),
+                    post.getName(),
+                    post.getStatus(),
+                    post.getStartDate(),
+                    post.getFinishDate()
+            ));
+        } catch (Exception e) {
             e.printStackTrace();
             throw new ApplicationException(INVALID_VALUE_EXCEPTION);
         }
     }
-    */
+
+
+
 
 }
