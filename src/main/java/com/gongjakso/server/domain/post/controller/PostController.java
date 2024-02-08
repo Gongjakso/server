@@ -1,10 +1,12 @@
 package com.gongjakso.server.domain.post.controller;
 
 import com.gongjakso.server.domain.member.entity.Member;
+import com.gongjakso.server.domain.post.dto.PostDeleteRes;
 import com.gongjakso.server.domain.post.dto.PostReq;
 import com.gongjakso.server.domain.post.dto.PostRes;
 import com.gongjakso.server.domain.post.entity.Post;
 import com.gongjakso.server.domain.post.service.PostService;
+import com.gongjakso.server.global.common.ApplicationResponse;
 import com.gongjakso.server.global.security.PrincipalDetails;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -25,19 +27,17 @@ public class PostController {
     public ApplicationResponse<PostRes> create(@AuthenticationPrincipal PrincipalDetails principalDetails, @RequestBody PostReq req) {
         return ApplicationResponse.ok(postService.create(principalDetails.getMember(), req));
     }
-    @PutMapping("/{id}")
-    public ApplicationResponse<PostRes> modify(@AuthenticationPrincipal PrincipalDetails principalDetails, @PathVariable("id") Long id, @RequestBody PostReq req) {
-        return ApplicationResponse.ok(postService.modify(principalDetails.getMember(), id, req));
-    }
 
     @GetMapping("/{id}")
     public ResponseEntity<PostRes> read(@AuthenticationPrincipal PrincipalDetails principalDetails, @PathVariable("id") Long id) {
         return ResponseEntity.ok(postService.read(principalDetails.getMember(), id));
     }
 
-    @PutMapping("/?{id}")
-    public ResponseEntity<PostRes> modify(@PathVariable("id") Long id, @RequestBody PostReq req) {
-        return ResponseEntity.ok(postService.modify(id, req));
+    @PutMapping("/{id}")
+    public ApplicationResponse<PostRes> modify(@AuthenticationPrincipal PrincipalDetails principalDetails, @PathVariable("id") Long id, @RequestBody PostReq req) {
+        return ApplicationResponse.ok(postService.modify(principalDetails.getMember(), id, req));
+    }
+
     @PatchMapping("/{id}")
     public ApplicationResponse<PostDeleteRes> delete(@AuthenticationPrincipal PrincipalDetails principalDetails, @PathVariable("id") Long id){
         return ApplicationResponse.ok(postService.delete(principalDetails.getMember(), id));
