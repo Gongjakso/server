@@ -10,6 +10,7 @@ import com.gongjakso.server.domain.member.entity.Member;
 import com.gongjakso.server.domain.post.entity.Post;
 import com.gongjakso.server.domain.post.repository.PostRepository;
 import com.gongjakso.server.global.common.ApplicationResponse;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
