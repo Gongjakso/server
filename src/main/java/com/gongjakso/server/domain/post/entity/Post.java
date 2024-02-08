@@ -89,6 +89,20 @@ public class Post extends BaseTimeEntity {
         this.postType = postType;
     }
 
+    public void read(PostReq req) {
+        this.title = req.getTitle();
+        this.contents = req.getContents();
+        this.status = req.getStatus();
+        this.startDate = req.getStartDate();
+        this.endDate = req.getEndDate();
+        this.maxPerson = req.getMaxPerson();
+        this.meetingMethod = req.getMeetingMethod();
+        this.meetingArea = req.getMeetingArea();
+        this.questionMethod = req.isQuestionMethod();
+        this.questionLink = req.getQuestionLink();
+        this.isProject = req.isProject();
+    }
+
     public void modify(PostReq req) {
         this.title = req.getTitle();
         this.contents = req.getContents();
