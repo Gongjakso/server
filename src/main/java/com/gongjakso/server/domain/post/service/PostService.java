@@ -2,6 +2,7 @@ package com.gongjakso.server.domain.post.service;
 
 import com.gongjakso.server.domain.member.entity.Member;
 import com.gongjakso.server.domain.member.repository.MemberRepository;
+import com.gongjakso.server.domain.post.dto.PostDeleteRes;
 import com.gongjakso.server.domain.post.dto.PostReq;
 import com.gongjakso.server.domain.post.dto.PostRes;
 import com.gongjakso.server.domain.post.entity.Post;
@@ -16,40 +17,36 @@ import org.springframework.transaction.annotation.Transactional;
 import static com.gongjakso.server.global.exception.ErrorCode.NOT_FOUND_EXCEPTION;
 import static com.gongjakso.server.global.exception.ErrorCode.UNAUTHORIZED_EXCEPTION;
 
-
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class PostService {
-    private final PostRepository postRepository;
 
+    private final PostRepository postRepository;
 
     @Transactional
     public PostRes create(Member member, PostReq req) {
-        Post entity = new Post(req.getTitle(), member, req.getContents(), req.getStatus(), req.getStartDate(), req.getEndDate(),
-                req.getFinishDate(), req.getMaxPerson(), req.getMeetingMethod(), req.getMeetingArea(),  req.isQuestionMethod(),
-                req.getQuestionLink(), req.isPostType());
-
-        postRepository.save(entity);
+        Post post = new Post(member, req);
+        postRepository.save(post);
 
         return PostRes.builder()
-                .postId(entity.getPostId())
-                .memberId(entity.getMember().getMemberId())
-                .title(entity.getTitle())
-                .contents(entity.getContents())
-                .status(entity.getStatus())
-                .startDate(entity.getStartDate())
-                .endDate(entity.getEndDate())
-                .finishDate(entity.getFinishDate())
-                .maxPerson(entity.getMaxPerson())
-                .meetingMethod(entity.getMeetingMethod())
-                .meetingArea(entity.getMeetingArea())
-                .questionMethod(entity.isQuestionMethod())
-                .questionLink(entity.getQuestionLink())
-                .postType(entity.isPostType())
-                .createdAt(entity.getCreatedAt())
-                .modifiedAt(entity.getModifiedAt())
-                .deletedAt(entity.getDeletedAt())
+                .postId(post.getPostId())
+                .memberId(post.getMember().getMemberId())
+                .title(post.getTitle())
+                .contents(post.getContents())
+                .status(post.getStatus())
+                .startDate(post.getStartDate())
+                .endDate(post.getEndDate())
+                .finishDate(post.getFinishDate())
+                .maxPerson(post.getMaxPerson())
+                .meetingMethod(post.getMeetingMethod())
+                .meetingArea(post.getMeetingArea())
+                .questionMethod(post.isQuestionMethod())
+                .questionLink(post.getQuestionLink())
+                .postType(post.isPostType())
+                .createdAt(post.getCreatedAt())
+                .modifiedAt(post.getModifiedAt())
+                .deletedAt(post.getDeletedAt())
                 .build();
     }
 
@@ -75,7 +72,7 @@ public class PostService {
                 .meetingArea(post.getMeetingArea())
                 .questionMethod(post.isQuestionMethod())
                 .questionLink(post.getQuestionLink())
-                .isProject(post.isProject())
+                .postType(post.isPostType())
                 .createdAt(post.getCreatedAt())
                 .modifiedAt(post.getModifiedAt())
                 .deletedAt(post.getDeletedAt())
@@ -111,9 +108,7 @@ public class PostService {
                 .modifiedAt(entity.getModifiedAt())
                 .deletedAt(entity.getDeletedAt())
                 .build();
-
     }
-
 
     @Transactional
     public PostDeleteRes delete(Member member, Long id) {
@@ -138,12 +133,5 @@ public class PostService {
             throw new ApplicationException(INVALID_VALUE_EXCEPTION);
         }
     }
-
-//    // 멤버 유효성 판단
-//    private void validateMemberId(Member member) {
-//        Optional<Member> optionalMember = memberRepository.findMemberById(member.getMemberId());
-//        if (optionalMember.isEmpty()) {
-//            throw new IllegalArgumentException("존재하지 않는 멤버 ID입니다.");
-//        }
-//    }
+    */
 }
