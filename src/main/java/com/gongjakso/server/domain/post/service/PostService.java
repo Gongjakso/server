@@ -6,6 +6,7 @@ import com.gongjakso.server.domain.post.dto.PostReq;
 import com.gongjakso.server.domain.post.dto.PostRes;
 import com.gongjakso.server.domain.post.entity.Post;
 import com.gongjakso.server.domain.post.repository.PostRepository;
+import io.github.classgraph.PackageInfo;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -23,6 +24,32 @@ public class PostService {
 //        validateMemberId(memberId);
         Post post = new Post(member, req);
         postRepository.save(post);
+        return PostRes.builder()
+                .postId(post.getPostId())
+                .memberId(post.getMember().getMemberId())
+                .title(post.getTitle())
+                .contents(post.getContents())
+                .status(post.getStatus())
+                .startDate(post.getStartDate())
+                .endDate(post.getEndDate())
+                .maxPerson(post.getMaxPerson())
+                .meetingMethod(post.getMeetingMethod())
+                .meetingArea(post.getMeetingArea())
+                .questionMethod(post.isQuestionMethod())
+                .questionLink(post.getQuestionLink())
+                .isProject(post.isProject())
+                .createdAt(post.getCreatedAt())
+                .modifiedAt(post.getModifiedAt())
+                .deletedAt(post.getDeletedAt())
+                .build();
+    }
+
+    @Transactional
+    public PostRes read(Long id, PostReq req) {
+        Post post = postRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException());
+        post.read(req);
+
         return PostRes.builder()
                 .postId(post.getPostId())
                 .memberId(post.getMember().getMemberId())

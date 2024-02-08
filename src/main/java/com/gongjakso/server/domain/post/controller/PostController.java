@@ -31,6 +31,11 @@ public class PostController {
         return ResponseEntity.ok(postService.create(principalDetails.getMember(), req));
     }
 
+    @GetMapping("/?{post_id}")
+    public ResponseEntity<PostRes> read(@PathVariable("id") Long id, @RequestBody PostReq req) {
+        return ResponseEntity.ok(postService.read(id, req));
+    }
+
     @PutMapping("/?{id}")
     public ResponseEntity<PostRes> modify(@PathVariable("id") Long id, @RequestBody PostReq req) {
         return ResponseEntity.ok(postService.modify(id, req));
