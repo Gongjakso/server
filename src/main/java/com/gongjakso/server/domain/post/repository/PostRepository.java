@@ -7,8 +7,7 @@ import java.util.Optional;
 
 public interface PostRepository extends JpaRepository<Post, Long> {
     //Page<Post> findAll(Pageable pageable); //전체 조회(페이징)
-
     //Page<Post> findByCategory(StackName stackname, Pageable pageable);
-
+    Post findByPostId(Long post_id);
     Optional<Post> findByPostIdAndDeletedAtIsNull(Long postId);
 }
