@@ -39,7 +39,38 @@ public class PostController {
     }
 
     @GetMapping("/project")
-    public ApplicationResponse<Page<GetProjectRes>> list(@PageableDefault(size = 6) Pageable pageable) {
-        return ApplicationResponse.ok(postService.getProjects(pageable.getPageNumber(), pageable.getPageSize()));
+    public ApplicationResponse<Page<GetProjectRes>> list(@PageableDefault(size = 6) Pageable pageable,
+                                                         @RequestParam(value = "searchWord", required = false) String searchWord) {
+        try {
+            if (!searchWord.isBlank()) {
+                return ApplicationResponse.ok(postService.getProjectsBySearchWord(searchWord, pageable));
+                /*
+                if (stackName.isBlank() && location.isBlank()) {
+                    return new ApplicationResponse<>(postService.getProjectsBySearchWord(searchWord, pageable));
+                } else if (!stackName.isBlank() && location.isBlank()) {
+                    return new ApplicationResponse<>(postService.getProjectsByStackNameAndSearchWord(stackName, searchWord, pageable));
+                } else if (stackName.isBlank() && !location.isBlank()) {
+                    return new ApplicationResponse<>(postService.getProjectsByLocationAndSearchWord(location,searchWord, pageable));
+                } else {
+                    return new ApplicationResponse<>(postService.getProjectsByLocationAndStackNameAndSearchWord(location, stackName, searchWord, pageable));
+                }
+                 */
+            } else {
+                return ApplicationResponse.ok(postService.getProjectsBySearchWord(searchWord, pageable));
+                /*
+                if (stackName.isBlank() && location.isBlank()) {
+                    return ApplicationResponse.ok(postService.getProjects(pageable));
+                } else if (!stackName.isBlank() && location.isBlank()) {
+                    return new ApplicationResponse<>(postService.getProjectsByStackName(stackName, pageable));
+                } else if (stackName.isBlank() && !location.isBlank()) {
+                    return new ApplicationResponse<>(postService.getProjectsByLocation(location, pageable));
+                } else {
+                    return new ApplicationResponse<>(postService.getProjectsLocationAndStackName(location, stackName, pageable));
+                }
+                 */
+            }
+        } catch (Exception e) {
+            return ApplicationResponse.ok(postService.getProjectsBySearchWord(searchWord, pageable));
+        }
     }
 }
