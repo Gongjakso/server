@@ -18,14 +18,14 @@ public class GetProjectRes {
 
     @Builder
     public GetProjectRes(Long postId, String title, String name, PostStatus status, LocalDateTime startDate,
-                         LocalDateTime finishDate, long daysRemaining){
+                         LocalDateTime finishDate){
         this.postId = postId;
         this.title = title;
         this.name = name;
         this.status = status;
         this.startDate = startDate;
         this.finishDate = finishDate;
-        this.daysRemaining = daysRemaining;
+        this.daysRemaining = getDaysRemaining();
     }
     // 파트명
     // 스크랩 횟수
