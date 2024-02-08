@@ -13,6 +13,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.SQLDelete;
 
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 
 @Getter
 @Entity
@@ -68,6 +69,9 @@ public class Post extends BaseTimeEntity {
     @Column(name = "post_type", nullable = false, columnDefinition = "tinyint")
     private boolean postType;
 
+    @Column(name = "days_remaining", nullable = false, columnDefinition = "bigint")
+    private long daysRemaining;
+
     @Builder
     public Post(String title, Member member, String contents, PostStatus status, LocalDateTime startDate,
                 LocalDateTime endDate, LocalDateTime finishDate, Long maxPerson, MeetingMethod meetingMethod,
@@ -85,6 +89,7 @@ public class Post extends BaseTimeEntity {
         this.questionMethod = questionMethod;
         this.questionLink = questionLink;
         this.postType = postType;
+        this.daysRemaining = finishDate.isBefore(LocalDateTime.now()) ? -1 : ChronoUnit.DAYS.between(LocalDateTime.now(), finishDate);
     }
 
     public void modify(PostReq req) {
@@ -100,6 +105,6 @@ public class Post extends BaseTimeEntity {
         this.questionMethod = req.isQuestionMethod();
         this.questionLink = req.getQuestionLink();
         this.postType = req.isPostType();
+        this.daysRemaining = finishDate.isBefore(LocalDateTime.now()) ? -1 : ChronoUnit.DAYS.between(LocalDateTime.now(), finishDate);
     }
-
 }
