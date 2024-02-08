@@ -128,18 +128,23 @@ public class PostService {
 
     public Page<GetProjectRes> getProjectsBySearchWord(String searchWord, Pageable page) throws ApplicationException {
         try {
-            searchWord = searchWord.replace(" ", ""); // 검색어에서 공백 제거
-            boolean searchResultExists = postRepository.existsByTitleContainingIgnoreCaseAndDeletedAtIsNull(searchWord);
-            if (!searchWord.isBlank() && searchResultExists) {
-                Page<Post> posts = postRepository.findBySearchWord(searchWord.toLowerCase(), page);
+            searchWord = searchWord.replaceAll(" ", ""); // 검색어에서 공백 제거
+
+            if (!searchWord.isBlank()) {
+
+                Page<GetProjectRes> posts = postRepository.findBySearchWord(searchWord.toLowerCase(), page);
+
+                //검색 결과가 없는 경우 코드 작성 필요
+
                 return posts.map(post -> new GetProjectRes(
                         post.getPostId(),
                         post.getTitle(),
-                        post.getMember().getName(),
+                        post.getName(),
                         post.getStatus(),
                         post.getStartDate(),
                         post.getFinishDate()
                 ));
+
             } else {
                 Pagination pagination = new Pagination((int) postRepository.count(), page.getPageNumber(), page.getPageSize());
                 System.out.println("Total Count: " + postRepository.count());
@@ -157,6 +162,7 @@ public class PostService {
                 ));
             }
         } catch (Exception e) {
+            e.printStackTrace();
             throw new ApplicationException(INVALID_VALUE_EXCEPTION);
         }
     }
