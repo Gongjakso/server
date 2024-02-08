@@ -30,7 +30,7 @@ public class Post extends BaseTimeEntity {
     @JoinColumn(name = "member_id")
     private Member member;
 
-    @Column(name = "title", nullable = false, columnDefinition = "varchar(20)")
+    @Column(name = "title", nullable = false, columnDefinition = "varchar(40)")
     private String title;
 
     @Column(name = "contents", nullable = false, columnDefinition = "varchar(500)")
@@ -68,39 +68,21 @@ public class Post extends BaseTimeEntity {
     @Column(name = "post_type", nullable = false, columnDefinition = "tinyint")
     private boolean postType;
 
-
-
     @Builder
-    public Post(String title, Member member, String contents, PostStatus status, LocalDateTime startDate,
-                LocalDateTime endDate, LocalDateTime finishDate, Long maxPerson, MeetingMethod meetingMethod,
-                String meetingArea, boolean questionMethod, String questionLink, boolean postType) {
-        this.title = title;
-        this.member = member;
-        this.contents = contents;
-        this.status = status;
-        this.startDate = startDate;
-        this.finishDate = finishDate;
-        this.endDate = endDate;
-        this.maxPerson = maxPerson;
-        this.meetingMethod = meetingMethod;
-        this.meetingArea = meetingArea;
-        this.questionMethod = questionMethod;
-        this.questionLink = questionLink;
-        this.postType = postType;
-    }
-
-    public void read(PostReq req) {
+    public Post(Member member, PostReq req) {
         this.title = req.getTitle();
+        this.member = member;
         this.contents = req.getContents();
         this.status = req.getStatus();
         this.startDate = req.getStartDate();
+        this.finishDate = req.getFinishDate();
         this.endDate = req.getEndDate();
         this.maxPerson = req.getMaxPerson();
         this.meetingMethod = req.getMeetingMethod();
         this.meetingArea = req.getMeetingArea();
         this.questionMethod = req.isQuestionMethod();
         this.questionLink = req.getQuestionLink();
-        this.isProject = req.isProject();
+        this.postType = req.isPostType();
     }
 
     public void modify(PostReq req) {
