@@ -131,10 +131,13 @@ public class PostService {
             searchWord = searchWord.replaceAll(" ", ""); // 검색어에서 공백 제거
 
             if (!searchWord.isBlank()) {
+                Pagination pagination = new Pagination((int) postRepository.count(), page.getPageNumber(), page.getPageSize());
+                Pageable pageable = PageRequest.of(pagination.getPage(), page.getPageSize());
+                Page<GetProjectRes> posts = postRepository.findBySearchWord(searchWord.toLowerCase(), pageable);
+                // 검색 결과가 없는 경우 처리
+                if (posts.isEmpty()) {
 
-                Page<GetProjectRes> posts = postRepository.findBySearchWord(searchWord.toLowerCase(), page);
-
-                //검색 결과가 없는 경우 코드 작성 필요
+                }
 
                 return posts.map(post -> new GetProjectRes(
                         post.getPostId(),
@@ -147,7 +150,6 @@ public class PostService {
 
             } else {
                 Pagination pagination = new Pagination((int) postRepository.count(), page.getPageNumber(), page.getPageSize());
-                System.out.println("Total Count: " + postRepository.count());
 
                 // Pageable 인덱스 조정
                 Pageable pageable = PageRequest.of(pagination.getPage(), page.getPageSize());
