@@ -1,7 +1,7 @@
 package com.gongjakso.server.domain.post.service;
 
 import com.gongjakso.server.domain.member.entity.Member;
-import com.gongjakso.server.domain.post.dto.PostDeleteRes;
+import com.gongjakso.server.domain.member.repository.MemberRepository;
 import com.gongjakso.server.domain.post.dto.PostReq;
 import com.gongjakso.server.domain.post.dto.PostRes;
 import com.gongjakso.server.domain.post.entity.Post;
@@ -54,10 +54,13 @@ public class PostService {
     }
 
     @Transactional
-    public PostRes read(Long id, PostReq req) {
+    public PostRes read(Member member, Long id) {
         Post post = postRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException());
-        post.read(req);
+                .orElseThrow(() -> new ApplicationException(NOT_FOUND_EXCEPTION));
+
+        if(!member.getMemberId().equals(post.getMember().getMemberId())) {
+            throw new ApplicationException(UNAUTHORIZED_EXCEPTION);
+        }
 
         return PostRes.builder()
                 .postId(post.getPostId())

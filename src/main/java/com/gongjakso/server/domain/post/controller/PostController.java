@@ -1,11 +1,10 @@
 package com.gongjakso.server.domain.post.controller;
 
-import com.gongjakso.server.domain.post.dto.PostDeleteRes;
+import com.gongjakso.server.domain.member.entity.Member;
 import com.gongjakso.server.domain.post.dto.PostReq;
 import com.gongjakso.server.domain.post.dto.PostRes;
 import com.gongjakso.server.domain.post.entity.Post;
 import com.gongjakso.server.domain.post.service.PostService;
-import com.gongjakso.server.global.common.ApplicationResponse;
 import com.gongjakso.server.global.security.PrincipalDetails;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 public class PostController {
 
     private final PostService postService;
+
     @PostMapping("")
     public ApplicationResponse<PostRes> create(@AuthenticationPrincipal PrincipalDetails principalDetails, @RequestBody PostReq req) {
         return ApplicationResponse.ok(postService.create(principalDetails.getMember(), req));
@@ -30,9 +30,9 @@ public class PostController {
         return ApplicationResponse.ok(postService.modify(principalDetails.getMember(), id, req));
     }
 
-    @GetMapping("/?{post_id}")
-    public ResponseEntity<PostRes> read(@PathVariable("id") Long id, @RequestBody PostReq req) {
-        return ResponseEntity.ok(postService.read(id, req));
+    @GetMapping("/{id}")
+    public ResponseEntity<PostRes> read(@AuthenticationPrincipal PrincipalDetails principalDetails, @PathVariable("id") Long id) {
+        return ResponseEntity.ok(postService.read(principalDetails.getMember(), id));
     }
 
     @PutMapping("/?{id}")
