@@ -100,8 +100,10 @@ public class PostService {
                 .build();
     }
 
-
-    public Page<GetProjectRes> getProjects(int page, int size) throws ApplicationException {
+/*
+    public Page<GetProjectRes> getProjects(Pageable p) throws ApplicationException {
+        int page = p.getPageNumber();
+        int size = p.getPageSize();
         try {
             Pagination pagination = new Pagination((int) postRepository.count(), page, size);
             System.out.println("Total Count: " + postRepository.count());
@@ -122,8 +124,41 @@ public class PostService {
             throw new ApplicationException(INVALID_VALUE_EXCEPTION);
         }
     }
+    */
 
+    public Page<GetProjectRes> getProjectsBySearchWord(String searchWord, Pageable page) throws ApplicationException {
+        try {
+            searchWord = searchWord.replace(" ", ""); // 검색어에서 공백 제거
+            boolean searchResultExists = postRepository.existsByTitleContainingIgnoreCaseAndDeletedAtIsNull(searchWord);
+            if (!searchWord.isBlank() && searchResultExists) {
+                Page<Post> posts = postRepository.findBySearchWord(searchWord.toLowerCase(), page);
+                return posts.map(post -> new GetProjectRes(
+                        post.getPostId(),
+                        post.getTitle(),
+                        post.getMember().getName(),
+                        post.getStatus(),
+                        post.getStartDate(),
+                        post.getFinishDate()
+                ));
+            } else {
+                Pagination pagination = new Pagination((int) postRepository.count(), page.getPageNumber(), page.getPageSize());
+                System.out.println("Total Count: " + postRepository.count());
 
+                // Pageable 인덱스 조정
+                Pageable pageable = PageRequest.of(pagination.getPage(), page.getPageSize());
 
+                return postRepository.findAllProjects(pageable).map(post -> new GetProjectRes(
+                        post.getPostId(),
+                        post.getTitle(),
+                        post.getName(),
+                        post.getStatus(),
+                        post.getStartDate(),
+                        post.getFinishDate()
+                ));
+            }
+        } catch (Exception e) {
+            throw new ApplicationException(INVALID_VALUE_EXCEPTION);
+        }
+    }
 
 }
