@@ -21,19 +21,14 @@ public class PostController {
 
     private final PostService postService;
 
-//    @PostMapping("")
-//    public ResponseEntity<Post> create(Member member, @RequestBody PostReq req) {
-//        return ResponseEntity.ok(postService.create(member, req));
-//    }
-
     @PostMapping("")
     public ResponseEntity<PostRes> create(@AuthenticationPrincipal PrincipalDetails principalDetails, @RequestBody PostReq req) {
         return ResponseEntity.ok(postService.create(principalDetails.getMember(), req));
     }
 
-    @GetMapping("/?{post_id}")
-    public ResponseEntity<PostRes> read(@PathVariable("id") Long id, @RequestBody PostReq req) {
-        return ResponseEntity.ok(postService.read(id, req));
+    @GetMapping("/{id}")
+    public ResponseEntity<PostRes> read(@AuthenticationPrincipal PrincipalDetails principalDetails, @PathVariable("id") Long id) {
+        return ResponseEntity.ok(postService.read(principalDetails.getMember(), id));
     }
 
     @PutMapping("/?{id}")

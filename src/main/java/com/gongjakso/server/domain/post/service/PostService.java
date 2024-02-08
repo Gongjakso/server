@@ -1,11 +1,15 @@
 package com.gongjakso.server.domain.post.service;
 
+import static com.gongjakso.server.global.exception.ErrorCode.NOT_FOUND_EXCEPTION;
+import static com.gongjakso.server.global.exception.ErrorCode.*;
+
 import com.gongjakso.server.domain.member.entity.Member;
 import com.gongjakso.server.domain.member.repository.MemberRepository;
 import com.gongjakso.server.domain.post.dto.PostReq;
 import com.gongjakso.server.domain.post.dto.PostRes;
 import com.gongjakso.server.domain.post.entity.Post;
 import com.gongjakso.server.domain.post.repository.PostRepository;
+import com.gongjakso.server.global.exception.ApplicationException;
 import io.github.classgraph.PackageInfo;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +28,7 @@ public class PostService {
 //        validateMemberId(memberId);
         Post post = new Post(member, req);
         postRepository.save(post);
+
         return PostRes.builder()
                 .postId(post.getPostId())
                 .memberId(post.getMember().getMemberId())
@@ -45,10 +50,13 @@ public class PostService {
     }
 
     @Transactional
-    public PostRes read(Long id, PostReq req) {
+    public PostRes read(Member member, Long id) {
         Post post = postRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException());
-        post.read(req);
+                .orElseThrow(() -> new ApplicationException(NOT_FOUND_EXCEPTION));
+
+        if(!member.getMemberId().equals(post.getMember().getMemberId())) {
+            throw new ApplicationException(UNAUTHORIZED_EXCEPTION);
+        }
 
         return PostRes.builder()
                 .postId(post.getPostId())
