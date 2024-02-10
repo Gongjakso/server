@@ -1,23 +1,20 @@
 package com.gongjakso.server.domain.post.entity;
 
-import com.gongjakso.server.domain.post.enumerate.PostType;
+import com.gongjakso.server.domain.member.entity.Member;
+import com.gongjakso.server.domain.post.dto.PostReq;
+import com.gongjakso.server.domain.post.enumerate.MeetingMethod;
+import com.gongjakso.server.domain.post.enumerate.PostStatus;
 import com.gongjakso.server.global.common.BaseTimeEntity;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
+import org.hibernate.annotations.SQLDelete;
 import java.time.LocalDateTime;
-
 import lombok.*;
 
 @Getter
 @Setter
 @Entity
 @Table(name = "post")
+@SQLDelete(sql="UPDATE post SET deleted_at = NOW() where post_id=?")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Post extends BaseTimeEntity {
 
@@ -26,7 +23,11 @@ public class Post extends BaseTimeEntity {
     @Column(name = "post_id", nullable = false, columnDefinition = "bigint")
     private Long postId;
 
-    @Column(name = "title", nullable = false, columnDefinition = "varchar(20)")
+    @ManyToOne(targetEntity = Member.class, fetch = FetchType.LAZY)
+    @JoinColumn(name = "member_id")
+    private Member member;
+
+    @Column(name = "title", nullable = false, columnDefinition = "varchar(40)")
     private String title;
 
     @Column(name = "contents", nullable = false, columnDefinition = "varchar(500)")
@@ -34,7 +35,7 @@ public class Post extends BaseTimeEntity {
 
     @Column(name = "status", columnDefinition = "varchar(255)")
     @Enumerated(EnumType.STRING)
-    private PostType status;
+    private PostStatus status;
 
     @Column(name = "start_date", nullable = false, columnDefinition = "timestamp")
     private LocalDateTime startDate;
@@ -42,12 +43,15 @@ public class Post extends BaseTimeEntity {
     @Column(name = "end_date", nullable = false, columnDefinition = "timestamp")
     private LocalDateTime endDate;
 
+    @Column(name = "finish_date", nullable = false, columnDefinition = "timestamp")
+    private LocalDateTime finishDate;
+
     @Column(name = "max_person", nullable = false, columnDefinition = "bigint")
     private Long maxPerson;
 
     @Column(name = "meeting_method", columnDefinition = "varchar(10)")
     @Enumerated(EnumType.STRING)
-    private PostType meetingMethod;
+    private MeetingMethod meetingMethod;
 
     @Column(name = "meeting_area", columnDefinition = "varchar(100)")
     private String meetingArea;
@@ -58,22 +62,39 @@ public class Post extends BaseTimeEntity {
     @Column(name = "question_link", nullable = false, columnDefinition = "text")
     private String questionLink;
 
-    @Column(name = "is_project", nullable = false, columnDefinition = "tinyint")
-    private boolean isProject;
+    @Column(name = "post_type", nullable = false, columnDefinition = "tinyint")
+    private boolean postType;
 
     @Builder
-    public Post(Long postId, String title, String contents, PostType status, LocalDateTime startDate, LocalDateTime endDate, Long maxPerson, PostType meetingMethod, String meetingArea, boolean questionMethod, String questionLink, boolean isProject) {
-        this.postId = postId;
-        this.title = title;
-        this.contents = contents;
-        this.status = status;
-        this.startDate = startDate;
-        this.endDate = endDate;
-        this.maxPerson = maxPerson;
-        this.meetingMethod = meetingMethod;
-        this.meetingArea = meetingArea;
-        this.questionMethod = questionMethod;
-        this.questionLink = questionLink;
-        this.isProject = isProject;
+    public Post(Member member, PostReq req) {
+        this.title = req.getTitle();
+        this.member = member;
+        this.contents = req.getContents();
+        this.status = req.getStatus();
+        this.startDate = req.getStartDate();
+        this.finishDate = req.getFinishDate();
+        this.endDate = req.getEndDate();
+        this.maxPerson = req.getMaxPerson();
+        this.meetingMethod = req.getMeetingMethod();
+        this.meetingArea = req.getMeetingArea();
+        this.questionMethod = req.isQuestionMethod();
+        this.questionLink = req.getQuestionLink();
+        this.postType = req.isPostType();
     }
+
+    public void modify(PostReq req) {
+        this.title = req.getTitle();
+        this.contents = req.getContents();
+        this.status = req.getStatus();
+        this.startDate = req.getStartDate();
+        this.endDate = req.getEndDate();
+        this.finishDate = req.getFinishDate();
+        this.maxPerson = req.getMaxPerson();
+        this.meetingMethod = req.getMeetingMethod();
+        this.meetingArea = req.getMeetingArea();
+        this.questionMethod = req.isQuestionMethod();
+        this.questionLink = req.getQuestionLink();
+        this.postType = req.isPostType();
+    }
+
 }
