@@ -14,6 +14,8 @@ import org.hibernate.annotations.SQLDelete;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Entity
@@ -53,6 +55,9 @@ public class Post extends BaseTimeEntity {
     @Column(name = "max_person", nullable = false, columnDefinition = "bigint")
     private Long maxPerson;
 
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<StackName> stackNames = new ArrayList<>();
+
     @Column(name = "meeting_method", columnDefinition = "varchar(10)")
     @Enumerated(EnumType.STRING)
     private MeetingMethod meetingMethod;
@@ -75,7 +80,7 @@ public class Post extends BaseTimeEntity {
     @Builder
     public Post(String title, Member member, String contents, PostStatus status, LocalDateTime startDate,
                 LocalDateTime endDate, LocalDateTime finishDate, Long maxPerson, MeetingMethod meetingMethod,
-                String meetingArea, boolean questionMethod, String questionLink, boolean postType) {
+                String meetingArea, boolean questionMethod, String questionLink, boolean postType,List<StackName> stackNames) {
         this.title = title;
         this.member = member;
         this.contents = contents;
@@ -90,6 +95,7 @@ public class Post extends BaseTimeEntity {
         this.questionLink = questionLink;
         this.postType = postType;
         this.daysRemaining = finishDate.isBefore(LocalDateTime.now()) ? -1 : ChronoUnit.DAYS.between(LocalDateTime.now(), finishDate);
+        this.stackNames = stackNames;
     }
 
     public void modify(PostReq req) {
@@ -106,5 +112,6 @@ public class Post extends BaseTimeEntity {
         this.questionLink = req.getQuestionLink();
         this.postType = req.isPostType();
         this.daysRemaining = finishDate.isBefore(LocalDateTime.now()) ? -1 : ChronoUnit.DAYS.between(LocalDateTime.now(), finishDate);
+        this.stackNames = req.getStackNames();
     }
 }
