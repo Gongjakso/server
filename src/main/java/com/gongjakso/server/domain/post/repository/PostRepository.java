@@ -18,6 +18,16 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 
     Optional<Post> findByPostIdAndDeletedAtIsNull(Long postId);
     @Query("SELECT new com.gongjakso.server.domain.post.dto.GetProjectRes(p.postId, p.title, m.name, p.status, p.startDate, p.finishDate) " +
-            "FROM Post p JOIN p.member m WHERE LOWER(FUNCTION('replace', p.title, ' ', '')) LIKE %:searchWord% and p.postType = true and p.deletedAt is null and p.finishDate >= CURRENT_TIMESTAMP and p.status = 'RECRUITING'")
+            "FROM Post p JOIN p.member m " +
+            "WHERE LOWER(FUNCTION('replace', p.title, ' ', '')) LIKE %:searchWord% " +
+            "and p.postType = true and p.deletedAt is null and p.finishDate >= CURRENT_TIMESTAMP and p.status = 'RECRUITING'")
     Page<GetProjectRes> findBySearchWord(@Param("searchWord") String searchWord, Pageable pageable);
+
+    @Query("SELECT new com.gongjakso.server.domain.post.dto.GetProjectRes(p.postId, p.title, m.name, p.status, p.startDate, p.finishDate) " +
+            "FROM Post p JOIN p.member m JOIN p.stackNames sn " +
+            "WHERE LOWER(FUNCTION('REPLACE', p.title, ' ', '')) LIKE %:searchWord% AND p.postType = true AND p.deletedAt IS NULL AND p.finishDate >= CURRENT_TIMESTAMP AND p.status = 'RECRUITING' " +
+            "AND LOWER(sn.stackNameType) = LOWER(:stackName)")
+    Page<GetProjectRes> findByStackNameAndSearchWord(@Param("stackName") String stackName,
+                                                     @Param("searchWord") String searchWord,
+                                                     Pageable pageable);
 }
