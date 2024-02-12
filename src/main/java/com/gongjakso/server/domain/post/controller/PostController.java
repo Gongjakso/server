@@ -4,7 +4,7 @@ import com.gongjakso.server.domain.post.dto.GetProjectRes;
 import com.gongjakso.server.domain.post.dto.PostDeleteRes;
 import com.gongjakso.server.domain.post.dto.PostReq;
 import com.gongjakso.server.domain.post.dto.PostRes;
-import com.gongjakso.server.domain.post.repository.PostRepository;
+import com.gongjakso.server.domain.post.enumerate.StackNameType;
 import com.gongjakso.server.domain.post.service.PostService;
 import com.gongjakso.server.global.common.ApplicationResponse;
 import com.gongjakso.server.global.security.PrincipalDetails;
@@ -23,7 +23,6 @@ import org.springframework.web.bind.annotation.*;
 public class PostController {
 
     private final PostService postService;
-    private final PostRepository postRepository;
     @PostMapping("")
     public ApplicationResponse<PostRes> create(@AuthenticationPrincipal PrincipalDetails principalDetails, @RequestBody PostReq req) {
         return ApplicationResponse.ok(postService.create(principalDetails.getMember(), req));
@@ -40,10 +39,15 @@ public class PostController {
 
     @GetMapping("/project")
     public ApplicationResponse<Page<GetProjectRes>> list(@PageableDefault(size = 6) Pageable pageable,
-                                                         @RequestParam(value = "searchWord", required = false) String searchWord) {
+                                                         @RequestParam(value = "searchWord", required = false) String searchWord,
+                                                         @RequestParam(value = "stackName", required = false) StackNameType stackName) {
         try {
             if (!searchWord.isBlank()) {
-                return ApplicationResponse.ok(postService.getProjectsBySearchWord(searchWord, pageable));
+                if(stackName.equals("")){
+                    return ApplicationResponse.ok(postService.getProjectsBySearchWord(searchWord, pageable));
+                }else{
+                    return ApplicationResponse.ok(postService.getProjectsByStackNameAndSearchWord(stackName, searchWord, pageable));
+                }
                 /*
                 if (stackName.isBlank() && location.isBlank()) {
                     return new ApplicationResponse<>(postService.getProjectsBySearchWord(searchWord, pageable));
@@ -56,7 +60,12 @@ public class PostController {
                 }
                  */
             } else {
-                return ApplicationResponse.ok(postService.getProjectsBySearchWord(searchWord, pageable));
+
+                if(stackName.equals("")){
+                    return ApplicationResponse.ok(postService.getProjectsBySearchWord(searchWord, pageable));
+                }else{
+                    return ApplicationResponse.ok(postService.getProjectsByStackNameAndSearchWord(stackName, searchWord, pageable));
+                }
                 /*
                 if (stackName.isBlank() && location.isBlank()) {
                     return ApplicationResponse.ok(postService.getProjects(pageable));
