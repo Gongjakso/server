@@ -7,6 +7,8 @@ import com.gongjakso.server.domain.post.dto.PostDeleteRes;
 import com.gongjakso.server.domain.post.dto.PostReq;
 import com.gongjakso.server.domain.post.dto.PostRes;
 import com.gongjakso.server.domain.post.entity.Post;
+import com.gongjakso.server.domain.post.entity.StackName;
+import com.gongjakso.server.domain.post.enumerate.StackNameType;
 import com.gongjakso.server.domain.post.repository.PostRepository;
 import com.gongjakso.server.global.exception.ApplicationException;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +17,10 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.gongjakso.server.global.exception.ErrorCode.*;
 
@@ -29,8 +35,13 @@ public class PostService {
     @Transactional
     public PostRes create(Member member, PostReq req) {
         Post entity = new Post(req.getTitle(), member, req.getContents(), req.getStatus(), req.getStartDate(), req.getEndDate(),
-                req.getFinishDate(), req.getMaxPerson(), req.getMeetingMethod(), req.getMeetingArea(),  req.isQuestionMethod(),
-                req.getQuestionLink(), req.isPostType());
+                req.getFinishDate(), req.getMaxPerson(), req.getMeetingMethod(), req.getMeetingArea(), req.isQuestionMethod(),
+                req.getQuestionLink(), req.isPostType(), new ArrayList<>());
+
+        List<StackName> stackNames = req.getStackNames().stream()
+                .map(stackNameType -> new StackName(entity, stackNameType.getStackNameType()))
+                .collect(Collectors.toList());
+        entity.getStackNames().addAll(stackNames);
 
         postRepository.save(entity);
 
@@ -44,6 +55,7 @@ public class PostService {
                 .endDate(entity.getEndDate())
                 .finishDate(entity.getFinishDate())
                 .maxPerson(entity.getMaxPerson())
+                .stackNames(entity.getStackNames())
                 .meetingMethod(entity.getMeetingMethod())
                 .meetingArea(entity.getMeetingArea())
                 .questionMethod(entity.isQuestionMethod())
@@ -63,7 +75,12 @@ public class PostService {
             throw new ApplicationException(UNAUTHORIZED_EXCEPTION);
         }
 
-        entity.modify(req);
+        entity.getStackNames().clear(); //StackName 초기화
+        
+        List<StackName> updatedStackNames = req.getStackNames().stream()
+                .map(stackNameType -> new StackName(entity, stackNameType.getStackNameType()))
+                .collect(Collectors.toList());
+        entity.getStackNames().addAll(updatedStackNames);
 
         return PostRes.builder()
                 .postId(entity.getPostId())
@@ -75,6 +92,7 @@ public class PostService {
                 .endDate(entity.getEndDate())
                 .finishDate(entity.getFinishDate())
                 .maxPerson(entity.getMaxPerson())
+                .stackNames(entity.getStackNames())
                 .meetingMethod(entity.getMeetingMethod())
                 .meetingArea(entity.getMeetingArea())
                 .questionMethod(entity.isQuestionMethod())
@@ -126,6 +144,9 @@ public class PostService {
     }
     */
 
+    /*
+    검색어 기반 프로젝트 공고 목록 조회
+     */
     public Page<GetProjectRes> getProjectsBySearchWord(String searchWord, Pageable page) throws ApplicationException {
         try {
             searchWord = searchWord.replaceAll(" ", ""); // 검색어에서 공백 제거
@@ -162,6 +183,71 @@ public class PostService {
                         post.getStartDate(),
                         post.getFinishDate()
                 ));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new ApplicationException(INVALID_VALUE_EXCEPTION);
+        }
+    }
+
+    /*
+    기술 기반 프로젝트 공고 목록 조회
+     */
+    public Page<GetProjectRes> getProjectsByStackNameAndSearchWord(StackNameType stackName, String searchWord, Pageable page) throws ApplicationException {
+        try {
+            searchWord = searchWord.replaceAll(" ", ""); // 검색어에서 공백 제거
+
+            if(!stackName.equals("")){
+                Pagination pagination = new Pagination((int) postRepository.count(), page.getPageNumber(), page.getPageSize());
+                Pageable pageable = PageRequest.of(pagination.getPage(), page.getPageSize());
+                Page<GetProjectRes> posts = postRepository.findByStackNameAndSearchWord(stackName.toString(), searchWord.toLowerCase(), pageable);
+                // 검색 결과가 없는 경우 처리
+                if (posts.isEmpty()) {
+
+                }
+                return posts.map(post -> new GetProjectRes(
+                        post.getPostId(),
+                        post.getTitle(),
+                        post.getName(),
+                        post.getStatus(),
+                        post.getStartDate(),
+                        post.getFinishDate()
+                ));
+            }
+            else {
+                if (!searchWord.isBlank()) {
+                    Pagination pagination = new Pagination((int) postRepository.count(), page.getPageNumber(), page.getPageSize());
+                    Pageable pageable = PageRequest.of(pagination.getPage(), page.getPageSize());
+                    Page<GetProjectRes> posts = postRepository.findBySearchWord(searchWord.toLowerCase(), pageable);
+                    // 검색 결과가 없는 경우 처리
+                    if (posts.isEmpty()) {
+
+                    }
+
+                    return posts.map(post -> new GetProjectRes(
+                            post.getPostId(),
+                            post.getTitle(),
+                            post.getName(),
+                            post.getStatus(),
+                            post.getStartDate(),
+                            post.getFinishDate()
+                    ));
+
+                } else {
+                    Pagination pagination = new Pagination((int) postRepository.count(), page.getPageNumber(), page.getPageSize());
+
+                    // Pageable 인덱스 조정
+                    Pageable pageable = PageRequest.of(pagination.getPage(), page.getPageSize());
+
+                    return postRepository.findAllProjects(pageable).map(post -> new GetProjectRes(
+                            post.getPostId(),
+                            post.getTitle(),
+                            post.getName(),
+                            post.getStatus(),
+                            post.getStartDate(),
+                            post.getFinishDate()
+                    ));
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
