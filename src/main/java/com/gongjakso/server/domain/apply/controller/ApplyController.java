@@ -51,16 +51,16 @@ public class ApplyController {
     public ApplicationResponse<CategoryRes> getCategory(@PathVariable("post_id") Long postId){
         return applyService.findPostCategory(postId);
     }
-//    //공고 마감 요청 api
-//    @PatchMapping("/{post_id}/close")
-//    public ApplicationResponse<Void> updatePostStatusToClose(@AuthenticationPrincipal PrincipalDetails principalDetails, @PathVariable("post_id") Long postId){
-//        return applyService.updatePostState(postId,"close");
-//    }
-//    //공고 취소 요청 api
-//    @PatchMapping("/{post_id}/cancel")
-//    public ApplicationResponse<Void> updatePostStatusToCancel(@AuthenticationPrincipal PrincipalDetails principalDetails, @PathVariable("post_id") Long postId){
-//        return applyService.updatePostState(postId,"cancel");
-//    }
+    //공고 마감 요청 api
+    @PatchMapping("/{post_id}/close")
+    public ApplicationResponse<Void> updatePostStatusToClose(@AuthenticationPrincipal PrincipalDetails principalDetails, @PathVariable("post_id") Long postId){
+        return applyService.updatePostState(postId,"close");
+    }
+    //공고 취소 요청 api
+    @PatchMapping("/{post_id}/cancel")
+    public ApplicationResponse<Void> updatePostStatusToCancel(@AuthenticationPrincipal PrincipalDetails principalDetails, @PathVariable("post_id") Long postId){
+        return applyService.updatePostState(postId,"cancel");
+    }
     //공고 기간 연장 요청 api
     @PatchMapping("/{post_id}/extension")
     public ApplicationResponse<Void> updatePostPeriod(@AuthenticationPrincipal PrincipalDetails principalDetails, @PathVariable("post_id") Long postId, @RequestBody PeriodReq req){

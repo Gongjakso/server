@@ -7,6 +7,7 @@ import com.gongjakso.server.domain.member.entity.Member;
 import com.gongjakso.server.domain.post.entity.Category;
 import com.gongjakso.server.domain.post.entity.Post;
 import com.gongjakso.server.domain.post.enumerate.CategoryType;
+import com.gongjakso.server.domain.post.enumerate.PostStatus;
 import com.gongjakso.server.domain.post.repository.CategoryRepository;
 import com.gongjakso.server.domain.post.repository.PostRepository;
 import com.gongjakso.server.global.common.ApplicationResponse;
@@ -15,12 +16,13 @@ import com.gongjakso.server.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
-import org.webjars.NotFoundException;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static com.gongjakso.server.domain.post.enumerate.PostStatus.RECRUITING;
 
 @Service
 @Transactional
@@ -120,31 +122,31 @@ public class ApplyService {
         }
 
     }
-//    public ApplicationResponse<Void> updatePostState(Long post_id,String state){
-//        Post post = postRepository.findById(post_id).orElseThrow(()->new ApplicationException(ErrorCode.NOT_FOUND_POST_EXCEPTION));
-//        //공고 상태가 모집 중인지 판단
-//        if(post.getStatus()==RECRUITING){
-//            if(state.equals("close")){
-//                post.setStatus(PostStatus.CLOSE);
-//                return ApplicationResponse.ok();
-//            } else {
-//                post.setStatus(PostStatus.CANCEL);
-//                return ApplicationResponse.ok();
-//            }
-//        }else {
-//            throw new ApplicationException(ErrorCode.NOT_RECRUITING_EXCEPION);
-//        }
-//    }
+    public ApplicationResponse<Void> updatePostState(Long post_id,String state){
+        Post post = postRepository.findById(post_id).orElseThrow(()->new ApplicationException(ErrorCode.NOT_FOUND_POST_EXCEPTION));
+        //공고 상태가 모집 중인지 판단
+        if(post.getStatus()==RECRUITING){
+            if(state.equals("close")){
+                post.setStatus(PostStatus.CLOSE);
+                return ApplicationResponse.ok();
+            } else {
+                post.setStatus(PostStatus.CANCEL);
+                return ApplicationResponse.ok();
+            }
+        }else {
+            throw new ApplicationException(ErrorCode.NOT_RECRUITING_EXCEPION);
+        }
+    }
     public ApplicationResponse<Void> updatePostPeriod(Long post_id, PeriodReq req) {
         Post post = postRepository.findById(post_id).orElseThrow(()->new ApplicationException(ErrorCode.NOT_FOUND_POST_EXCEPTION));
         LocalDateTime extendedPeriod = post.getEndDate().plusDays(req.addDateNum());
-//        //공고 상태가 모집 중인지 판단
-//        if(post.getStatus()==RECRUITING){
+        //공고 상태가 모집 중인지 판단
+        if(post.getStatus()==RECRUITING){
             post.setEndDate(extendedPeriod);
             return ApplicationResponse.ok();
-//        }else {
-//            throw new ApplicationException(ErrorCode.NOT_RECRUITING_EXCEPION);
-//        }
+        }else {
+            throw new ApplicationException(ErrorCode.NOT_RECRUITING_EXCEPION);
+        }
     }
 
     public ApplicationResponse<ApplicationRes> findApplication(Long apply_id,Long post_id){
