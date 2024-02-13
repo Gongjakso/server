@@ -39,4 +39,11 @@ public interface PostRepository extends JpaRepository<Post, Long> {
      */
     Page<Post> findAllByTitleContainsAndPostTypeIsTrueAndDeletedAtIsNullAndFinishDateAfterAndStatusAndStackNamesContaining
             (@Param("searchWord") String searchWord, @Param("currentTimestamp") LocalDateTime currentTimestamp, @Param("status") PostStatus status, @Param("stackName") StackNameType stackName, @Param("pageable") Pageable pageable);
+
+    /*
+    지역 기반 조회 -> 스택 기반 조회 기능 완성 시 추가 필요
+     */
+    Page<Post> findAllByTitleContainsAndPostTypeIsTrueAndDeletedAtIsNullAndFinishDateAfterAndStatusAndMeetingAreaContains
+            (@Param("searchWord") String searchWord, @Param("currentTimestamp") LocalDateTime currentTimestamp, @Param("status") PostStatus status, @Param("meetingArea") String meetingArea, Pageable pageable);
+
 }
