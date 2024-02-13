@@ -42,6 +42,14 @@ public class PostController {
                                                          @RequestParam(value = "searchWord", required = false) String searchWord,
                                                          @RequestParam(value = "stackName", required = false) StackNameType stackName,
                                                          @RequestParam(value = "meetingArea", required = false) String meetingArea) {
-        return ApplicationResponse.ok(postService.getProjectsByMeetingAreaAndStackNameAndSearchWord(meetingArea, stackName, searchWord, pageable));
+        if(stackName==null && meetingArea.isBlank()){
+            if(searchWord.isBlank()){
+                return ApplicationResponse.ok(postService.getProjects(pageable));
+            }else {
+                return ApplicationResponse.ok(postService.getProjectsBySearchWord(searchWord, pageable));
+            }
+        }else {
+            return ApplicationResponse.ok(postService.getProjectsByMeetingAreaAndStackNameAndSearchWord(meetingArea, stackName, searchWord, pageable));
+        }
     }
 }
