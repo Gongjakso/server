@@ -14,4 +14,9 @@ public enum StackNameType {
     FIGMA,
     ETC;
 
+    @Override
+    public String toString() {
+        return name();
+    }
+
 }
