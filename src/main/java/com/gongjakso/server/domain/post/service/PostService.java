@@ -200,12 +200,15 @@ public class PostService {
     지역, 스택 기반 프로젝트 공고 목록 조회
      */
     public Page<GetProjectRes> getProjectsByMeetingAreaAndStackNameAndSearchWord(
-            String meetingArea, StackNameType stackName, String searchWord, Pageable page) throws ApplicationException {
+            String meetingArea, String stackName, String searchWord, Pageable page) throws ApplicationException {
         try {
             Pagination pagination = new Pagination((int) postRepository.count(), page.getPageNumber(), page.getPageSize());
             Pageable pageable = PageRequest.of(pagination.getPage(), page.getPageSize());
             searchWord = searchWord.replaceAll(" ", "");
-            if(stackName != null) {
+            if(!stackName.isBlank()) {
+                if (!StackNameType.isValid(stackName)){
+                    throw new ApplicationException(INVALID_VALUE_EXCEPTION);
+                }
                 Page<Post> posts = postRepository.findAllPostsJoinedWithStackNamesByTitleContainsAndPostTypeTrueAndDeletedAtIsNullAndFinishDateAfterAndStatusAndMeetingAreaContainsAndStackNamesStackNameTypeContains(searchWord.toLowerCase(), LocalDateTime.now(), RECRUITING, meetingArea, stackName.toString(), pageable);
                 return posts.map(post -> new GetProjectRes(
                         post.getPostId(),
@@ -215,7 +218,7 @@ public class PostService {
                         post.getStartDate(),
                         post.getFinishDate()
                 ));
-            }else{
+            } else{
                 Page<Post> posts = postRepository.findAllByTitleContainsAndPostTypeTrueAndDeletedAtIsNullAndFinishDateAfterAndStatusAndMeetingAreaContains(searchWord.toLowerCase(), LocalDateTime.now(), RECRUITING, meetingArea, pageable);
                 return posts.map(post -> new GetProjectRes(
                         post.getPostId(),
@@ -227,7 +230,6 @@ public class PostService {
                 ));
             }
         } catch (Exception e) {
-            e.printStackTrace();
             throw new ApplicationException(INVALID_VALUE_EXCEPTION);
         }
     }
