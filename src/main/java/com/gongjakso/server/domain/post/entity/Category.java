@@ -3,12 +3,10 @@ package com.gongjakso.server.domain.post.entity;
 import com.gongjakso.server.domain.post.enumerate.CategoryType;
 import com.gongjakso.server.global.common.BaseTimeEntity;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Getter
+@Setter
 @Entity
 @Table(name = "category")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)

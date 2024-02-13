@@ -69,6 +69,36 @@ public class PostService {
                 .build();
 
     }
+
+    @Transactional
+    public PostRes read(Member member, Long id) {
+        Post post = postRepository.findById(id)
+                .orElseThrow(() -> new ApplicationException(NOT_FOUND_EXCEPTION));
+
+        if(!member.getMemberId().equals(post.getMember().getMemberId())) {
+            throw new ApplicationException(UNAUTHORIZED_EXCEPTION);
+        }
+
+        return PostRes.builder()
+                .postId(post.getPostId())
+                .memberId(post.getMember().getMemberId())
+                .title(post.getTitle())
+                .contents(post.getContents())
+                .status(post.getStatus())
+                .startDate(post.getStartDate())
+                .endDate(post.getEndDate())
+                .maxPerson(post.getMaxPerson())
+                .meetingMethod(post.getMeetingMethod())
+                .meetingArea(post.getMeetingArea())
+                .questionMethod(post.isQuestionMethod())
+                .questionLink(post.getQuestionLink())
+                .postType(post.isPostType())
+                .createdAt(post.getCreatedAt())
+                .modifiedAt(post.getModifiedAt())
+                .deletedAt(post.getDeletedAt())
+                .build();
+    }
+
     @Transactional
     public PostRes modify(Member member, Long id, PostReq req) {
         Post entity = postRepository.findByPostIdAndDeletedAtIsNull(id)

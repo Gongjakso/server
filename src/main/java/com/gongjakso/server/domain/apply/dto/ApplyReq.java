@@ -8,9 +8,11 @@ import com.gongjakso.server.domain.post.entity.Post;
 public record ApplyReq(
         String application,
         String recruit_part,
+        String recruit_role,
         String type,
         Boolean is_pass,
-        Boolean is_open
+        Boolean is_open,
+        Boolean is_decision
 ) {
     public Apply toEntity(Member member, Post post_id){
         return Apply.builder()
@@ -18,9 +20,11 @@ public record ApplyReq(
                 .post(post_id)
                 .application(application)
                 .recruit_part(recruit_part)
+                .recruit_role(recruit_role)
                 .type(PostType.valueOf(type))
                 .is_pass(false)
                 .is_open(false)
+                .is_decision(false)
                 .build();
     }
 }

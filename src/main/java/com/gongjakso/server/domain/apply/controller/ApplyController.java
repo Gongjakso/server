@@ -1,8 +1,6 @@
 package com.gongjakso.server.domain.apply.controller;
 
-import com.gongjakso.server.domain.apply.dto.ApplyReq;
-import com.gongjakso.server.domain.apply.dto.ApplicationRes;
-import com.gongjakso.server.domain.apply.dto.ApplyRes;
+import com.gongjakso.server.domain.apply.dto.*;
 import com.gongjakso.server.domain.apply.service.ApplyService;
 import com.gongjakso.server.global.common.ApplicationResponse;
 import com.gongjakso.server.global.security.PrincipalDetails;
@@ -44,8 +42,28 @@ public class ApplyController {
         return applyService.updateRecruit(applyId,false);
     }
     // 특정 지원자 지원서 가져오는 api
-    @GetMapping("/{apply_id}/application")
-    public ApplicationResponse<ApplicationRes> findApplication(@AuthenticationPrincipal PrincipalDetails principalDetails,@PathVariable("apply_id") Long applyId){
-        return applyService.findApplication(applyId);
+    @GetMapping("/{post_id}/{apply_id}/application")
+    public ApplicationResponse<ApplicationRes> findApplication(@AuthenticationPrincipal PrincipalDetails principalDetails,@PathVariable("apply_id") Long applyId,@PathVariable("post_id") Long postId){
+        return applyService.findApplication(applyId,postId);
+    }
+    //공고 카테고리 요청 api
+    @GetMapping("/{post_id}/category")
+    public ApplicationResponse<CategoryRes> getCategory(@PathVariable("post_id") Long postId){
+        return applyService.findPostCategory(postId);
+    }
+//    //공고 마감 요청 api
+//    @PatchMapping("/{post_id}/close")
+//    public ApplicationResponse<Void> updatePostStatusToClose(@AuthenticationPrincipal PrincipalDetails principalDetails, @PathVariable("post_id") Long postId){
+//        return applyService.updatePostState(postId,"close");
+//    }
+//    //공고 취소 요청 api
+//    @PatchMapping("/{post_id}/cancel")
+//    public ApplicationResponse<Void> updatePostStatusToCancel(@AuthenticationPrincipal PrincipalDetails principalDetails, @PathVariable("post_id") Long postId){
+//        return applyService.updatePostState(postId,"cancel");
+//    }
+    //공고 기간 연장 요청 api
+    @PatchMapping("/{post_id}/extension")
+    public ApplicationResponse<Void> updatePostPeriod(@AuthenticationPrincipal PrincipalDetails principalDetails, @PathVariable("post_id") Long postId, @RequestBody PeriodReq req){
+        return applyService.updatePostPeriod(postId,req);
     }
 }
