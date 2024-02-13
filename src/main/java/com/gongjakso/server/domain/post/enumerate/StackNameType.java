@@ -19,4 +19,13 @@ public enum StackNameType {
         return name();
     }
 
+    public static boolean isValid(String stackName) {
+        for (StackNameType type : StackNameType.values()) {
+            if (type.name().equals(stackName)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
 }
