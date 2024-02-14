@@ -41,7 +41,7 @@ public class PostService {
                 req.getQuestionLink(), req.isPostType(), new ArrayList<>());
 
         List<StackName> stackNames = req.getStackNames().stream()
-                .map(stackNameType -> new StackName(entity, stackNameType.getStackNameType().toString()))
+                .map(stackNameReq ->  new StackName(entity, stackNameReq.getStackNameType().toString(), stackNameReq.getSize()))
                 .collect(Collectors.toList());
         entity.getStackNames().addAll(stackNames);
 
@@ -110,7 +110,7 @@ public class PostService {
         entity.getStackNames().clear();
 
         List<StackName> updatedStackNames = req.getStackNames().stream()
-                .map(stackNameType -> new StackName(entity, stackNameType.getStackNameType().toString()))
+                .map(stackNameReq ->  new StackName(entity, stackNameReq.getStackNameType().toString(), stackNameReq.getSize()))
                 .collect(Collectors.toList());
         entity.getStackNames().addAll(updatedStackNames);
 
