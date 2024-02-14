@@ -150,10 +150,9 @@ public class ApplyService {
         if (post == null) {
             throw new ApplicationException(ErrorCode.NOT_FOUND_POST_EXCEPTION);
         }else {
-            LocalDateTime extendedPeriod = post.getEndDate().plusDays(req.addDateNum());
             //공고 상태가 모집 중인지 판단
             if(post.getStatus()==RECRUITING){
-                post.setEndDate(extendedPeriod);
+                post.setEndDate(req.endDate());
                 return ApplicationResponse.ok();
             }else {
                 throw new ApplicationException(ErrorCode.NOT_RECRUITING_EXCEPION);

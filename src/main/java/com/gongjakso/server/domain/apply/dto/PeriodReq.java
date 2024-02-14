@@ -1,6 +1,8 @@
 package com.gongjakso.server.domain.apply.dto;
 
+import java.time.LocalDateTime;
+
 public record PeriodReq(
-        int addDateNum
+        LocalDateTime endDate
 ) {
 }
