@@ -60,11 +60,7 @@ public class ApplyService {
             throw new ApplicationException(ErrorCode.NOT_FOUND_POST_EXCEPTION);
         }else{
             int current_person = (int) applyRepository.countApplyByPost(post);
-            List<Apply> applies = applyRepository.findAllByPost(post);
-            List<ApplyList> applyLists = applies.stream()
-                    .map(apply -> ApplyList.of(apply, decisionState(apply)))
-                    .collect(Collectors.toList());
-            ApplyRes applyRes = ApplyRes.of(post,current_person,applyLists);
+            ApplyRes applyRes = ApplyRes.of(post,current_person);
             return applyRes;
         }
     }
