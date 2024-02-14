@@ -142,6 +142,10 @@ public class PostService {
         Post entity = postRepository.findByPostIdAndDeletedAtIsNull(id)
                 .orElseThrow(() -> new ApplicationException(NOT_FOUND_EXCEPTION));
 
+        if(!member.getMemberId().equals(entity.getMember().getMemberId())){
+            throw new ApplicationException(UNAUTHORIZED_EXCEPTION);
+        }
+
         postRepository.delete(entity);
         return PostDeleteRes.builder()
                 .postId(entity.getPostId())
