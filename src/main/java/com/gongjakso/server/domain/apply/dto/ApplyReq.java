@@ -11,9 +11,9 @@ public record ApplyReq(
         String recruit_part,
         String recruit_role,
         String type,
-        Boolean is_pass,
+        Boolean isPass,
         Boolean is_open,
-        Boolean is_decision
+        Boolean isDecision
 ) {
     public Apply toEntity(Member member, Post post_id){
         return Apply.builder()
@@ -23,9 +23,9 @@ public record ApplyReq(
                 .recruit_part(recruit_part)
                 .recruit_role(recruit_role)
                 .type(PostType.valueOf(type))
-                .is_pass(false)
+                .isPass(false)
                 .is_open(false)
-                .is_decision(false)
+                .isDecision(false)
                 .build();
     }
 }
