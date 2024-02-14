@@ -7,9 +7,11 @@ import com.gongjakso.server.domain.post.dto.PostDeleteRes;
 import com.gongjakso.server.domain.post.dto.PostReq;
 import com.gongjakso.server.domain.post.dto.PostRes;
 import com.gongjakso.server.domain.post.entity.Post;
+import com.gongjakso.server.domain.post.entity.PostScrap;
 import com.gongjakso.server.domain.post.entity.StackName;
 import com.gongjakso.server.domain.post.enumerate.StackNameType;
 import com.gongjakso.server.domain.post.repository.PostRepository;
+import com.gongjakso.server.domain.post.repository.PostScrapRepository;
 import com.gongjakso.server.global.exception.ApplicationException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -32,6 +34,7 @@ import static com.gongjakso.server.global.exception.ErrorCode.*;
 @RequiredArgsConstructor
 public class PostService {
     private final PostRepository postRepository;
+    private final PostScrapRepository postScrapRepository;
 
 
     @Transactional
@@ -249,6 +252,44 @@ public class PostService {
             }
         } catch (Exception e) {
             throw new ApplicationException(INVALID_VALUE_EXCEPTION);
+        }
+    }
+
+    /*
+        공고 스크랩 기능
+     */
+    @Transactional
+    public void scrapPost(Member member, Long postId) {
+        try {
+            Post post = postRepository.findByPostIdAndDeletedAtIsNull(postId)
+                    .orElseThrow(() -> new ApplicationException(NOT_FOUND_EXCEPTION));
+            if (member.getMemberId() == null) {
+                throw new ApplicationException(UNAUTHORIZED_EXCEPTION);
+            }
+
+            PostScrap postScrap = postScrapRepository.findByPostAndMember(post, member);
+
+            if (postScrap == null) { //첫 스크랩
+                postScrap = PostScrap.builder()
+                        .post(post)
+                        .member(member)
+                        .scrapStatus(true)
+                        .build();
+                post.setScrapCount(post.getScrapCount() + 1);
+            } else { // 스크랩 한 적 있는 경우
+                if (postScrap.getScrapStatus() == true) { //스크랩한 상태면 취소
+                    postScrap.setScrapStatus(false);
+                    if (post.getScrapCount() > 0) post.setScrapCount(post.getScrapCount() - 1);
+                    else throw new ApplicationException(NOT_FOUND_EXCEPTION);
+                } else { //스크랩 안 한 경우
+                    postScrap.setScrapStatus(true);
+                    post.setScrapCount(post.getScrapCount() + 1);
+                }
+            }
+            postScrapRepository.save(postScrap);
+            postRepository.save(post);
+        }catch(Exception e){
+            throw new ApplicationException(NOT_FOUND_EXCEPTION);
         }
     }
 }
