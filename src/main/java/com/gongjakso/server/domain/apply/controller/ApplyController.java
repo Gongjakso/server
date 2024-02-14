@@ -29,6 +29,10 @@ public class ApplyController {
     public ApplicationResponse<ApplyRes> getApply(@PathVariable("post_id") Long postId){
         return ApplicationResponse.ok(applyService.findApply(postId));
     }
+    @GetMapping("/{post_id}/applyList")
+    public ApplicationResponse<PageRes> getApplyList(@PathVariable("post_id") Long postId,@RequestParam(name = "pageNum", defaultValue = "0") int pageNum){
+        return ApplicationResponse.ok(applyService.applyListPage(postId,pageNum));
+    }
     //지원서 열람 요청 api
     @Operation(summary = "지원서 열람 API", description = "내가 모집 중인 팀 페이지에서 지원서 열람 시")
     @PatchMapping("/{apply_id}/open")
@@ -54,8 +58,7 @@ public class ApplyController {
     @Operation(summary = "지원서 API", description = "내가 모집 중인 팀 페이지에서 지원자 지원서 요청")
     @GetMapping("/{post_id}/{apply_id}/application")
     public ApplicationResponse<ApplicationRes> findApplication(@AuthenticationPrincipal PrincipalDetails principalDetails,@PathVariable("apply_id") Long applyId,@PathVariable("post_id") Long postId){
-        applyService.findApplication(applyId,postId);
-        return ApplicationResponse.ok();
+        return ApplicationResponse.ok(applyService.findApplication(applyId,postId));
     }
     //공고 카테고리 요청 api
     @Operation(summary = "공고 카테고리 API", description = "팀 지원하기 모달 창에서 카테고리들(지원 분야) 요청")

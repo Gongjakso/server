@@ -9,8 +9,7 @@ public record ApplyRes(
         LocalDateTime startDate,
         LocalDateTime endDate,
         Long max_person,
-        int current_person,
-        List<ApplyList> apply_list
+        int current_person
 ) {
     public static ApplyRes of(Post post, int current_person,List<ApplyList> apply_list){
         return new ApplyRes(post.getStartDate(),post.getEndDate(),post.getMaxPerson(),current_person,apply_list);

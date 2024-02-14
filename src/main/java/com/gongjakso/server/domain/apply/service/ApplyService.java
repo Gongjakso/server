@@ -13,6 +13,10 @@ import com.gongjakso.server.domain.post.repository.PostRepository;
 import com.gongjakso.server.global.exception.ApplicationException;
 import com.gongjakso.server.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
 
@@ -62,6 +66,23 @@ public class ApplyService {
                     .collect(Collectors.toList());
             ApplyRes applyRes = ApplyRes.of(post,current_person,applyLists);
             return applyRes;
+        }
+    }
+    public PageRes applyListPage(long post_id,int pageNum){
+        Post post = postRepository.findByPostId(post_id);
+        if (post == null) {
+            throw new ApplicationException(ErrorCode.NOT_FOUND_POST_EXCEPTION);
+        }else{
+            int pageSize = 11;
+            Pageable pageable = PageRequest.of(pageNum,pageSize, Sort.by(Sort.Direction.DESC,"createdAt"));
+            Page<Apply> applyPage = applyRepository.findAllByPost(post,pageable);
+            List<ApplyList> applyLists = applyPage.getContent().stream()
+                    .map(apply -> ApplyList.of(apply, decisionState(apply)))
+                    .collect(Collectors.toList());
+            int pageNo = applyPage.getNumber();
+            int totalPages = applyPage.getTotalPages();
+            boolean last = applyPage.isLast();
+            return PageRes.of(applyLists,pageNo,pageSize,totalPages,last);
         }
     }
     public CategoryRes findPostCategory(Long post_id){
