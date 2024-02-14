@@ -23,12 +23,13 @@ public class ApplyController {
         applyService.save(principalDetails.getMember(),postId,req);
         return ApplicationResponse.created();
     }
-    //프로젝트 지원서 요청 api
+    //팀 공고 요청 api
     @Operation(summary = "내가 모집 중인 팀 정보 API", description = "내가 모집 중인 팀 페이지에서 필요한 팀 정보 요청")
     @GetMapping("/{post_id}")
     public ApplicationResponse<ApplyRes> getApply(@PathVariable("post_id") Long postId){
         return ApplicationResponse.ok(applyService.findApply(postId));
     }
+    //
     @Operation(summary = "내가 모집 중인 팀 지원자 정보 API", description = "내가 모집 중인 팀 페이지에서 필요한 지원자 정보 요청")
     @GetMapping("/{post_id}/applyList")
     public ApplicationResponse<PageRes> getApplyList(@PathVariable("post_id") Long postId,@RequestParam(name = "page", defaultValue = "0") int page,@RequestParam(name = "size", defaultValue = "11") int size){
