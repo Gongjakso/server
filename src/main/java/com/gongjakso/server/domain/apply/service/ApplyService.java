@@ -10,7 +10,6 @@ import com.gongjakso.server.domain.post.enumerate.CategoryType;
 import com.gongjakso.server.domain.post.enumerate.PostStatus;
 import com.gongjakso.server.domain.post.repository.CategoryRepository;
 import com.gongjakso.server.domain.post.repository.PostRepository;
-import com.gongjakso.server.global.common.ApplicationResponse;
 import com.gongjakso.server.global.exception.ApplicationException;
 import com.gongjakso.server.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
@@ -51,7 +50,7 @@ public class ApplyService {
         }
     }
 
-    public ApplicationResponse<ApplyRes> findApply(Long post_id){
+    public ApplyRes findApply(Long post_id){
         Post post = postRepository.findByPostId(post_id);
         if (post == null) {
             throw new ApplicationException(ErrorCode.NOT_FOUND_POST_EXCEPTION);
@@ -62,10 +61,10 @@ public class ApplyService {
                     .map(apply -> ApplyList.of(apply, decisionState(apply)))
                     .collect(Collectors.toList());
             ApplyRes applyRes = ApplyRes.of(post,current_person,applyLists);
-            return ApplicationResponse.ok(applyRes);
+            return applyRes;
         }
     }
-    public ApplicationResponse<CategoryRes> findPostCategory(Long post_id){
+    public CategoryRes findPostCategory(Long post_id){
         Post post = postRepository.findByPostId(post_id);
         if (post == null) {
             throw new ApplicationException(ErrorCode.NOT_FOUND_POST_EXCEPTION);
@@ -79,7 +78,7 @@ public class ApplyService {
                     }
                 }
                 CategoryRes categoryRes = new CategoryRes(list);
-                return ApplicationResponse.ok(categoryRes);
+                return categoryRes;
             }else {
                 throw new ApplicationException(ErrorCode.NOT_FOUND_CATEGORY_EXCEPTION);
             }
@@ -101,12 +100,11 @@ public class ApplyService {
         }
 
     }
-    public ApplicationResponse<Void> updateOpen(Long apply_id){
+    public void updateOpen(Long apply_id){
         Apply apply = applyRepository.findById(apply_id).orElseThrow(()->new ApplicationException(ErrorCode.NOT_FOUND_APPLY_EXCEPTION));
         apply.setIs_open(true);
-        return ApplicationResponse.ok();
     }
-    public ApplicationResponse<Void> updateRecruit(Long apply_id, Boolean isRecruit){
+    public void updateRecruit(Long apply_id, Boolean isRecruit){
         Apply apply = applyRepository.findById(apply_id).orElseThrow(()->new ApplicationException(ErrorCode.NOT_FOUND_APPLY_EXCEPTION));
         if(!apply.getIs_decision()){
             apply.setIs_pass(isRecruit);
@@ -119,14 +117,13 @@ public class ApplyService {
                 throw new ApplicationException(ErrorCode.OVER_APPLY_EXCEPTION);
             }else {
                 category.setSize(category.getSize()-1);
-                return ApplicationResponse.ok();
             }
         }else {
             throw new ApplicationException(ErrorCode.ALREADY_DECISION_EXCEPION);
         }
 
     }
-    public ApplicationResponse<Void> updatePostState(Long post_id,String state){
+    public void updatePostState(Long post_id,String state){
         Post post = postRepository.findByPostId(post_id);
         if (post == null) {
             throw new ApplicationException(ErrorCode.NOT_FOUND_POST_EXCEPTION);
@@ -135,17 +132,15 @@ public class ApplyService {
             if(post.getStatus()==RECRUITING){
                 if(state.equals("close")){
                     post.setStatus(PostStatus.CLOSE);
-                    return ApplicationResponse.ok();
                 } else {
                     post.setStatus(PostStatus.CANCEL);
-                    return ApplicationResponse.ok();
                 }
             }else {
                 throw new ApplicationException(ErrorCode.NOT_RECRUITING_EXCEPION);
             }
         }
     }
-    public ApplicationResponse<Void> updatePostPeriod(Long post_id, PeriodReq req) {
+    public void updatePostPeriod(Long post_id, PeriodReq req) {
         Post post = postRepository.findByPostId(post_id);
         if (post == null) {
             throw new ApplicationException(ErrorCode.NOT_FOUND_POST_EXCEPTION);
@@ -153,14 +148,13 @@ public class ApplyService {
             //공고 상태가 모집 중인지 판단
             if(post.getStatus()==RECRUITING){
                 post.setEndDate(req.endDate());
-                return ApplicationResponse.ok();
             }else {
                 throw new ApplicationException(ErrorCode.NOT_RECRUITING_EXCEPION);
             }
         }
     }
 
-    public ApplicationResponse<ApplicationRes> findApplication(Long apply_id,Long post_id){
+    public ApplicationRes findApplication(Long apply_id,Long post_id){
         Apply apply = applyRepository.findById(apply_id).orElseThrow(()->new ApplicationException(ErrorCode.NOT_FOUND_APPLY_EXCEPTION));
         Post post = postRepository.findByPostId(post_id);
         if (post == null) {
@@ -178,7 +172,7 @@ public class ApplyService {
                 throw new ApplicationException(ErrorCode.NOT_FOUND_CATEGORY_EXCEPTION);
             }
             ApplicationRes applicationRes = ApplicationRes.of(apply,list);
-            return ApplicationResponse.ok(applicationRes);
+            return applicationRes;
         }
     }
 }
