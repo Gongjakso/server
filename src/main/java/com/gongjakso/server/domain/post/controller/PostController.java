@@ -64,4 +64,11 @@ public class PostController {
             return ApplicationResponse.ok(postService.getProjectsByMeetingAreaAndStackNameAndSearchWord(sort, meetingArea, stackName, searchWord, pageable));
         }
     }
+
+    @Operation(summary = "프로젝트 공고 스크랩 기능", description = "프로젝트 공고 스크랩")
+    @PostMapping("/{id}")
+    public ApplicationResponse<Void> scrapPost(@AuthenticationPrincipal PrincipalDetails principalDetails, @PathVariable("id") Long id) {
+        postService.scrapPost(principalDetails.getMember(), id);
+        return ApplicationResponse.ok();
+    }
 }
