@@ -75,6 +75,9 @@ public class Post extends BaseTimeEntity {
     @Column(name = "days_remaining", nullable = false, columnDefinition = "bigint")
     private long daysRemaining;
 
+    @Column(name="scrap_count", nullable = false, columnDefinition = "bigint")
+    private long scrapCount;
+
     @Builder
     public Post(String title, Member member, String contents, PostStatus status, LocalDateTime startDate,
                 LocalDateTime endDate, LocalDateTime finishDate, Long maxPerson, MeetingMethod meetingMethod,
