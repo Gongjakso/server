@@ -12,9 +12,10 @@ public record ParticipationList(
         String leaderName,
         LocalDateTime startDate,
         LocalDateTime endDate,
-        PostStatus postStatus
+        PostStatus postStatus,
+        Boolean postType
 ) {
     public static ParticipationList of(Post post,CategoryType recruit_part) {
-        return new ParticipationList(post.getTitle(), recruit_part,post.getMember().getName(),post.getStartDate(),post.getEndDate(),post.getStatus());
+        return new ParticipationList(post.getTitle(), recruit_part,post.getMember().getName(),post.getStartDate(),post.getEndDate(),post.getStatus(), post.isPostType());
     }
 }

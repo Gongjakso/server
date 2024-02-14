@@ -10,9 +10,10 @@ public record ApplyRes(
         LocalDateTime startDate,
         LocalDateTime endDate,
         Long max_person,
-        int current_person
+        int current_person,
+        Boolean postType
 ) {
     public static ApplyRes of(Post post, int current_person){
-        return new ApplyRes(post.getTitle(),post.getStartDate(),post.getEndDate(),post.getMaxPerson(),current_person);
+        return new ApplyRes(post.getTitle(),post.getStartDate(),post.getEndDate(),post.getMaxPerson(),current_person,post.isPostType());
     }
 }
