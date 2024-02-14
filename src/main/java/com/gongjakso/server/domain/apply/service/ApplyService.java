@@ -64,13 +64,13 @@ public class ApplyService {
             return applyRes;
         }
     }
-    public PageRes applyListPage(long post_id,int pageNum){
+    public PageRes applyListPage(long post_id,int page){
         Post post = postRepository.findByPostId(post_id);
         if (post == null) {
             throw new ApplicationException(ErrorCode.NOT_FOUND_POST_EXCEPTION);
         }else{
             int pageSize = 11;
-            Pageable pageable = PageRequest.of(pageNum,pageSize, Sort.by(Sort.Direction.DESC,"createdAt"));
+            Pageable pageable = PageRequest.of(page,pageSize, Sort.by(Sort.Direction.DESC,"createdAt"));
             Page<Apply> applyPage = applyRepository.findAllByPost(post,pageable);
             List<ApplyList> applyLists = applyPage.getContent().stream()
                     .map(apply -> ApplyList.of(apply, decisionState(apply)))

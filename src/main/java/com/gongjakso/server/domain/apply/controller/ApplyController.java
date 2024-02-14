@@ -30,8 +30,8 @@ public class ApplyController {
         return ApplicationResponse.ok(applyService.findApply(postId));
     }
     @GetMapping("/{post_id}/applyList")
-    public ApplicationResponse<PageRes> getApplyList(@PathVariable("post_id") Long postId,@RequestParam(name = "pageNum", defaultValue = "0") int pageNum){
-        return ApplicationResponse.ok(applyService.applyListPage(postId,pageNum));
+    public ApplicationResponse<PageRes> getApplyList(@PathVariable("post_id") Long postId,@RequestParam(name = "page", defaultValue = "0") int page){
+        return ApplicationResponse.ok(applyService.applyListPage(postId,page));
     }
     //지원서 열람 요청 api
     @Operation(summary = "지원서 열람 API", description = "내가 모집 중인 팀 페이지에서 지원서 열람 시")
