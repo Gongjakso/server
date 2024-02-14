@@ -13,6 +13,10 @@ import com.gongjakso.server.domain.post.repository.PostRepository;
 import com.gongjakso.server.global.exception.ApplicationException;
 import com.gongjakso.server.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
 
@@ -56,12 +60,24 @@ public class ApplyService {
             throw new ApplicationException(ErrorCode.NOT_FOUND_POST_EXCEPTION);
         }else{
             int current_person = (int) applyRepository.countApplyByPost(post);
-            List<Apply> applies = applyRepository.findAllByPost(post);
-            List<ApplyList> applyLists = applies.stream()
+            ApplyRes applyRes = ApplyRes.of(post,current_person);
+            return applyRes;
+        }
+    }
+    public PageRes applyListPage(long post_id,int page,int size){
+        Post post = postRepository.findByPostId(post_id);
+        if (post == null) {
+            throw new ApplicationException(ErrorCode.NOT_FOUND_POST_EXCEPTION);
+        }else{
+            Pageable pageable = PageRequest.of(page,size, Sort.by(Sort.Direction.DESC,"createdAt"));
+            Page<Apply> applyPage = applyRepository.findAllByPost(post,pageable);
+            List<ApplyList> applyLists = applyPage.getContent().stream()
                     .map(apply -> ApplyList.of(apply, decisionState(apply)))
                     .collect(Collectors.toList());
-            ApplyRes applyRes = ApplyRes.of(post,current_person,applyLists);
-            return applyRes;
+            int pageNo = applyPage.getNumber();
+            int totalPages = applyPage.getTotalPages();
+            boolean last = applyPage.isLast();
+            return PageRes.of(applyLists,pageNo,size,totalPages,last);
         }
     }
     public CategoryRes findPostCategory(Long post_id){
