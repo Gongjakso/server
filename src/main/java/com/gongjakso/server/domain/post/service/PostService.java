@@ -189,7 +189,9 @@ public class PostService {
                     post.getMember().getName(),
                     post.getStatus(),
                     post.getStartDate(),
-                    post.getFinishDate()
+                    post.getFinishDate(),
+                    post.getCategories(),
+                    post.getScrapCount()
             ));
         } catch (Exception e) {
             throw new ApplicationException(INVALID_VALUE_EXCEPTION);
@@ -216,7 +218,9 @@ public class PostService {
                     post.getMember().getName(),
                     post.getStatus(),
                     post.getStartDate(),
-                    post.getFinishDate()
+                    post.getFinishDate(),
+                    post.getCategories(),
+                    post.getScrapCount()
             ));
         } catch (Exception e) {
             throw new ApplicationException(INVALID_VALUE_EXCEPTION);
@@ -248,7 +252,9 @@ public class PostService {
                         post.getMember().getName(),
                         post.getStatus(),
                         post.getStartDate(),
-                        post.getFinishDate()
+                        post.getFinishDate(),
+                        post.getCategories(),
+                        post.getScrapCount()
                 ));
             } else{
                 Page<Post> posts;
@@ -263,7 +269,9 @@ public class PostService {
                         post.getMember().getName(),
                         post.getStatus(),
                         post.getStartDate(),
-                        post.getFinishDate()
+                        post.getFinishDate(),
+                        post.getCategories(),
+                        post.getScrapCount()
                 ));
             }
         } catch (Exception e) {
@@ -292,7 +300,9 @@ public class PostService {
                     post.getMember().getName(),
                     post.getStatus(),
                     post.getStartDate(),
-                    post.getFinishDate()
+                    post.getFinishDate(),
+                    post.getCategories(),
+                    post.getScrapCount()
             ));
         } catch (Exception e) {
             throw new ApplicationException(INVALID_VALUE_EXCEPTION);
@@ -319,7 +329,9 @@ public class PostService {
                     post.getMember().getName(),
                     post.getStatus(),
                     post.getStartDate(),
-                    post.getFinishDate()
+                    post.getFinishDate(),
+                    post.getCategories(),
+                    post.getScrapCount()
             ));
         } catch (Exception e) {
             throw new ApplicationException(INVALID_VALUE_EXCEPTION);
@@ -351,7 +363,9 @@ public class PostService {
                     post.getMember().getName(),
                     post.getStatus(),
                     post.getStartDate(),
-                    post.getFinishDate()
+                    post.getFinishDate(),
+                    post.getCategories(),
+                    post.getScrapCount()
                 ));
             } else{
                 Page<Post> posts;
@@ -366,7 +380,9 @@ public class PostService {
                         post.getMember().getName(),
                         post.getStatus(),
                         post.getStartDate(),
-                        post.getFinishDate()
+                        post.getFinishDate(),
+                        post.getCategories(),
+                        post.getScrapCount()
                 ));
             }
         } catch (Exception e) {
