@@ -1,5 +1,6 @@
 package com.gongjakso.server.domain.post.dto;
 
+import com.gongjakso.server.domain.post.entity.Category;
 import com.gongjakso.server.domain.post.entity.StackName;
 import com.gongjakso.server.domain.post.enumerate.MeetingMethod;
 import com.gongjakso.server.domain.post.enumerate.PostStatus;
@@ -22,6 +23,7 @@ public class PostReq {
     private LocalDateTime finishDate;
     private Long maxPerson;
     private List<StackName> stackNames;
+    private List<Category> categories;
     private MeetingMethod meetingMethod;
     private String meetingArea;
     private boolean questionMethod;

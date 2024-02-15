@@ -10,6 +10,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/v1/apply")
@@ -94,5 +96,11 @@ public class ApplyController {
     public ApplicationResponse<Void> updatePostPeriod(@AuthenticationPrincipal PrincipalDetails principalDetails, @PathVariable("post_id") Long postId, @RequestBody PeriodReq req){
         applyService.updatePostPeriod(postId,req);
         return ApplicationResponse.ok();
+    }
+
+    @Operation(summary = "내가 지원한 팀 리스트 API", description = "현재 지원 중인 상태의 팀 정보 반환")
+    @GetMapping("/my")
+    public ApplicationResponse<List<MyPageRes>> getMyApplyList(@AuthenticationPrincipal PrincipalDetails principalDetails) {
+        return ApplicationResponse.ok(applyService.getMyApplyList(principalDetails.getMember()));
     }
 }

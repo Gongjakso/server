@@ -19,7 +19,7 @@ public class StackName extends BaseTimeEntity {
     @Column(name = "stack_name_id", nullable = false, columnDefinition = "bigint")
     private Long stackNameId;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "post_id", nullable = false, columnDefinition = "bigint")
     @JsonIgnore
     private Post post;
@@ -27,13 +27,9 @@ public class StackName extends BaseTimeEntity {
     @Column(name = "stack_name_type", nullable = false, columnDefinition = "varchar(20)")
     private String stackNameType;
 
-    @Column(name = "size", nullable = false, columnDefinition = "int")
-    private Integer size;
-
     @Builder
-    public StackName(Post post, String stackNameType, Integer size) {
+    public StackName(Post post, String stackNameType) {
         this.post = post;
         this.stackNameType = stackNameType;
-        this.size = size;
     }
 }

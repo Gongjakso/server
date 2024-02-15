@@ -19,7 +19,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -202,5 +201,28 @@ public class ApplyService {
             ApplicationRes applicationRes = ApplicationRes.of(apply,list);
             return applicationRes;
         }
+    }
+
+    public List<MyPageRes> getMyApplyList(Member member) {
+        // Validation
+
+        // Business Logic
+        List<Apply> applyList = applyRepository.findAllByMemberAndDeletedAtIsNull(member);
+        List<Long> postIdList = applyList.stream()
+                .map(Apply::getApplyId)
+                .toList();
+
+        List<Post> postList = postRepository.findAllByPostIdInAndStatusAndDeletedAtIsNull(postIdList, RECRUITING);
+
+        // Response
+        return postList.stream()
+                .map(post -> {
+                    List<String> categoryList = post.getCategories().stream()
+                            .map(category -> category.getCategoryType().toString())
+                            .toList();
+
+                    return MyPageRes.of(post, member, categoryList);
+                })
+                .collect(Collectors.toList());
     }
 }

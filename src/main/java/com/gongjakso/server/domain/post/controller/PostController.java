@@ -1,9 +1,6 @@
 package com.gongjakso.server.domain.post.controller;
 
-import com.gongjakso.server.domain.post.dto.GetProjectRes;
-import com.gongjakso.server.domain.post.dto.PostDeleteRes;
-import com.gongjakso.server.domain.post.dto.PostReq;
-import com.gongjakso.server.domain.post.dto.PostRes;
+import com.gongjakso.server.domain.post.dto.*;
 import com.gongjakso.server.domain.post.service.PostService;
 import com.gongjakso.server.global.common.ApplicationResponse;
 import com.gongjakso.server.global.security.PrincipalDetails;
@@ -15,6 +12,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/post")
@@ -31,7 +30,7 @@ public class PostController {
 
     @Operation(summary = "공모전/프로젝트 공고 상세 조회 API", description = "공모전/프로젝트 공고 상세 조회")
     @GetMapping("/{id}")
-    public ApplicationResponse<PostRes> read(@AuthenticationPrincipal PrincipalDetails principalDetails, @PathVariable("id") Long id) {
+    public ApplicationResponse<PostDetailRes> read(@AuthenticationPrincipal PrincipalDetails principalDetails, @PathVariable("id") Long id) {
         return ApplicationResponse.ok(postService.read(principalDetails.getMember(), id));
     }
 
@@ -47,9 +46,27 @@ public class PostController {
         return ApplicationResponse.ok(postService.delete(principalDetails.getMember(), id));
     }
 
+    @Operation(summary = "공모전 공고 목록 조회 및 페이지네이션 API", description = "공모전 공고 페이지에서 공고 목록 조회")
+    @GetMapping("/contest")
+    public ApplicationResponse<Page<GetContestRes>> contestList(@PageableDefault(size = 6) Pageable pageable,
+                                                         @RequestParam(value = "searchWord", required = false) String searchWord,
+                                                         @RequestParam(value = "category", required = false) String category,
+                                                         @RequestParam(value = "meetingArea", required = false) String meetingArea,
+                                                         @RequestParam(value = "sort", required = false) String sort) {
+        if(category.isBlank() && meetingArea.isBlank()){
+            if(searchWord.isBlank()){
+                return ApplicationResponse.ok(postService.getContests(sort, pageable));
+            }else {
+                return ApplicationResponse.ok(postService.getContestsBySearchWord(sort, searchWord, pageable));
+            }
+        }else {
+            return ApplicationResponse.ok(postService.getContestsByMeetingAreaAndCategoryAndSearchWord(sort, meetingArea, category, searchWord, pageable));
+        }
+    }
+
     @Operation(summary = "프로젝트 공고 목록 조회 및 페이지네이션 API", description = "프로젝트 공고 페이지에서 공고 목록 조회")
     @GetMapping("/project")
-    public ApplicationResponse<Page<GetProjectRes>> list(@PageableDefault(size = 6) Pageable pageable,
+    public ApplicationResponse<Page<GetProjectRes>> projectList(@PageableDefault(size = 6) Pageable pageable,
                                                          @RequestParam(value = "searchWord", required = false) String searchWord,
                                                          @RequestParam(value = "stackName", required = false) String stackName,
                                                          @RequestParam(value = "meetingArea", required = false) String meetingArea,
@@ -70,5 +87,11 @@ public class PostController {
     public ApplicationResponse<Void> scrapPost(@AuthenticationPrincipal PrincipalDetails principalDetails, @PathVariable("id") Long id) {
         postService.scrapPost(principalDetails.getMember(), id);
         return ApplicationResponse.ok();
+    }
+
+    @Operation(summary = "내가 모집 중인 팀 조회 API", description = "프로젝트/공모전 별 각 한 개씩 묶어서 리스트 형태로 반환")
+    @GetMapping("/my")
+    public ApplicationResponse<List<MyPageRes>> getMyPostList(@AuthenticationPrincipal PrincipalDetails principalDetails) {
+        return ApplicationResponse.ok(postService.getMyPostList(principalDetails.getMember()));
     }
 }

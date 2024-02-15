@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
-public class GetProjectRes {
+public class GetContestRes {
     private Long postId;
     private String title;
     private String name; //팀장명
@@ -21,8 +21,8 @@ public class GetProjectRes {
     private long scrapCount;
 
     @Builder
-    public GetProjectRes(Long postId, String title, String name, PostStatus status, LocalDateTime startDate,
-                         LocalDateTime finishDate, List<Category> categories,long scrapCount ){
+    public GetContestRes(Long postId, String title, String name, PostStatus status, LocalDateTime startDate,
+                         LocalDateTime finishDate, List<Category> categories,long scrapCount){
         this.postId = postId;
         this.title = title;
         this.name = name;
