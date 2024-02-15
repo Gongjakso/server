@@ -1,5 +1,6 @@
 package com.gongjakso.server.domain.post.dto;
 
+import com.gongjakso.server.domain.post.entity.StackName;
 import com.gongjakso.server.domain.post.enumerate.MeetingMethod;
 import com.gongjakso.server.domain.post.enumerate.PostStatus;
 import lombok.Data;
@@ -7,6 +8,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @Getter
@@ -19,6 +21,7 @@ public class PostReq {
     private LocalDateTime endDate;
     private LocalDateTime finishDate;
     private Long maxPerson;
+    private List<StackName> stackNames;
     private MeetingMethod meetingMethod;
     private String meetingArea;
     private boolean questionMethod;
