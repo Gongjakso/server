@@ -19,7 +19,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -65,7 +64,7 @@ public class ApplyService {
             return applyRes;
         }
     }
-    public PageRes applyListPage(long post_id,int page,int size){
+    public ApplyPageRes applyListPage(long post_id,int page,int size){
         Post post = postRepository.findByPostId(post_id);
         if (post == null) {
             throw new ApplicationException(ErrorCode.NOT_FOUND_POST_EXCEPTION);
@@ -78,8 +77,19 @@ public class ApplyService {
             int pageNo = applyPage.getNumber();
             int totalPages = applyPage.getTotalPages();
             boolean last = applyPage.isLast();
-            return PageRes.of(applyLists,pageNo,size,totalPages,last);
+            return ApplyPageRes.of(applyLists,pageNo,size,totalPages,last);
         }
+    }
+    public ParticipationPageRes myParticipationPostListPage(int page,int size){
+        Pageable pageable = PageRequest.of(page,size, Sort.by(Sort.Direction.DESC,"createdAt"));
+        Page<Apply> participationPage = applyRepository.findApplyByIsPass(true,pageable);
+        List<ParticipationList> participationLists = participationPage.getContent().stream()
+                .map(apply -> ParticipationList.of(apply.getPost(), CategoryType.valueOf(apply.getRecruit_part())))
+                .collect(Collectors.toList());
+        int pageNo = participationPage.getNumber();
+        int totalPages = participationPage.getTotalPages();
+        boolean last = participationPage.isLast();
+        return ParticipationPageRes.of(participationLists,pageNo,size,totalPages,last);
     }
     public CategoryRes findPostCategory(Long post_id){
         Post post = postRepository.findByPostId(post_id);
@@ -102,8 +112,8 @@ public class ApplyService {
         }
     }
     private String decisionState(Apply apply){
-        if(apply.getIs_decision()){
-            if(apply.getIs_pass()) {
+        if(apply.getIsDecision()){
+            if(apply.getIsPass()) {
                 return "합류 완료";
             }else {
                 return "미선발";
@@ -123,9 +133,9 @@ public class ApplyService {
     }
     public void updateRecruit(Long apply_id, Boolean isRecruit){
         Apply apply = applyRepository.findById(apply_id).orElseThrow(()->new ApplicationException(ErrorCode.NOT_FOUND_APPLY_EXCEPTION));
-        if(!apply.getIs_decision()){
-            apply.setIs_pass(isRecruit);
-            apply.setIs_decision(true);
+        if(!apply.getIsDecision()){
+            apply.setIsPass(isRecruit);
+            apply.setIsDecision(true);
             Post post = apply.getPost();
             //지원 파트 size 감소
             Category category = categoryRepository.findCategoryByPostAndCategoryType(post, CategoryType.valueOf(apply.getRecruit_part()));
@@ -191,5 +201,28 @@ public class ApplyService {
             ApplicationRes applicationRes = ApplicationRes.of(apply,list);
             return applicationRes;
         }
+    }
+
+    public List<MyPageRes> getMyApplyList(Member member) {
+        // Validation
+
+        // Business Logic
+        List<Apply> applyList = applyRepository.findAllByMemberAndDeletedAtIsNull(member);
+        List<Long> postIdList = applyList.stream()
+                .map(Apply::getApplyId)
+                .toList();
+
+        List<Post> postList = postRepository.findAllByPostIdInAndStatusAndDeletedAtIsNull(postIdList, RECRUITING);
+
+        // Response
+        return postList.stream()
+                .map(post -> {
+                    List<String> categoryList = post.getCategories().stream()
+                            .map(category -> category.getCategoryType().toString())
+                            .toList();
+
+                    return MyPageRes.of(post, member, categoryList);
+                })
+                .collect(Collectors.toList());
     }
 }

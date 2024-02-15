@@ -35,7 +35,7 @@ public class ExceptionFilter extends OncePerRequestFilter {
         response.setContentType("application/json;charset=UTF-8");
         response.setStatus(ErrorCode.FORBIDDEN_EXCEPTION.getHttpStatus().value());
 
-        ErrorResponse errorResponse = new ErrorResponse(ErrorCode.LOGOUT_TOKEN_EXCEPTION);
+        ErrorResponse errorResponse = new ErrorResponse(ErrorCode.WRONG_TOKEN);
         String errorJson = objectMapper.writeValueAsString(errorResponse);
 
         response.getWriter().write(errorJson);

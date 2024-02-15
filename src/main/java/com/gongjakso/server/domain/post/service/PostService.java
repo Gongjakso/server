@@ -84,31 +84,10 @@ public class PostService {
     }
 
     @Transactional
-    public PostRes read(Member member, Long id) {
+    public PostDetailRes read(Member member, Long id) {
         Post post = postRepository.findById(id)
-                .orElseThrow(() -> new ApplicationException(NOT_FOUND_POST_EXCEPTION));
-
-        return PostRes.builder()
-                .postId(post.getPostId())
-                .memberId(post.getMember().getMemberId())
-                .title(post.getTitle())
-                .contents(post.getContents())
-                .contestLink(post.getContestLink())
-                .status(post.getStatus())
-                .startDate(post.getStartDate())
-                .endDate(post.getEndDate())
-                .maxPerson(post.getMaxPerson())
-                .stackNames(post.getStackNames())
-                .categories(post.getCategories())
-                .meetingMethod(post.getMeetingMethod())
-                .meetingArea(post.getMeetingArea())
-                .questionMethod(post.isQuestionMethod())
-                .questionLink(post.getQuestionLink())
-                .postType(post.isPostType())
-                .createdAt(post.getCreatedAt())
-                .modifiedAt(post.getModifiedAt())
-                .deletedAt(post.getDeletedAt())
-                .build();
+                .orElseThrow(() -> new ApplicationException(NOT_FOUND_EXCEPTION));
+        return PostDetailRes.of(post, member, 3L);
     }
 
     @Transactional
@@ -439,5 +418,25 @@ public class PostService {
         }catch(Exception e){
             throw new ApplicationException(NOT_FOUND_EXCEPTION);
         }
+    }
+
+    public List<MyPageRes> getMyPostList(Member member) {
+        // Validation
+
+        // Business Logic
+        List<Post> postList = postRepository.findAllByMemberAndStatusAndDeletedAtIsNull(member, RECRUITING);
+
+        List<MyPageRes> myPageResList = postList.stream()
+                .map(post -> {
+                        List<String> categoryList = post.getCategories().stream()
+                                .map(category -> category.getCategoryType().toString())
+                                .toList();
+
+                        return MyPageRes.of(post, member, categoryList);
+                    })
+                .collect(Collectors.toList());
+
+        // Return
+        return myPageResList;
     }
 }
