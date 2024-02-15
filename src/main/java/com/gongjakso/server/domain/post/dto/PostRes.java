@@ -16,6 +16,7 @@ public class PostRes {
     private Long memberId;
     private String title;
     private String contents;
+    private String contestLink;
     private PostStatus status;
     private LocalDateTime startDate;
     private LocalDateTime endDate;
@@ -33,13 +34,14 @@ public class PostRes {
     private LocalDateTime deletedAt;
 
     @Builder
-    public PostRes(Long postId, Long memberId, String title, String contents, PostStatus status, LocalDateTime startDate, LocalDateTime endDate,
+    public PostRes(Long postId, Long memberId, String title, String contents, String contestLink, PostStatus status, LocalDateTime startDate, LocalDateTime endDate,
                    LocalDateTime finishDate, Long maxPerson, List<StackName> stackNames, List<Category> categories, MeetingMethod meetingMethod, String meetingArea, boolean questionMethod, String questionLink,
                    boolean postType, LocalDateTime createdAt, LocalDateTime modifiedAt, LocalDateTime deletedAt) {
         this.postId = postId;
         this.memberId = memberId;
         this.title = title;
         this.contents = contents;
+        this.contestLink = contestLink;
         this.status = status;
         this.startDate = startDate;
         this.endDate = endDate;
