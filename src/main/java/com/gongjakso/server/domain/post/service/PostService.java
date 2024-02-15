@@ -427,4 +427,24 @@ public class PostService {
             throw new ApplicationException(NOT_FOUND_EXCEPTION);
         }
     }
+
+    public List<MyPageRes> getMyPostList(Member member) {
+        // Validation
+
+        // Business Logic
+        List<Post> postList = postRepository.findAllByMemberAndStatusAndDeletedAtIsNull(member, RECRUITING);
+
+        List<MyPageRes> myPageResList = postList.stream()
+                .map(post -> {
+                        List<String> categoryList = post.getCategories().stream()
+                                .map(category -> category.getCategoryType().toString())
+                                .toList();
+
+                        return MyPageRes.of(post, member, categoryList);
+                    })
+                .collect(Collectors.toList());
+
+        // Return
+        return myPageResList;
+    }
 }
