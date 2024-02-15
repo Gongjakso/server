@@ -41,7 +41,7 @@ public class PostService {
                 req.getQuestionLink(), req.isPostType(), new ArrayList<>());
 
         List<StackName> stackNames = req.getStackNames().stream()
-                .map(stackNameType -> new StackName(entity, stackNameType.getStackNameType().toString()))
+                .map(stackNameReq ->  new StackName(entity, stackNameReq.getStackNameType().toString(), stackNameReq.getSize()))
                 .collect(Collectors.toList());
         entity.getStackNames().addAll(stackNames);
 
@@ -110,7 +110,7 @@ public class PostService {
         entity.getStackNames().clear();
 
         List<StackName> updatedStackNames = req.getStackNames().stream()
-                .map(stackNameType -> new StackName(entity, stackNameType.getStackNameType().toString()))
+                .map(stackNameReq ->  new StackName(entity, stackNameReq.getStackNameType().toString(), stackNameReq.getSize()))
                 .collect(Collectors.toList());
         entity.getStackNames().addAll(updatedStackNames);
 
@@ -142,6 +142,10 @@ public class PostService {
         Post entity = postRepository.findByPostIdAndDeletedAtIsNull(id)
                 .orElseThrow(() -> new ApplicationException(NOT_FOUND_EXCEPTION));
 
+        if(!member.getMemberId().equals(entity.getMember().getMemberId())){
+            throw new ApplicationException(UNAUTHORIZED_EXCEPTION);
+        }
+
         postRepository.delete(entity);
         return PostDeleteRes.builder()
                 .postId(entity.getPostId())
@@ -152,36 +156,18 @@ public class PostService {
     /*
     전체 프로젝트 공고 목록 조회
      */
-    public Page<GetProjectRes> getProjects(Pageable p) throws ApplicationException {
+    public Page<GetProjectRes> getProjects(String sort, Pageable p) throws ApplicationException {
         int page = p.getPageNumber();
         int size = p.getPageSize();
         try {
             Pagination pagination = new Pagination((int) postRepository.count(), page, size);
             Pageable pageable = PageRequest.of(pagination.getPage(), size);
-
-            return postRepository.findAllByPostTypeTrueAndDeletedAtIsNullAndFinishDateAfterAndStatus(LocalDateTime.now(), RECRUITING, pageable).map(post -> new GetProjectRes(
-                    post.getPostId(),
-                    post.getTitle(),
-                    post.getMember().getName(),
-                    post.getStatus(),
-                    post.getStartDate(),
-                    post.getFinishDate()
-            ));
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new ApplicationException(INVALID_VALUE_EXCEPTION);
-        }
-    }
-
-    /*
-    검색어 기반 프로젝트 공고 목록 조회
-     */
-    public Page<GetProjectRes> getProjectsBySearchWord(String searchWord, Pageable page) throws ApplicationException {
-        try {
-            Pagination pagination = new Pagination((int) postRepository.count(), page.getPageNumber(), page.getPageSize());
-            Pageable pageable = PageRequest.of(pagination.getPage(), page.getPageSize());
-            searchWord = searchWord.replaceAll(" ", ""); // 검색어에서 공백 제거
-            Page<Post> posts = postRepository.findAllByTitleContainsAndPostTypeTrueAndDeletedAtIsNullAndFinishDateAfterAndStatus(searchWord.toLowerCase(), LocalDateTime.now(), RECRUITING, pageable);
+            Page<Post> posts;
+            if(sort.equals("createdAt,desc")){ //최신순
+                posts = postRepository.findAllByPostTypeTrueAndDeletedAtIsNullAndFinishDateAfterAndStatusOrderByCreatedAtDesc(LocalDateTime.now(), RECRUITING, pageable);
+            } else{ //스크랩순
+                posts = postRepository.findAllByPostTypeTrueAndDeletedAtIsNullAndFinishDateAfterAndStatusOrderByCreatedAtDesc(LocalDateTime.now(), RECRUITING, pageable);
+            }
             return posts.map(post -> new GetProjectRes(
                     post.getPostId(),
                     post.getTitle(),
@@ -191,7 +177,33 @@ public class PostService {
                     post.getFinishDate()
             ));
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new ApplicationException(INVALID_VALUE_EXCEPTION);
+        }
+    }
+
+    /*
+    검색어 기반 프로젝트 공고 목록 조회
+     */
+    public Page<GetProjectRes> getProjectsBySearchWord(String sort, String searchWord, Pageable page) throws ApplicationException {
+        try {
+            Pagination pagination = new Pagination((int) postRepository.count(), page.getPageNumber(), page.getPageSize());
+            Pageable pageable = PageRequest.of(pagination.getPage(), page.getPageSize());
+            searchWord = searchWord.replaceAll(" ", ""); // 검색어에서 공백 제거
+            Page<Post> posts;
+            if (sort.equals("createdAt,desc")) {
+                posts = postRepository.findAllByTitleContainsAndPostTypeTrueAndDeletedAtIsNullAndFinishDateAfterAndStatusOrderByCreatedAtDesc(searchWord.toLowerCase(), LocalDateTime.now(), RECRUITING, pageable);
+            } else{
+                posts = postRepository.findAllByTitleContainsAndPostTypeTrueAndDeletedAtIsNullAndFinishDateAfterAndStatusOrderByCreatedAtDesc(searchWord.toLowerCase(), LocalDateTime.now(), RECRUITING, pageable);
+            }
+            return posts.map(post -> new GetProjectRes(
+                    post.getPostId(),
+                    post.getTitle(),
+                    post.getMember().getName(),
+                    post.getStatus(),
+                    post.getStartDate(),
+                    post.getFinishDate()
+            ));
+        } catch (Exception e) {
             throw new ApplicationException(INVALID_VALUE_EXCEPTION);
         }
     }
@@ -200,7 +212,7 @@ public class PostService {
     지역, 스택 기반 프로젝트 공고 목록 조회
      */
     public Page<GetProjectRes> getProjectsByMeetingAreaAndStackNameAndSearchWord(
-            String meetingArea, String stackName, String searchWord, Pageable page) throws ApplicationException {
+            String sort, String meetingArea, String stackName, String searchWord, Pageable page) throws ApplicationException {
         try {
             Pagination pagination = new Pagination((int) postRepository.count(), page.getPageNumber(), page.getPageSize());
             Pageable pageable = PageRequest.of(pagination.getPage(), page.getPageSize());
@@ -209,17 +221,27 @@ public class PostService {
                 if (!StackNameType.isValid(stackName)){
                     throw new ApplicationException(INVALID_VALUE_EXCEPTION);
                 }
-                Page<Post> posts = postRepository.findAllPostsJoinedWithStackNamesByTitleContainsAndPostTypeTrueAndDeletedAtIsNullAndFinishDateAfterAndStatusAndMeetingAreaContainsAndStackNamesStackNameTypeContains(searchWord.toLowerCase(), LocalDateTime.now(), RECRUITING, meetingArea, stackName.toString(), pageable);
+                Page<Post> posts;
+                if (sort.equals("createdAt,desc")) {
+                    posts = postRepository.findAllPostsJoinedWithStackNamesByTitleContainsAndPostTypeTrueAndDeletedAtIsNullAndFinishDateAfterAndStatusAndMeetingAreaContainsAndStackNamesStackNameTypeContainsOrderByCreatedAtDesc(searchWord.toLowerCase(), LocalDateTime.now(), RECRUITING, meetingArea, stackName.toString(), pageable);
+                }else{
+                    posts = postRepository.findAllPostsJoinedWithStackNamesByTitleContainsAndPostTypeTrueAndDeletedAtIsNullAndFinishDateAfterAndStatusAndMeetingAreaContainsAndStackNamesStackNameTypeContainsOrderByCreatedAtDesc(searchWord.toLowerCase(), LocalDateTime.now(), RECRUITING, meetingArea, stackName.toString(), pageable);
+                }
                 return posts.map(post -> new GetProjectRes(
-                        post.getPostId(),
-                        post.getTitle(),
-                        post.getMember().getName(),
-                        post.getStatus(),
-                        post.getStartDate(),
-                        post.getFinishDate()
+                    post.getPostId(),
+                    post.getTitle(),
+                    post.getMember().getName(),
+                    post.getStatus(),
+                    post.getStartDate(),
+                    post.getFinishDate()
                 ));
             } else{
-                Page<Post> posts = postRepository.findAllByTitleContainsAndPostTypeTrueAndDeletedAtIsNullAndFinishDateAfterAndStatusAndMeetingAreaContains(searchWord.toLowerCase(), LocalDateTime.now(), RECRUITING, meetingArea, pageable);
+                Page<Post> posts;
+                if (sort.equals("createdAt,desc")) {
+                    posts = postRepository.findAllByTitleContainsAndPostTypeTrueAndDeletedAtIsNullAndFinishDateAfterAndStatusAndMeetingAreaContainsOrderByCreatedAtDesc(searchWord.toLowerCase(), LocalDateTime.now(), RECRUITING, meetingArea, pageable);
+                }else{
+                    posts = postRepository.findAllByTitleContainsAndPostTypeTrueAndDeletedAtIsNullAndFinishDateAfterAndStatusAndMeetingAreaContainsOrderByCreatedAtDesc(searchWord.toLowerCase(), LocalDateTime.now(), RECRUITING, meetingArea, pageable);
+                }
                 return posts.map(post -> new GetProjectRes(
                         post.getPostId(),
                         post.getTitle(),

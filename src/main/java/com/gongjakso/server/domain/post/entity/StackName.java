@@ -27,9 +27,13 @@ public class StackName extends BaseTimeEntity {
     @Column(name = "stack_name_type", nullable = false, columnDefinition = "varchar(20)")
     private String stackNameType;
 
+    @Column(name = "size", nullable = false, columnDefinition = "int")
+    private Integer size;
+
     @Builder
-    public StackName(Post post, String stackNameType) {
+    public StackName(Post post, String stackNameType, Integer size) {
         this.post = post;
         this.stackNameType = stackNameType;
+        this.size = size;
     }
 }

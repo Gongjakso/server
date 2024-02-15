@@ -52,15 +52,16 @@ public class PostController {
     public ApplicationResponse<Page<GetProjectRes>> list(@PageableDefault(size = 6) Pageable pageable,
                                                          @RequestParam(value = "searchWord", required = false) String searchWord,
                                                          @RequestParam(value = "stackName", required = false) String stackName,
-                                                         @RequestParam(value = "meetingArea", required = false) String meetingArea) {
+                                                         @RequestParam(value = "meetingArea", required = false) String meetingArea,
+                                                         @RequestParam(value = "sort", required = false) String sort) {
         if(stackName.isBlank() && meetingArea.isBlank()){
             if(searchWord.isBlank()){
-                return ApplicationResponse.ok(postService.getProjects(pageable));
+                return ApplicationResponse.ok(postService.getProjects(sort, pageable));
             }else {
-                return ApplicationResponse.ok(postService.getProjectsBySearchWord(searchWord, pageable));
+                return ApplicationResponse.ok(postService.getProjectsBySearchWord(sort, searchWord, pageable));
             }
         }else {
-            return ApplicationResponse.ok(postService.getProjectsByMeetingAreaAndStackNameAndSearchWord(meetingArea, stackName, searchWord, pageable));
+            return ApplicationResponse.ok(postService.getProjectsByMeetingAreaAndStackNameAndSearchWord(sort, meetingArea, stackName, searchWord, pageable));
         }
     }
 }
