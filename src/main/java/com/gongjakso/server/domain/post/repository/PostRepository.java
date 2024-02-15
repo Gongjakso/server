@@ -1,8 +1,11 @@
 package com.gongjakso.server.domain.post.repository;
 
 import com.gongjakso.server.domain.post.entity.Post;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 public interface PostRepository extends JpaRepository<Post, Long> {
@@ -10,4 +13,5 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     //Page<Post> findByCategory(StackName stackname, Pageable pageable);
     Post findByPostId(Long post_id);
     Optional<Post> findByPostIdAndDeletedAtIsNull(Long postId);
+    Page<Post> findAllByPostTypeAndEndDateAfter(Boolean postType, LocalDateTime endDate, Pageable pageable);
 }
