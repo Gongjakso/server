@@ -1,9 +1,6 @@
 package com.gongjakso.server.domain.post.controller;
 
-import com.gongjakso.server.domain.post.dto.GetProjectRes;
-import com.gongjakso.server.domain.post.dto.PostDeleteRes;
-import com.gongjakso.server.domain.post.dto.PostReq;
-import com.gongjakso.server.domain.post.dto.PostRes;
+import com.gongjakso.server.domain.post.dto.*;
 import com.gongjakso.server.domain.post.service.PostService;
 import com.gongjakso.server.global.common.ApplicationResponse;
 import com.gongjakso.server.global.security.PrincipalDetails;
@@ -47,9 +44,27 @@ public class PostController {
         return ApplicationResponse.ok(postService.delete(principalDetails.getMember(), id));
     }
 
+    @Operation(summary = "공모전 공고 목록 조회 및 페이지네이션 API", description = "공모전 공고 페이지에서 공고 목록 조회")
+    @GetMapping("/contest")
+    public ApplicationResponse<Page<GetContestRes>> contestList(@PageableDefault(size = 6) Pageable pageable,
+                                                         @RequestParam(value = "searchWord", required = false) String searchWord,
+                                                         @RequestParam(value = "category", required = false) String category,
+                                                         @RequestParam(value = "meetingArea", required = false) String meetingArea,
+                                                         @RequestParam(value = "sort", required = false) String sort) {
+        if(category.isBlank() && meetingArea.isBlank()){
+            if(searchWord.isBlank()){
+                return ApplicationResponse.ok(postService.getContests(sort, pageable));
+            }else {
+                return ApplicationResponse.ok(postService.getContestsBySearchWord(sort, searchWord, pageable));
+            }
+        }else {
+            return ApplicationResponse.ok(postService.getContestsByMeetingAreaAndCategoryAndSearchWord(sort, meetingArea, category, searchWord, pageable));
+        }
+    }
+
     @Operation(summary = "프로젝트 공고 목록 조회 및 페이지네이션 API", description = "프로젝트 공고 페이지에서 공고 목록 조회")
     @GetMapping("/project")
-    public ApplicationResponse<Page<GetProjectRes>> list(@PageableDefault(size = 6) Pageable pageable,
+    public ApplicationResponse<Page<GetProjectRes>> projectList(@PageableDefault(size = 6) Pageable pageable,
                                                          @RequestParam(value = "searchWord", required = false) String searchWord,
                                                          @RequestParam(value = "stackName", required = false) String stackName,
                                                          @RequestParam(value = "meetingArea", required = false) String meetingArea,

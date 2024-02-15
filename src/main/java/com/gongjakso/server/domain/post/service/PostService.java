@@ -2,13 +2,12 @@ package com.gongjakso.server.domain.post.service;
 
 import com.gongjakso.server.domain.member.entity.Member;
 import com.gongjakso.server.domain.post.common.Pagination;
-import com.gongjakso.server.domain.post.dto.GetProjectRes;
-import com.gongjakso.server.domain.post.dto.PostDeleteRes;
-import com.gongjakso.server.domain.post.dto.PostReq;
-import com.gongjakso.server.domain.post.dto.PostRes;
+import com.gongjakso.server.domain.post.dto.*;
+import com.gongjakso.server.domain.post.entity.Category;
 import com.gongjakso.server.domain.post.entity.Post;
 import com.gongjakso.server.domain.post.entity.PostScrap;
 import com.gongjakso.server.domain.post.entity.StackName;
+import com.gongjakso.server.domain.post.enumerate.CategoryType;
 import com.gongjakso.server.domain.post.enumerate.StackNameType;
 import com.gongjakso.server.domain.post.repository.PostRepository;
 import com.gongjakso.server.domain.post.repository.PostScrapRepository;
@@ -41,15 +40,19 @@ public class PostService {
     public PostRes create(Member member, PostReq req) {
         Post entity = new Post(req.getTitle(), member, req.getContents(), req.getStatus(), req.getStartDate(), req.getEndDate(),
                 req.getFinishDate(), req.getMaxPerson(), req.getMeetingMethod(), req.getMeetingArea(), req.isQuestionMethod(),
-                req.getQuestionLink(), req.isPostType(), new ArrayList<>());
+                req.getQuestionLink(), req.isPostType(), new ArrayList<>(), new ArrayList<>());
 
         List<StackName> stackNames = req.getStackNames().stream()
-                .map(stackNameReq ->  new StackName(entity, stackNameReq.getStackNameType().toString(), stackNameReq.getSize()))
+                .map(stackNameReq ->  new StackName(entity, stackNameReq.getStackNameType().toString()))
                 .collect(Collectors.toList());
         entity.getStackNames().addAll(stackNames);
 
-        postRepository.save(entity);
+        List<Category> categories = req.getCategories().stream()
+                .map(categoryReq ->  new Category(entity, categoryReq.getCategoryType().toString(), categoryReq.getSize()))
+                .collect(Collectors.toList());
+        entity.getCategories().addAll(categories);
 
+        postRepository.save(entity);
         return PostRes.builder()
                 .postId(entity.getPostId())
                 .memberId(entity.getMember().getMemberId())
@@ -61,6 +64,7 @@ public class PostService {
                 .finishDate(entity.getFinishDate())
                 .maxPerson(entity.getMaxPerson())
                 .stackNames(entity.getStackNames())
+                .categories(entity.getCategories())
                 .meetingMethod(entity.getMeetingMethod())
                 .meetingArea(entity.getMeetingArea())
                 .questionMethod(entity.isQuestionMethod())
@@ -70,7 +74,6 @@ public class PostService {
                 .modifiedAt(entity.getModifiedAt())
                 .deletedAt(entity.getDeletedAt())
                 .build();
-
     }
 
     @Transactional
@@ -91,6 +94,8 @@ public class PostService {
                 .startDate(post.getStartDate())
                 .endDate(post.getEndDate())
                 .maxPerson(post.getMaxPerson())
+                .stackNames(post.getStackNames())
+                .categories(post.getCategories())
                 .meetingMethod(post.getMeetingMethod())
                 .meetingArea(post.getMeetingArea())
                 .questionMethod(post.isQuestionMethod())
@@ -111,11 +116,17 @@ public class PostService {
         }
 
         entity.getStackNames().clear();
-
+        entity.getCategories().clear();
         List<StackName> updatedStackNames = req.getStackNames().stream()
-                .map(stackNameReq ->  new StackName(entity, stackNameReq.getStackNameType().toString(), stackNameReq.getSize()))
+                .map(stackNameReq ->  new StackName(entity, stackNameReq.getStackNameType().toString()))
                 .collect(Collectors.toList());
         entity.getStackNames().addAll(updatedStackNames);
+
+        List<Category> categories = req.getCategories().stream()
+                .map(categoryReq ->  new Category(entity, categoryReq.getCategoryType().toString(), categoryReq.getSize()))
+                .collect(Collectors.toList());
+        entity.getCategories().addAll(categories);
+
 
         return PostRes.builder()
                 .postId(entity.getPostId())
@@ -128,6 +139,7 @@ public class PostService {
                 .finishDate(entity.getFinishDate())
                 .maxPerson(entity.getMaxPerson())
                 .stackNames(entity.getStackNames())
+                .categories(entity.getCategories())
                 .meetingMethod(entity.getMeetingMethod())
                 .meetingArea(entity.getMeetingArea())
                 .questionMethod(entity.isQuestionMethod())
@@ -154,6 +166,109 @@ public class PostService {
                 .postId(entity.getPostId())
                 .memberId(entity.getMember().getMemberId())
                 .build();
+    }
+
+    /*
+    전체 공모전 공고 목록 조회
+     */
+    public Page<GetContestRes> getContests(String sort, Pageable p) throws ApplicationException {
+        int page = p.getPageNumber();
+        int size = p.getPageSize();
+        try {
+            Pagination pagination = new Pagination((int) postRepository.count(), page, size);
+            Pageable pageable = PageRequest.of(pagination.getPage(), size);
+            Page<Post> posts;
+            if(sort.equals("createdAt,desc")){ //최신순
+                posts = postRepository.findAllByPostTypeFalseAndDeletedAtIsNullAndFinishDateAfterAndStatusOrderByCreatedAtDesc(LocalDateTime.now(), RECRUITING, pageable);
+            } else{ //스크랩순
+                posts = postRepository.findAllByPostTypeFalseAndDeletedAtIsNullAndFinishDateAfterAndStatusOrderByScrapCountDescCreatedAtDesc(LocalDateTime.now(), RECRUITING, pageable);
+            }
+            return posts.map(post -> new GetContestRes(
+                    post.getPostId(),
+                    post.getTitle(),
+                    post.getMember().getName(),
+                    post.getStatus(),
+                    post.getStartDate(),
+                    post.getFinishDate()
+            ));
+        } catch (Exception e) {
+            throw new ApplicationException(INVALID_VALUE_EXCEPTION);
+        }
+    }
+
+    /*
+   검색어 기반 공모전 공고 목록 조회
+    */
+    public Page<GetContestRes> getContestsBySearchWord(String sort, String searchWord, Pageable page) throws ApplicationException {
+        try {
+            Pagination pagination = new Pagination((int) postRepository.count(), page.getPageNumber(), page.getPageSize());
+            Pageable pageable = PageRequest.of(pagination.getPage(), page.getPageSize());
+            searchWord = searchWord.replaceAll(" ", ""); // 검색어에서 공백 제거
+            Page<Post> posts;
+            if (sort.equals("createdAt,desc")) {
+                posts = postRepository.findAllByTitleContainsAndPostTypeFalseAndDeletedAtIsNullAndFinishDateAfterAndStatusOrderByCreatedAtDesc(searchWord.toLowerCase(), LocalDateTime.now(), RECRUITING, pageable);
+            } else{
+                posts = postRepository.findAllByTitleContainsAndPostTypeFalseAndDeletedAtIsNullAndFinishDateAfterAndStatusOrderByScrapCountDescCreatedAtDesc(searchWord.toLowerCase(), LocalDateTime.now(), RECRUITING, pageable);
+            }
+            return posts.map(post -> new GetContestRes(
+                    post.getPostId(),
+                    post.getTitle(),
+                    post.getMember().getName(),
+                    post.getStatus(),
+                    post.getStartDate(),
+                    post.getFinishDate()
+            ));
+        } catch (Exception e) {
+            throw new ApplicationException(INVALID_VALUE_EXCEPTION);
+        }
+    }
+
+    /*
+    지역, 카테고리 기반 공모전 공고 목록 조회
+     */
+    public Page<GetContestRes> getContestsByMeetingAreaAndCategoryAndSearchWord(
+            String sort, String meetingArea, String category, String searchWord, Pageable page) throws ApplicationException {
+        try {
+            Pagination pagination = new Pagination((int) postRepository.count(), page.getPageNumber(), page.getPageSize());
+            Pageable pageable = PageRequest.of(pagination.getPage(), page.getPageSize());
+            searchWord = searchWord.replaceAll(" ", "");
+            if(!category.isBlank()) {
+                if (!CategoryType.isValid(category)){
+                    throw new ApplicationException(INVALID_VALUE_EXCEPTION);
+                }
+                Page<Post> posts;
+                if (sort.equals("createdAt,desc")) {
+                    posts = postRepository.findAllPostsJoinedWithCategoriesByTitleContainsAndPostTypeFalseAndDeletedAtIsNullAndFinishDateAfterAndStatusAndMeetingAreaContainsAndCategoriesCategoryTypeContainsOrderByCreatedAtDesc(searchWord.toLowerCase(), LocalDateTime.now(), RECRUITING, meetingArea, category.toString(), pageable);
+                }else{
+                    posts = postRepository.findAllPostsJoinedWithCategoriesByTitleContainsAndPostTypeFalseAndDeletedAtIsNullAndFinishDateAfterAndStatusAndMeetingAreaContainsAndCategoriesCategoryTypeContainsOrderByScrapCountDescCreatedAtDesc(searchWord.toLowerCase(), LocalDateTime.now(), RECRUITING, meetingArea, category.toString(), pageable);
+                }
+                return posts.map(post -> new GetContestRes(
+                        post.getPostId(),
+                        post.getTitle(),
+                        post.getMember().getName(),
+                        post.getStatus(),
+                        post.getStartDate(),
+                        post.getFinishDate()
+                ));
+            } else{
+                Page<Post> posts;
+                if (sort.equals("createdAt,desc")) {
+                    posts = postRepository.findAllByTitleContainsAndPostTypeFalseAndDeletedAtIsNullAndFinishDateAfterAndStatusAndMeetingAreaContainsOrderByCreatedAtDesc(searchWord.toLowerCase(), LocalDateTime.now(), RECRUITING, meetingArea, pageable);
+                }else{
+                    posts = postRepository.findAllByTitleContainsAndPostTypeFalseAndDeletedAtIsNullAndFinishDateAfterAndStatusAndMeetingAreaContainsOrderByScrapCountDescCreatedAtDesc(searchWord.toLowerCase(), LocalDateTime.now(), RECRUITING, meetingArea, pageable);
+                }
+                return posts.map(post -> new GetContestRes(
+                        post.getPostId(),
+                        post.getTitle(),
+                        post.getMember().getName(),
+                        post.getStatus(),
+                        post.getStartDate(),
+                        post.getFinishDate()
+                ));
+            }
+        } catch (Exception e) {
+            throw new ApplicationException(INVALID_VALUE_EXCEPTION);
+        }
     }
 
     /*
