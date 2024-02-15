@@ -31,11 +31,17 @@ public class ApplyController {
     public ApplicationResponse<ApplyRes> getApply(@PathVariable("post_id") Long postId){
         return ApplicationResponse.ok(applyService.findApply(postId));
     }
-    //
+    //내가 모집 중인 팀 지원자 정보 요청 api
     @Operation(summary = "내가 모집 중인 팀 지원자 정보 API", description = "내가 모집 중인 팀 페이지에서 필요한 지원자 정보 요청")
-    @GetMapping("/{post_id}/applyList")
-    public ApplicationResponse<PageRes> getApplyList(@PathVariable("post_id") Long postId,@RequestParam(name = "page", defaultValue = "0") int page,@RequestParam(name = "size", defaultValue = "11") int size){
+    @GetMapping("/{post_id}/applylist")
+    public ApplicationResponse<ApplyPageRes> getApplyList(@PathVariable("post_id") Long postId,@RequestParam(name = "page", defaultValue = "0") int page,@RequestParam(name = "size", defaultValue = "11") int size){
         return ApplicationResponse.ok(applyService.applyListPage(postId,page,size));
+    }
+    //내가 참여한 공고 정보 요청 api
+    @Operation(summary = "내가 참여한 공고 정보 API", description = "내가 참여한 공고 정보")
+    @GetMapping("/my-participation-post")
+    public ApplicationResponse<ParticipationPageRes> getMyParticipationPostList(@RequestParam(name = "page", defaultValue = "0") int page,@RequestParam(name = "size", defaultValue = "6") int size){
+        return ApplicationResponse.ok(applyService.myParticipationPostListPage(page,size));
     }
     //지원서 열람 요청 api
     @Operation(summary = "지원서 열람 API", description = "내가 모집 중인 팀 페이지에서 지원서 열람 시")

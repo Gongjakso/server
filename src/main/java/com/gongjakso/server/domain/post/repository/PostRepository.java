@@ -16,7 +16,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     Post findByPostId(Long postId);
 
     Optional<Post> findByPostIdAndDeletedAtIsNull(Long postId);
-
+    List<Post> findAllByEndDateBetweenAndPostIdIn(LocalDateTime endDate, LocalDateTime endDate2, List<Long> postIdList);
     /*
     전체 공모전 공고 목록 조회 최신순
      */

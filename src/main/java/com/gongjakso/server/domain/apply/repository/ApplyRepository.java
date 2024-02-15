@@ -11,9 +11,10 @@ import java.util.List;
 
 public interface ApplyRepository extends JpaRepository<Apply,Long> {
     long countApplyByPost(Post post);
-    List<Apply> findAllByPost(Post post);
     boolean existsApplyByMemberAndPost(Member member,Post post);
     Page<Apply> findAllByPost(Post post, Pageable pageable);
+
+    Page<Apply> findApplyByIsPass(Boolean IsPass, Pageable pageable);
 
     List<Apply> findAllByMemberAndDeletedAtIsNull(Member member);
 }

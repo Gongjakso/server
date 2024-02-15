@@ -13,6 +13,6 @@ public record ApplicationRes(
         List<String> category
 ) {
     public static ApplicationRes of(Apply apply,List<String> category){
-        return new ApplicationRes(apply.getIs_decision(),apply.getApplication(), apply.getRecruit_part(),category);
+        return new ApplicationRes(apply.getIsDecision(),apply.getApplication(), apply.getRecruit_part(),category);
     }
 }
