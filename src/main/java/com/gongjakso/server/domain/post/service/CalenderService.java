@@ -12,7 +12,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -25,21 +27,19 @@ public class CalenderService {
     private final PostRepository postRepository;
     public CalenderRes findScrapPost(Member member,int year,int month){
         List<PostScrap> postScraps = postScrapRepository.findByMemberAndScrapStatus(member,true);
-        List<Post> posts = postScraps.stream()
-                .map(postScrap -> {
-                    Post post = postRepository.findByPostId(postScrap.getPost().getPostId());
-                    LocalDateTime endDate = post.getEndDate();
-                    if (endDate.getYear() == year && endDate.getMonthValue() == month) {
-                        return post;
-                    } else {
-                        return null;
-                    }
-
-                })
-                .filter(post->post!=null)
-                .toList();
+        List<Long> postIdList = postScraps.stream().map(postScrap -> postScrap.getPost().getPostId()).toList();
+        List<Post> posts = postRepository.findAllByEndDateBetweenAndPostIdIn(getFirstDayOfMonth(year,month),getLastDayOfMonth(year,month), postIdList);
         List<ScrapPost> scrapPosts = posts.stream().map(ScrapPost::of)
                 .collect(Collectors.toList());
         return CalenderRes.of(scrapPosts);
+    }
+    public static LocalDateTime getFirstDayOfMonth(int year, int month) {
+        LocalDate firstDayOfMonth = LocalDate.of(year, month, 1);
+        return LocalDateTime.of(firstDayOfMonth, LocalTime.MIN);
+    }
+
+    public static LocalDateTime getLastDayOfMonth(int year, int month) {
+        LocalDate lastDayOfMonth = LocalDate.of(year, month, 1).plusMonths(1).minusDays(1);
+        return LocalDateTime.of(lastDayOfMonth, LocalTime.MAX);
     }
 }

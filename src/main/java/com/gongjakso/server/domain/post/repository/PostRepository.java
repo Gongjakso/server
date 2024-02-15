@@ -8,13 +8,14 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 public interface PostRepository extends JpaRepository<Post, Long> {
     Post findByPostId(Long postId);
 
     Optional<Post> findByPostIdAndDeletedAtIsNull(Long postId);
-
+    List<Post> findAllByEndDateBetweenAndPostIdIn(LocalDateTime endDate, LocalDateTime endDate2, List<Long> postIdList);
     /*
     전체 프로젝트 공고 목록 조회 최신순
      */
