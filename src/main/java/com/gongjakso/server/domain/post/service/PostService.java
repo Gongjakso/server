@@ -35,10 +35,13 @@ public class PostService {
     private final PostRepository postRepository;
     private final PostScrapRepository postScrapRepository;
 
-
     @Transactional
     public PostRes create(Member member, PostReq req) {
-        Post entity = new Post(req.getTitle(), member, req.getContents(), req.getStatus(), req.getStartDate(), req.getEndDate(),
+        if(postRepository.countByMemberAndPostTypeFalseAndDeletedAtIsNullAndFinishDateAfterAndStatus(member, LocalDateTime.now(), RECRUITING).equals(1)){
+            throw new ApplicationException(NOT_POST_EXCEPTION);
+        }
+
+        Post entity = new Post(req.getTitle(), member, req.getContents(), req.getContestLink(), req.getStartDate(), req.getEndDate(),
                 req.getFinishDate(), req.getMaxPerson(), req.getMeetingMethod(), req.getMeetingArea(), req.isQuestionMethod(),
                 req.getQuestionLink(), req.isPostType(), new ArrayList<>(), new ArrayList<>());
 
@@ -58,6 +61,7 @@ public class PostService {
                 .memberId(entity.getMember().getMemberId())
                 .title(entity.getTitle())
                 .contents(entity.getContents())
+                .contestLink(entity.getContestLink())
                 .status(entity.getStatus())
                 .startDate(entity.getStartDate())
                 .endDate(entity.getEndDate())
@@ -79,17 +83,14 @@ public class PostService {
     @Transactional
     public PostRes read(Member member, Long id) {
         Post post = postRepository.findById(id)
-                .orElseThrow(() -> new ApplicationException(NOT_FOUND_EXCEPTION));
-
-        if(!member.getMemberId().equals(post.getMember().getMemberId())) {
-            throw new ApplicationException(UNAUTHORIZED_EXCEPTION);
-        }
+                .orElseThrow(() -> new ApplicationException(NOT_FOUND_POST_EXCEPTION));
 
         return PostRes.builder()
                 .postId(post.getPostId())
                 .memberId(post.getMember().getMemberId())
                 .title(post.getTitle())
                 .contents(post.getContents())
+                .contestLink(post.getContestLink())
                 .status(post.getStatus())
                 .startDate(post.getStartDate())
                 .endDate(post.getEndDate())
@@ -133,6 +134,7 @@ public class PostService {
                 .memberId(entity.getMember().getMemberId())
                 .title(entity.getTitle())
                 .contents(entity.getContents())
+                .contestLink(entity.getContestLink())
                 .status(entity.getStatus())
                 .startDate(entity.getStartDate())
                 .endDate(entity.getEndDate())
@@ -189,6 +191,7 @@ public class PostService {
                     post.getMember().getName(),
                     post.getStatus(),
                     post.getStartDate(),
+                    post.getEndDate(),
                     post.getFinishDate(),
                     post.getCategories(),
                     post.getScrapCount()
@@ -218,6 +221,7 @@ public class PostService {
                     post.getMember().getName(),
                     post.getStatus(),
                     post.getStartDate(),
+                    post.getEndDate(),
                     post.getFinishDate(),
                     post.getCategories(),
                     post.getScrapCount()
@@ -252,6 +256,7 @@ public class PostService {
                         post.getMember().getName(),
                         post.getStatus(),
                         post.getStartDate(),
+                        post.getEndDate(),
                         post.getFinishDate(),
                         post.getCategories(),
                         post.getScrapCount()
@@ -269,6 +274,7 @@ public class PostService {
                         post.getMember().getName(),
                         post.getStatus(),
                         post.getStartDate(),
+                        post.getEndDate(),
                         post.getFinishDate(),
                         post.getCategories(),
                         post.getScrapCount()
@@ -300,6 +306,7 @@ public class PostService {
                     post.getMember().getName(),
                     post.getStatus(),
                     post.getStartDate(),
+                    post.getEndDate(),
                     post.getFinishDate(),
                     post.getCategories(),
                     post.getScrapCount()
@@ -329,6 +336,7 @@ public class PostService {
                     post.getMember().getName(),
                     post.getStatus(),
                     post.getStartDate(),
+                    post.getEndDate(),
                     post.getFinishDate(),
                     post.getCategories(),
                     post.getScrapCount()
@@ -363,6 +371,7 @@ public class PostService {
                     post.getMember().getName(),
                     post.getStatus(),
                     post.getStartDate(),
+                    post.getEndDate(),
                     post.getFinishDate(),
                     post.getCategories(),
                     post.getScrapCount()
@@ -380,6 +389,7 @@ public class PostService {
                         post.getMember().getName(),
                         post.getStatus(),
                         post.getStartDate(),
+                        post.getEndDate(),
                         post.getFinishDate(),
                         post.getCategories(),
                         post.getScrapCount()
