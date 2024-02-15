@@ -32,8 +32,24 @@ import java.util.stream.Collectors;
 public class ContestService {
     private final PostRepository postRepository;
     private final CategoryRepository categoryRepository;
-    public ContestPageRes contestListPage(int page, int size, String region, String sort){
-        Pageable pageable = PageRequest.of(page,size, Sort.by(Sort.Direction.DESC,"createdAt"));
+    public ContestPageRes contestListPage(int page, int size, String region,String searchWord, String sort){
+        Pageable pageable = PageRequest.of(page,size, Sort.by(Sort.Direction.DESC,sort));
+        //지역,검색 조건 모두 없을 경우
+        if(region.equals("null")&&searchWord.equals("null")){
+
+        }
+        //지역 조건만 있을 경우
+        else if (!region.equals("null")&&searchWord.equals("null")) {
+
+        }
+        //검색 조건만 있을 경우
+        else if (region.equals("null")&&!searchWord.equals("null")) {
+
+        }
+        //지역,검색 조건 모두 있을 경우
+        else {
+
+        }
         Page<Post> contestPage = postRepository.findAllByPostTypeAndEndDateAfter(false,LocalDateTime.now(),pageable);
         List<ContestList> contestLists = contestPage.getContent().stream()
                 .map(post -> ContestList.of(post, calculateDate(post),createCategoryList(post)))
