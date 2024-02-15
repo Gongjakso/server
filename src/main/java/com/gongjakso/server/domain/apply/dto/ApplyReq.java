@@ -4,7 +4,6 @@ import com.gongjakso.server.domain.apply.entity.Apply;
 import com.gongjakso.server.domain.apply.enumerate.PostType;
 import com.gongjakso.server.domain.member.entity.Member;
 import com.gongjakso.server.domain.post.entity.Post;
-import java.util.Optional;
 
 public record ApplyReq(
         String application,
