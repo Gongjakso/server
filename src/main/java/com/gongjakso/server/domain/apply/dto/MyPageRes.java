@@ -1,4 +1,4 @@
-package com.gongjakso.server.domain.post.dto;
+package com.gongjakso.server.domain.apply.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.gongjakso.server.domain.member.entity.Member;
@@ -44,3 +44,4 @@ public record MyPageRes(
                 .build();
     }
 }
+

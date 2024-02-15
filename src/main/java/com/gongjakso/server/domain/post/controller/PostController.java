@@ -13,6 +13,8 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/v1/post")
 @RequiredArgsConstructor
@@ -85,5 +87,11 @@ public class PostController {
     public ApplicationResponse<Void> scrapPost(@AuthenticationPrincipal PrincipalDetails principalDetails, @PathVariable("id") Long id) {
         postService.scrapPost(principalDetails.getMember(), id);
         return ApplicationResponse.ok();
+    }
+
+    @Operation(summary = "내가 모집 중인 팀 조회 API", description = "프로젝트/공모전 별 각 한 개씩 묶어서 리스트 형태로 반환")
+    @GetMapping("/my")
+    public ApplicationResponse<List<MyPageRes>> getMyPostList(@AuthenticationPrincipal PrincipalDetails principalDetails) {
+        return ApplicationResponse.ok(postService.getMyPostList(principalDetails.getMember()));
     }
 }
