@@ -117,4 +117,6 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     (@Param("searchWord") String searchWord, @Param("currentTimestamp") LocalDateTime currentTimestamp, @Param("status") PostStatus status, @Param("meetingArea") String meetingArea, @Param("stackNameType") String stackNameType,Pageable pageable);
 
     List<Post> findAllByMemberAndStatusAndDeletedAtIsNull(Member member, PostStatus status);
+
+    List<Post> findAllByPostIdInAndStatusAndDeletedAtIsNull(List<Long> postId, PostStatus status);
 }
