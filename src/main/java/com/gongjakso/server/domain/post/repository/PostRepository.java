@@ -1,5 +1,6 @@
 package com.gongjakso.server.domain.post.repository;
 
+import com.gongjakso.server.domain.member.entity.Member;
 import com.gongjakso.server.domain.post.entity.Post;
 import com.gongjakso.server.domain.post.enumerate.PostStatus;
 import org.springframework.data.domain.Page;
@@ -14,6 +15,18 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     Post findByPostId(Long postId);
 
     Optional<Post> findByPostIdAndDeletedAtIsNull(Long postId);
+
+    /*
+    내가 모집 중인 공모전 공고 개수
+     */
+    Integer countByMemberAndPostTypeFalseAndDeletedAtIsNullAndFinishDateAfterAndStatus
+    (Member member, LocalDateTime currentTimestamp, PostStatus status);
+
+    /*
+    내가 모집 중인 프로젝트 공고 개수
+     */
+    Integer countByMemberAndPostTypeTrueAndDeletedAtIsNullAndFinishDateAfterAndStatus
+    (Member member, LocalDateTime currentTimestamp, PostStatus status);
 
     /*
     전체 공모전 공고 목록 조회 최신순

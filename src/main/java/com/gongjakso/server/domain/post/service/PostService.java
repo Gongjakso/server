@@ -37,7 +37,10 @@ public class PostService {
 
     @Transactional
     public PostRes create(Member member, PostReq req) {
-        if(postRepository.countByMemberAndPostTypeFalseAndDeletedAtIsNullAndFinishDateAfterAndStatus(member, LocalDateTime.now(), RECRUITING).equals(1)){
+        if(req.isPostType() == false && !postRepository.countByMemberAndPostTypeFalseAndDeletedAtIsNullAndFinishDateAfterAndStatus(member, LocalDateTime.now(), RECRUITING).equals(0)){ //공모전 공고 모집 개수 제한
+            throw new ApplicationException(NOT_POST_EXCEPTION);
+        }
+        if(req.isPostType() == true && !postRepository.countByMemberAndPostTypeTrueAndDeletedAtIsNullAndFinishDateAfterAndStatus(member, LocalDateTime.now(), RECRUITING).equals(0)){ //프로젝트 공고 모집 개수 제한
             throw new ApplicationException(NOT_POST_EXCEPTION);
         }
 
