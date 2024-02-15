@@ -1,5 +1,6 @@
 package com.gongjakso.server.domain.post.dto;
 
+import com.gongjakso.server.domain.post.entity.Category;
 import com.gongjakso.server.domain.post.entity.StackName;
 import com.gongjakso.server.domain.post.enumerate.MeetingMethod;
 import com.gongjakso.server.domain.post.enumerate.PostStatus;
@@ -21,6 +22,7 @@ public class PostRes {
     private LocalDateTime finishDate;
     private Long maxPerson;
     private List<StackName> stackNames;
+    private List<Category> categories;
     private MeetingMethod meetingMethod;
     private String meetingArea;
     private boolean questionMethod;
@@ -32,7 +34,7 @@ public class PostRes {
 
     @Builder
     public PostRes(Long postId, Long memberId, String title, String contents, PostStatus status, LocalDateTime startDate, LocalDateTime endDate,
-                   LocalDateTime finishDate, Long maxPerson, List<StackName> stackNames, MeetingMethod meetingMethod, String meetingArea, boolean questionMethod, String questionLink,
+                   LocalDateTime finishDate, Long maxPerson, List<StackName> stackNames, List<Category> categories, MeetingMethod meetingMethod, String meetingArea, boolean questionMethod, String questionLink,
                    boolean postType, LocalDateTime createdAt, LocalDateTime modifiedAt, LocalDateTime deletedAt) {
         this.postId = postId;
         this.memberId = memberId;
@@ -44,6 +46,7 @@ public class PostRes {
         this.finishDate = finishDate;
         this.maxPerson = maxPerson;
         this.stackNames = stackNames;
+        this.categories = categories;
         this.meetingArea = meetingArea;
         this.meetingMethod = meetingMethod;
         this.questionMethod = questionMethod;

@@ -53,8 +53,11 @@ public class Post extends BaseTimeEntity {
     @Column(name = "max_person", nullable = false, columnDefinition = "bigint")
     private Long maxPerson;
 
-    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<StackName> stackNames = new ArrayList<>();
+
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    private List<Category> categories = new ArrayList<>();
 
     @Column(name = "meeting_method", columnDefinition = "varchar(10)")
     @Enumerated(EnumType.STRING)
@@ -81,7 +84,8 @@ public class Post extends BaseTimeEntity {
     @Builder
     public Post(String title, Member member, String contents, PostStatus status, LocalDateTime startDate,
                 LocalDateTime endDate, LocalDateTime finishDate, Long maxPerson, MeetingMethod meetingMethod,
-                String meetingArea, boolean questionMethod, String questionLink, boolean postType,List<StackName> stackNames) {
+                String meetingArea, boolean questionMethod, String questionLink, boolean postType,
+                List<StackName> stackNames, List<Category> categories) {
         this.title = title;
         this.member = member;
         this.contents = contents;
@@ -97,6 +101,7 @@ public class Post extends BaseTimeEntity {
         this.postType = postType;
         this.daysRemaining = finishDate.isBefore(LocalDateTime.now()) ? -1 : ChronoUnit.DAYS.between(LocalDateTime.now(), finishDate);
         this.stackNames = stackNames;
+        this.categories = categories;
     }
 
     public void modify(PostReq req) {
@@ -114,5 +119,6 @@ public class Post extends BaseTimeEntity {
         this.postType = req.isPostType();
         this.daysRemaining = finishDate.isBefore(LocalDateTime.now()) ? -1 : ChronoUnit.DAYS.between(LocalDateTime.now(), finishDate);
         this.stackNames = req.getStackNames();
+        this.categories = req.getCategories();
     }
 }

@@ -16,6 +16,56 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     Optional<Post> findByPostIdAndDeletedAtIsNull(Long postId);
 
     /*
+    전체 공모전 공고 목록 조회 최신순
+     */
+    Page<Post> findAllByPostTypeFalseAndDeletedAtIsNullAndFinishDateAfterAndStatusOrderByCreatedAtDesc
+    (@Param("currentTimestamp") LocalDateTime currentTimestamp, @Param("status") PostStatus status, Pageable pageable);
+
+    /*
+    전체 공모전 공고 목록 조회 스크랩순
+     */
+    Page<Post> findAllByPostTypeFalseAndDeletedAtIsNullAndFinishDateAfterAndStatusOrderByScrapCountDescCreatedAtDesc
+    (@Param("currentTimestamp") LocalDateTime currentTimestamp, @Param("status") PostStatus status, Pageable pageable);
+
+    /*
+    검색어 기반 공모전 공고 목록 조회 최신순
+     */
+    Page<Post> findAllByTitleContainsAndPostTypeFalseAndDeletedAtIsNullAndFinishDateAfterAndStatusOrderByCreatedAtDesc
+    (@Param("searchWord") String searchWord, @Param("currentTimestamp") LocalDateTime currentTimestamp, @Param("status") PostStatus status, Pageable pageable);
+
+    /*
+    검색어 기반 공모전 공고 목록 조회 스크랩순
+     */
+    Page<Post> findAllByTitleContainsAndPostTypeFalseAndDeletedAtIsNullAndFinishDateAfterAndStatusOrderByScrapCountDescCreatedAtDesc
+    (@Param("searchWord") String searchWord, @Param("currentTimestamp") LocalDateTime currentTimestamp, @Param("status") PostStatus status, Pageable pageable);
+
+    /*
+    지역, 검색어 기반 공모전 공고 목록 조회 최신순
+     */
+    Page<Post> findAllByTitleContainsAndPostTypeFalseAndDeletedAtIsNullAndFinishDateAfterAndStatusAndMeetingAreaContainsOrderByCreatedAtDesc
+    (@Param("searchWord") String searchWord, @Param("currentTimestamp") LocalDateTime currentTimestamp, @Param("status") PostStatus status, @Param("meetingArea") String meetingArea, Pageable pageable);
+
+    /*
+    지역, 검색어 기반 공모전 공고 목록 조회 스크랩순
+     */
+    Page<Post> findAllByTitleContainsAndPostTypeFalseAndDeletedAtIsNullAndFinishDateAfterAndStatusAndMeetingAreaContainsOrderByScrapCountDescCreatedAtDesc
+    (@Param("searchWord") String searchWord, @Param("currentTimestamp") LocalDateTime currentTimestamp, @Param("status") PostStatus status, @Param("meetingArea") String meetingArea, Pageable pageable);
+
+
+    /*
+    지역, 카테고리, 검색어 기반 공모전 공고 목록 조회 최신순
+     */
+    Page<Post> findAllPostsJoinedWithCategoriesByTitleContainsAndPostTypeFalseAndDeletedAtIsNullAndFinishDateAfterAndStatusAndMeetingAreaContainsAndCategoriesCategoryTypeContainsOrderByCreatedAtDesc
+    (@Param("searchWord") String searchWord, @Param("currentTimestamp") LocalDateTime currentTimestamp, @Param("status") PostStatus status, @Param("meetingArea") String meetingArea, @Param("stackNameType") String categoryType,Pageable pageable);
+
+    /*
+    지역, 카테고리, 검색어 기반 공모전 공고 목록 조회 최신순
+     */
+    Page<Post> findAllPostsJoinedWithCategoriesByTitleContainsAndPostTypeFalseAndDeletedAtIsNullAndFinishDateAfterAndStatusAndMeetingAreaContainsAndCategoriesCategoryTypeContainsOrderByScrapCountDescCreatedAtDesc
+    (@Param("searchWord") String searchWord, @Param("currentTimestamp") LocalDateTime currentTimestamp, @Param("status") PostStatus status, @Param("meetingArea") String meetingArea, @Param("stackNameType") String categoryType,Pageable pageable);
+
+
+    /*
     전체 프로젝트 공고 목록 조회 최신순
      */
     Page<Post> findAllByPostTypeTrueAndDeletedAtIsNullAndFinishDateAfterAndStatusOrderByCreatedAtDesc

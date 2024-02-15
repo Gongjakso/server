@@ -5,6 +5,7 @@ import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-public class StackNameReq {
-    private String stackNameType;
+public class CategoryReq {
+    private String categoryType;
+    private Integer size;
 }
