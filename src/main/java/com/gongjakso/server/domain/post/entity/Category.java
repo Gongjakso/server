@@ -1,5 +1,6 @@
 package com.gongjakso.server.domain.post.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.gongjakso.server.domain.post.enumerate.CategoryType;
 import com.gongjakso.server.global.common.BaseTimeEntity;
 import jakarta.persistence.*;
@@ -17,8 +18,9 @@ public class Category extends BaseTimeEntity {
     @Column(name = "category_id", nullable = false, columnDefinition = "bigint")
     private Long categoryId;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "post_id", nullable = false, columnDefinition = "bigint")
+    @JsonIgnore
     private Post post;
 
     @Column(name = "category_type", nullable = false, columnDefinition = "varchar(100)")
