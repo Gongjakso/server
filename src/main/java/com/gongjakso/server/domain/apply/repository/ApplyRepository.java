@@ -14,4 +14,6 @@ public interface ApplyRepository extends JpaRepository<Apply,Long> {
     List<Apply> findAllByPost(Post post);
     boolean existsApplyByMemberAndPost(Member member,Post post);
     Page<Apply> findAllByPost(Post post, Pageable pageable);
+
+    List<Apply> findAllByMemberAndDeletedAtIsNull(Member member);
 }
