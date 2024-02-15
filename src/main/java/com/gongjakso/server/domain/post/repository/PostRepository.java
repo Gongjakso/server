@@ -14,7 +14,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     Post findByPostId(Long postId);
 
     Optional<Post> findByPostIdAndDeletedAtIsNull(Long postId);
-
+    Page<Post> findAllByPostTypeAndEndDateAfter(Boolean postType, LocalDateTime endDate, Pageable pageable);
     /*
     전체 프로젝트 공고 목록 조회 최신순
      */
