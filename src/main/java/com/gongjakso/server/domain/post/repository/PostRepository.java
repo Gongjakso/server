@@ -18,6 +18,18 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     Optional<Post> findByPostIdAndDeletedAtIsNull(Long postId);
     List<Post> findAllByEndDateBetweenAndPostIdIn(LocalDateTime endDate, LocalDateTime endDate2, List<Long> postIdList);
     /*
+    내가 모집 중인 공모전 공고 개수
+     */
+    Integer countByMemberAndPostTypeFalseAndDeletedAtIsNullAndFinishDateAfterAndStatus
+    (Member member, LocalDateTime currentTimestamp, PostStatus status);
+
+    /*
+    내가 모집 중인 프로젝트 공고 개수
+     */
+    Integer countByMemberAndPostTypeTrueAndDeletedAtIsNullAndFinishDateAfterAndStatus
+    (Member member, LocalDateTime currentTimestamp, PostStatus status);
+
+    /*
     전체 공모전 공고 목록 조회 최신순
      */
     Page<Post> findAllByPostTypeFalseAndDeletedAtIsNullAndFinishDateAfterAndStatusOrderByCreatedAtDesc

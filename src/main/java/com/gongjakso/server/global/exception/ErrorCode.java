@@ -38,7 +38,11 @@ public enum ErrorCode {
     ALREADY_DECISION_EXCEPION(HttpStatus.BAD_REQUEST,4004,"이미 지원 결정했습니다."),
     NOT_RECRUITING_EXCEPION(HttpStatus.BAD_REQUEST,4005,"이 공고는 모집 중이 아닙니다."),
     NOT_FOUND_CATEGORY_EXCEPTION(HttpStatus.NOT_FOUND,4006,"카테고리가 없습니다"),
-    OVER_APPLY_EXCEPTION(HttpStatus.NOT_FOUND,4007,"지원 파트 정원이 찼습니다.");
+    OVER_APPLY_EXCEPTION(HttpStatus.NOT_FOUND,4007,"지원 파트 정원이 찼습니다."),
+
+    //5000: Post Error
+    NOT_POST_EXCEPTION(HttpStatus.BAD_REQUEST,5000,"공고를 더 이상 생성할 수 없습니다"),
+    POST_VALUE_EXCEPTION(HttpStatus.BAD_REQUEST,5003,"올바르지 않은 요청 값입니다.");
 
     private final HttpStatus httpStatus;
     private final Integer code;

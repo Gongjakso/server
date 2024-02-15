@@ -35,10 +35,16 @@ public class PostService {
     private final PostRepository postRepository;
     private final PostScrapRepository postScrapRepository;
 
-
     @Transactional
     public PostRes create(Member member, PostReq req) {
-        Post entity = new Post(req.getTitle(), member, req.getContents(), req.getStatus(), req.getStartDate(), req.getEndDate(),
+        if(req.isPostType() == false && !postRepository.countByMemberAndPostTypeFalseAndDeletedAtIsNullAndFinishDateAfterAndStatus(member, LocalDateTime.now(), RECRUITING).equals(0)){ //공모전 공고 모집 개수 제한
+            throw new ApplicationException(NOT_POST_EXCEPTION);
+        }
+        if(req.isPostType() == true && !postRepository.countByMemberAndPostTypeTrueAndDeletedAtIsNullAndFinishDateAfterAndStatus(member, LocalDateTime.now(), RECRUITING).equals(0)){ //프로젝트 공고 모집 개수 제한
+            throw new ApplicationException(NOT_POST_EXCEPTION);
+        }
+
+        Post entity = new Post(req.getTitle(), member, req.getContents(), req.getContestLink(), req.getStartDate(), req.getEndDate(),
                 req.getFinishDate(), req.getMaxPerson(), req.getMeetingMethod(), req.getMeetingArea(), req.isQuestionMethod(),
                 req.getQuestionLink(), req.isPostType(), new ArrayList<>(), new ArrayList<>());
 
@@ -58,6 +64,7 @@ public class PostService {
                 .memberId(entity.getMember().getMemberId())
                 .title(entity.getTitle())
                 .contents(entity.getContents())
+                .contestLink(entity.getContestLink())
                 .status(entity.getStatus())
                 .startDate(entity.getStartDate())
                 .endDate(entity.getEndDate())
@@ -80,7 +87,6 @@ public class PostService {
     public PostDetailRes read(Member member, Long id) {
         Post post = postRepository.findById(id)
                 .orElseThrow(() -> new ApplicationException(NOT_FOUND_EXCEPTION));
-
         return PostDetailRes.of(post, member, 3L);
     }
 
@@ -110,6 +116,7 @@ public class PostService {
                 .memberId(entity.getMember().getMemberId())
                 .title(entity.getTitle())
                 .contents(entity.getContents())
+                .contestLink(entity.getContestLink())
                 .status(entity.getStatus())
                 .startDate(entity.getStartDate())
                 .endDate(entity.getEndDate())
@@ -166,6 +173,7 @@ public class PostService {
                     post.getMember().getName(),
                     post.getStatus(),
                     post.getStartDate(),
+                    post.getEndDate(),
                     post.getFinishDate(),
                     post.getCategories(),
                     post.getScrapCount()
@@ -195,6 +203,7 @@ public class PostService {
                     post.getMember().getName(),
                     post.getStatus(),
                     post.getStartDate(),
+                    post.getEndDate(),
                     post.getFinishDate(),
                     post.getCategories(),
                     post.getScrapCount()
@@ -229,6 +238,7 @@ public class PostService {
                         post.getMember().getName(),
                         post.getStatus(),
                         post.getStartDate(),
+                        post.getEndDate(),
                         post.getFinishDate(),
                         post.getCategories(),
                         post.getScrapCount()
@@ -246,6 +256,7 @@ public class PostService {
                         post.getMember().getName(),
                         post.getStatus(),
                         post.getStartDate(),
+                        post.getEndDate(),
                         post.getFinishDate(),
                         post.getCategories(),
                         post.getScrapCount()
@@ -277,6 +288,7 @@ public class PostService {
                     post.getMember().getName(),
                     post.getStatus(),
                     post.getStartDate(),
+                    post.getEndDate(),
                     post.getFinishDate(),
                     post.getCategories(),
                     post.getScrapCount()
@@ -306,6 +318,7 @@ public class PostService {
                     post.getMember().getName(),
                     post.getStatus(),
                     post.getStartDate(),
+                    post.getEndDate(),
                     post.getFinishDate(),
                     post.getCategories(),
                     post.getScrapCount()
@@ -340,6 +353,7 @@ public class PostService {
                     post.getMember().getName(),
                     post.getStatus(),
                     post.getStartDate(),
+                    post.getEndDate(),
                     post.getFinishDate(),
                     post.getCategories(),
                     post.getScrapCount()
@@ -357,6 +371,7 @@ public class PostService {
                         post.getMember().getName(),
                         post.getStatus(),
                         post.getStartDate(),
+                        post.getEndDate(),
                         post.getFinishDate(),
                         post.getCategories(),
                         post.getScrapCount()

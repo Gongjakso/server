@@ -66,6 +66,9 @@ public class Post extends BaseTimeEntity {
     @Column(name = "meeting_area", columnDefinition = "varchar(100)")
     private String meetingArea;
 
+    @Column(name = "constest_link", columnDefinition = "varchar(100)")
+    private String contestLink;
+
     @Column(name = "question_method", nullable = false, columnDefinition = "tinyint")
     private boolean questionMethod;
 
@@ -82,14 +85,15 @@ public class Post extends BaseTimeEntity {
     private long scrapCount;
 
     @Builder
-    public Post(String title, Member member, String contents, PostStatus status, LocalDateTime startDate,
+    public Post(String title, Member member, String contents, String contestLink, LocalDateTime startDate,
                 LocalDateTime endDate, LocalDateTime finishDate, Long maxPerson, MeetingMethod meetingMethod,
                 String meetingArea, boolean questionMethod, String questionLink, boolean postType,
                 List<StackName> stackNames, List<Category> categories) {
         this.title = title;
         this.member = member;
         this.contents = contents;
-        this.status = status;
+        this.contestLink = contestLink;
+        this.status = PostStatus.RECRUITING;
         this.startDate = startDate;
         this.finishDate = finishDate;
         this.endDate = endDate;
@@ -107,6 +111,7 @@ public class Post extends BaseTimeEntity {
     public void modify(PostReq req) {
         this.title = req.getTitle();
         this.contents = req.getContents();
+        this.contestLink = req.getContestLink();
         this.status = req.getStatus();
         this.startDate = req.getStartDate();
         this.endDate = req.getEndDate();
