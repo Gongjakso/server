@@ -2,6 +2,7 @@ package com.gongjakso.server.domain.post.service;
 
 import com.gongjakso.server.domain.member.entity.Member;
 import com.gongjakso.server.domain.member.repository.MemberRepository;
+import com.gongjakso.server.domain.post.dto.MyPageRes;
 import com.gongjakso.server.domain.post.dto.PostDeleteRes;
 import com.gongjakso.server.domain.post.dto.PostReq;
 import com.gongjakso.server.domain.post.dto.PostRes;
@@ -9,7 +10,11 @@ import com.gongjakso.server.domain.post.entity.Post;
 import com.gongjakso.server.domain.post.repository.PostRepository;
 import com.gongjakso.server.global.exception.ApplicationException;
 import io.github.classgraph.PackageInfo;
+
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -134,4 +139,16 @@ public class PostService {
         }
     }
     */
+
+    public List<MyPageRes> getMyPostList(Member member) {
+        // Validation
+
+        // Business Logic
+        List<Post> postList = postRepository.findAllByMemberAndDeletedAtIsNull(member);
+
+        // Response
+        return postList.stream()
+                .map(post -> MyPageRes.of(post, member))
+                .collect(Collectors.toList());
+    }
 }
