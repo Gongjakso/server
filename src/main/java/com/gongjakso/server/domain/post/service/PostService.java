@@ -81,10 +81,6 @@ public class PostService {
         Post post = postRepository.findById(id)
                 .orElseThrow(() -> new ApplicationException(NOT_FOUND_EXCEPTION));
 
-        if(!member.getMemberId().equals(post.getMember().getMemberId())) {
-            throw new ApplicationException(UNAUTHORIZED_EXCEPTION);
-        }
-
         return PostRes.builder()
                 .postId(post.getPostId())
                 .memberId(post.getMember().getMemberId())
