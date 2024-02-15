@@ -27,6 +27,8 @@ public enum ErrorCode {
     KAKAO_USER_EXCEPTION(HttpStatus.INTERNAL_SERVER_ERROR, 3001, "카카오 프로필 정보를 가져오는 과정에서 오류가 발생했습니디."),
     WRONG_TOKEN_EXCEPTION(HttpStatus.UNAUTHORIZED, 3002, "유효하지 않은 토큰입니다."),
     LOGOUT_TOKEN_EXCEPTION(HttpStatus.UNAUTHORIZED, 3003, "로그아웃된 토큰입니다"),
+    WRONG_TOKEN(HttpStatus.UNAUTHORIZED, 3004, "유효하지 않은 토큰입니다."),
+
 
     //4000: Apply Error
     NOT_APPLY_EXCEPTION(HttpStatus.BAD_REQUEST,4000,"지원 기간 지났습니다"),
