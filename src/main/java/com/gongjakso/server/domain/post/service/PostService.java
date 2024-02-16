@@ -37,10 +37,10 @@ public class PostService {
 
     @Transactional
     public PostRes create(Member member, PostReq req) {
-        if(req.isPostType() == false && !postRepository.countByMemberAndPostTypeFalseAndDeletedAtIsNullAndFinishDateAfterAndStatus(member, LocalDateTime.now(), RECRUITING).equals(0)){ //공모전 공고 모집 개수 제한
+        if(!req.isPostType() && !postRepository.countByMemberAndPostTypeFalseAndDeletedAtIsNullAndFinishDateAfterAndStatus(member, LocalDateTime.now(), RECRUITING).equals(0)){ //공모전 공고 모집 개수 제한
             throw new ApplicationException(NOT_POST_EXCEPTION);
         }
-        if(req.isPostType() == true && !postRepository.countByMemberAndPostTypeTrueAndDeletedAtIsNullAndFinishDateAfterAndStatus(member, LocalDateTime.now(), RECRUITING).equals(0)){ //프로젝트 공고 모집 개수 제한
+        if(req.isPostType() && !postRepository.countByMemberAndPostTypeTrueAndDeletedAtIsNullAndFinishDateAfterAndStatus(member, LocalDateTime.now(), RECRUITING).equals(0)){ //프로젝트 공고 모집 개수 제한
             throw new ApplicationException(NOT_POST_EXCEPTION);
         }
 
@@ -386,7 +386,7 @@ public class PostService {
         공고 스크랩 기능
      */
     @Transactional
-    public void scrapPost(Member member, Long postId) {
+    public PostScrapRes scrapPost(Member member, Long postId) {
         try {
             Post post = postRepository.findByPostIdAndDeletedAtIsNull(postId)
                     .orElseThrow(() -> new ApplicationException(NOT_FOUND_EXCEPTION));
@@ -415,6 +415,7 @@ public class PostService {
             }
             postScrapRepository.save(postScrap);
             postRepository.save(post);
+            return new PostScrapRes(postScrap.getPost().getPostId(), postScrap.getMember().getMemberId(), postScrap.getScrapStatus());
         }catch(Exception e){
             throw new ApplicationException(NOT_FOUND_EXCEPTION);
         }
