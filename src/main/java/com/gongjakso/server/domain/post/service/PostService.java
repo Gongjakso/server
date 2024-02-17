@@ -421,6 +421,21 @@ public class PostService {
         }
     }
 
+    public PostScrapRes scrapGet(Member member, Long postId){
+        try {
+            Post post = postRepository.findByPostIdAndDeletedAtIsNull(postId)
+                    .orElseThrow(() -> new ApplicationException(NOT_FOUND_EXCEPTION));
+            if (member.getMemberId() == null) {
+                throw new ApplicationException(UNAUTHORIZED_EXCEPTION);
+            }
+
+            PostScrap postScrap = postScrapRepository.findByPostAndMember(post, member);
+            return new PostScrapRes(postScrap.getPost().getPostId(), postScrap.getMember().getMemberId(), postScrap.getScrapStatus());
+        }catch(Exception e) {
+            throw new ApplicationException(NOT_FOUND_EXCEPTION);
+        }
+    }
+
     public List<MyPageRes> getMyPostList(Member member) {
         // Validation
 
