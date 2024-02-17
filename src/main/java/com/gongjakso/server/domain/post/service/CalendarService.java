@@ -1,8 +1,7 @@
 package com.gongjakso.server.domain.post.service;
 
-import com.gongjakso.server.domain.apply.dto.ApplyList;
 import com.gongjakso.server.domain.member.entity.Member;
-import com.gongjakso.server.domain.post.dto.CalenderRes;
+import com.gongjakso.server.domain.post.dto.CalendarRes;
 import com.gongjakso.server.domain.post.dto.ScrapPost;
 import com.gongjakso.server.domain.post.entity.Post;
 import com.gongjakso.server.domain.post.entity.PostScrap;
@@ -15,23 +14,22 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
 @Transactional
 @RequiredArgsConstructor
-public class CalenderService {
+public class CalendarService {
     private final PostScrapRepository postScrapRepository;
     private final PostRepository postRepository;
-    public CalenderRes findScrapPost(Member member,int year,int month){
+    public CalendarRes findScrapPost(Member member, int year, int month){
         List<PostScrap> postScraps = postScrapRepository.findByMemberAndScrapStatus(member,true);
         List<Long> postIdList = postScraps.stream().map(postScrap -> postScrap.getPost().getPostId()).toList();
         List<Post> posts = postRepository.findAllByEndDateBetweenAndPostIdIn(getFirstDayOfMonth(year,month),getLastDayOfMonth(year,month), postIdList);
         List<ScrapPost> scrapPosts = posts.stream().map(ScrapPost::of)
                 .collect(Collectors.toList());
-        return CalenderRes.of(scrapPosts);
+        return CalendarRes.of(scrapPosts);
     }
     public static LocalDateTime getFirstDayOfMonth(int year, int month) {
         LocalDate firstDayOfMonth = LocalDate.of(year, month, 1);
