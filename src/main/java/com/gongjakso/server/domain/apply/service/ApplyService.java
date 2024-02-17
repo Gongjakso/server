@@ -42,7 +42,7 @@ public class ApplyService {
             //재지원 판단
             if(!applyRepository.existsApplyByMemberAndPost(member, post)){
                 //지원 기간인지 판단
-                if(post.getEndDate().isBefore(LocalDateTime.now())){
+                if(post.getFinishDate().isBefore(LocalDateTime.now())){
                     throw new ApplicationException(ErrorCode.NOT_APPLY_EXCEPTION);
                 }else {
                     Apply apply = req.toEntity(member, post);
@@ -174,7 +174,7 @@ public class ApplyService {
         }else {
             //공고 상태가 모집 중인지 판단
             if(post.getStatus()==RECRUITING){
-                post.setEndDate(req.endDate());
+                post.setFinishDate(req.finishDate());
             }else {
                 throw new ApplicationException(ErrorCode.NOT_RECRUITING_EXCEPION);
             }
