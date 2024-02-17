@@ -6,13 +6,14 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public record ApplyRes(
+        String title,
         LocalDateTime startDate,
         LocalDateTime endDate,
         Long max_person,
         int current_person,
-        List<ApplyList> apply_list
+        Boolean postType
 ) {
-    public static ApplyRes of(Post post, int current_person,List<ApplyList> apply_list){
-        return new ApplyRes(post.getStartDate(),post.getEndDate(),post.getMaxPerson(),current_person,apply_list);
+    public static ApplyRes of(Post post, int current_person){
+        return new ApplyRes(post.getTitle(),post.getStartDate(),post.getEndDate(),post.getMaxPerson(),current_person,post.isPostType());
     }
 }

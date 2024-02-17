@@ -27,6 +27,8 @@ public enum ErrorCode {
     KAKAO_USER_EXCEPTION(HttpStatus.INTERNAL_SERVER_ERROR, 3001, "카카오 프로필 정보를 가져오는 과정에서 오류가 발생했습니디."),
     WRONG_TOKEN_EXCEPTION(HttpStatus.UNAUTHORIZED, 3002, "유효하지 않은 토큰입니다."),
     LOGOUT_TOKEN_EXCEPTION(HttpStatus.UNAUTHORIZED, 3003, "로그아웃된 토큰입니다"),
+    WRONG_TOKEN(HttpStatus.UNAUTHORIZED, 3004, "유효하지 않은 토큰입니다."),
+
 
     //4000: Apply Error
     NOT_APPLY_EXCEPTION(HttpStatus.BAD_REQUEST,4000,"지원 기간 지났습니다"),
@@ -36,8 +38,12 @@ public enum ErrorCode {
     ALREADY_DECISION_EXCEPION(HttpStatus.BAD_REQUEST,4004,"이미 지원 결정했습니다."),
     NOT_RECRUITING_EXCEPION(HttpStatus.BAD_REQUEST,4005,"이 공고는 모집 중이 아닙니다."),
     NOT_FOUND_CATEGORY_EXCEPTION(HttpStatus.NOT_FOUND,4006,"카테고리가 없습니다"),
-    OVER_APPLY_EXCEPTION(HttpStatus.NOT_FOUND,4007,"지원 파트 정원이 찼습니다.");
+    OVER_APPLY_EXCEPTION(HttpStatus.NOT_FOUND,4007,"지원 파트 정원이 찼습니다."),
 
+    //5000: Post Error
+    NOT_POST_EXCEPTION(HttpStatus.BAD_REQUEST,5000,"공고를 더 이상 생성할 수 없습니다"),
+    POST_VALUE_EXCEPTION(HttpStatus.BAD_REQUEST,5001,"올바르지 않은 요청 값입니다."),
+    NOT_FOUNT_SCRAP_EXCEPTION(HttpStatus.NOT_FOUND,5002,"스크랩 정보가 존재하지 않습니다.");
     private final HttpStatus httpStatus;
     private final Integer code;
     private final String message;
