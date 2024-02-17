@@ -37,119 +37,134 @@ public class PostService {
 
     @Transactional
     public PostRes create(Member member, PostReq req) {
-        if(!req.isPostType() && !postRepository.countByMemberAndPostTypeFalseAndDeletedAtIsNullAndFinishDateAfterAndStatus(member, LocalDateTime.now(), RECRUITING).equals(0)){ //공모전 공고 모집 개수 제한
-            throw new ApplicationException(NOT_POST_EXCEPTION);
+        try {
+            if (!req.isPostType() && !postRepository.countByMemberAndPostTypeFalseAndDeletedAtIsNullAndFinishDateAfterAndStatus(member, LocalDateTime.now(), RECRUITING).equals(0)) { //공모전 공고 모집 개수 제한
+                throw new ApplicationException(NOT_POST_EXCEPTION);
+            }
+            if (req.isPostType() && !postRepository.countByMemberAndPostTypeTrueAndDeletedAtIsNullAndFinishDateAfterAndStatus(member, LocalDateTime.now(), RECRUITING).equals(0)) { //프로젝트 공고 모집 개수 제한
+                throw new ApplicationException(NOT_POST_EXCEPTION);
+            }
+
+            Post entity = new Post(req.getTitle(), member, req.getContents(), req.getContestLink(), req.getStartDate(), req.getEndDate(),
+                    req.getFinishDate(), req.getMaxPerson(), req.getMeetingMethod(), req.getMeetingArea(), req.isQuestionMethod(),
+                    req.getQuestionLink(), req.isPostType(), new ArrayList<>(), new ArrayList<>());
+
+            List<StackName> stackNames = req.getStackNames().stream()
+                    .map(stackNameReq -> new StackName(entity, stackNameReq.getStackNameType().toString()))
+                    .collect(Collectors.toList());
+            entity.getStackNames().addAll(stackNames);
+
+            List<Category> categories = req.getCategories().stream()
+                    .map(categoryReq -> new Category(entity, categoryReq.getCategoryType().toString(), categoryReq.getSize()))
+                    .collect(Collectors.toList());
+            entity.getCategories().addAll(categories);
+
+            postRepository.save(entity);
+            return PostRes.builder()
+                    .postId(entity.getPostId())
+                    .memberId(entity.getMember().getMemberId())
+                    .title(entity.getTitle())
+                    .contents(entity.getContents())
+                    .contestLink(entity.getContestLink())
+                    .status(entity.getStatus())
+                    .startDate(entity.getStartDate())
+                    .endDate(entity.getEndDate())
+                    .finishDate(entity.getFinishDate())
+                    .maxPerson(entity.getMaxPerson())
+                    .stackNames(entity.getStackNames())
+                    .categories(entity.getCategories())
+                    .meetingMethod(entity.getMeetingMethod())
+                    .meetingArea(entity.getMeetingArea())
+                    .questionMethod(entity.isQuestionMethod())
+                    .questionLink(entity.getQuestionLink())
+                    .postType(entity.isPostType())
+                    .createdAt(entity.getCreatedAt())
+                    .modifiedAt(entity.getModifiedAt())
+                    .deletedAt(entity.getDeletedAt())
+                    .build();
+        } catch (Exception e) {
+            throw new ApplicationException(INVALID_VALUE_EXCEPTION);
         }
-        if(req.isPostType() && !postRepository.countByMemberAndPostTypeTrueAndDeletedAtIsNullAndFinishDateAfterAndStatus(member, LocalDateTime.now(), RECRUITING).equals(0)){ //프로젝트 공고 모집 개수 제한
-            throw new ApplicationException(NOT_POST_EXCEPTION);
-        }
-
-        Post entity = new Post(req.getTitle(), member, req.getContents(), req.getContestLink(), req.getStartDate(), req.getEndDate(),
-                req.getFinishDate(), req.getMaxPerson(), req.getMeetingMethod(), req.getMeetingArea(), req.isQuestionMethod(),
-                req.getQuestionLink(), req.isPostType(), new ArrayList<>(), new ArrayList<>());
-
-        List<StackName> stackNames = req.getStackNames().stream()
-                .map(stackNameReq ->  new StackName(entity, stackNameReq.getStackNameType().toString()))
-                .collect(Collectors.toList());
-        entity.getStackNames().addAll(stackNames);
-
-        List<Category> categories = req.getCategories().stream()
-                .map(categoryReq ->  new Category(entity, categoryReq.getCategoryType().toString(), categoryReq.getSize()))
-                .collect(Collectors.toList());
-        entity.getCategories().addAll(categories);
-
-        postRepository.save(entity);
-        return PostRes.builder()
-                .postId(entity.getPostId())
-                .memberId(entity.getMember().getMemberId())
-                .title(entity.getTitle())
-                .contents(entity.getContents())
-                .contestLink(entity.getContestLink())
-                .status(entity.getStatus())
-                .startDate(entity.getStartDate())
-                .endDate(entity.getEndDate())
-                .finishDate(entity.getFinishDate())
-                .maxPerson(entity.getMaxPerson())
-                .stackNames(entity.getStackNames())
-                .categories(entity.getCategories())
-                .meetingMethod(entity.getMeetingMethod())
-                .meetingArea(entity.getMeetingArea())
-                .questionMethod(entity.isQuestionMethod())
-                .questionLink(entity.getQuestionLink())
-                .postType(entity.isPostType())
-                .createdAt(entity.getCreatedAt())
-                .modifiedAt(entity.getModifiedAt())
-                .deletedAt(entity.getDeletedAt())
-                .build();
     }
 
     @Transactional
     public PostDetailRes read(Member member, Long id) {
-        Post post = postRepository.findById(id)
-                .orElseThrow(() -> new ApplicationException(NOT_FOUND_EXCEPTION));
-        return PostDetailRes.of(post, member, 3L);
+        try {
+            Post post = postRepository.findById(id)
+                    .orElseThrow(() -> new ApplicationException(NOT_FOUND_POST_EXCEPTION));
+            return PostDetailRes.of(post, member, 3L);
+        }catch (Exception e){
+            throw new ApplicationException(INVALID_VALUE_EXCEPTION);
+        }
     }
 
     @Transactional
     public PostRes modify(Member member, Long id, PostReq req) {
-        Post entity = postRepository.findByPostIdAndDeletedAtIsNull(id)
-                .orElseThrow(() -> new ApplicationException(NOT_FOUND_EXCEPTION));
-        if(!member.getMemberId().equals(entity.getMember().getMemberId())){
-            throw new ApplicationException(UNAUTHORIZED_EXCEPTION);
+        try{
+            Post entity = postRepository.findByPostIdAndDeletedAtIsNull(id)
+                    .orElseThrow(() -> new ApplicationException(NOT_FOUND_POST_EXCEPTION));
+            if(!member.getMemberId().equals(entity.getMember().getMemberId())){
+                throw new ApplicationException(UNAUTHORIZED_EXCEPTION);
+            }
+
+            entity.getStackNames().clear();
+            entity.getCategories().clear();
+            List<StackName> updatedStackNames = req.getStackNames().stream()
+                    .map(stackNameReq ->  new StackName(entity, stackNameReq.getStackNameType().toString()))
+                    .collect(Collectors.toList());
+            entity.getStackNames().addAll(updatedStackNames);
+
+            List<Category> categories = req.getCategories().stream()
+                    .map(categoryReq ->  new Category(entity, categoryReq.getCategoryType().toString(), categoryReq.getSize()))
+                    .collect(Collectors.toList());
+            entity.getCategories().addAll(categories);
+
+
+            return PostRes.builder()
+                    .postId(entity.getPostId())
+                    .memberId(entity.getMember().getMemberId())
+                    .title(entity.getTitle())
+                    .contents(entity.getContents())
+                    .contestLink(entity.getContestLink())
+                    .status(entity.getStatus())
+                    .startDate(entity.getStartDate())
+                    .endDate(entity.getEndDate())
+                    .finishDate(entity.getFinishDate())
+                    .maxPerson(entity.getMaxPerson())
+                    .stackNames(entity.getStackNames())
+                    .categories(entity.getCategories())
+                    .meetingMethod(entity.getMeetingMethod())
+                    .meetingArea(entity.getMeetingArea())
+                    .questionMethod(entity.isQuestionMethod())
+                    .questionLink(entity.getQuestionLink())
+                    .postType(entity.isPostType())
+                    .createdAt(entity.getCreatedAt())
+                    .modifiedAt(entity.getModifiedAt())
+                    .deletedAt(entity.getDeletedAt())
+                    .build();
+        } catch (Exception e) {
+            throw new ApplicationException(INVALID_VALUE_EXCEPTION);
         }
-
-        entity.getStackNames().clear();
-        entity.getCategories().clear();
-        List<StackName> updatedStackNames = req.getStackNames().stream()
-                .map(stackNameReq ->  new StackName(entity, stackNameReq.getStackNameType().toString()))
-                .collect(Collectors.toList());
-        entity.getStackNames().addAll(updatedStackNames);
-
-        List<Category> categories = req.getCategories().stream()
-                .map(categoryReq ->  new Category(entity, categoryReq.getCategoryType().toString(), categoryReq.getSize()))
-                .collect(Collectors.toList());
-        entity.getCategories().addAll(categories);
-
-
-        return PostRes.builder()
-                .postId(entity.getPostId())
-                .memberId(entity.getMember().getMemberId())
-                .title(entity.getTitle())
-                .contents(entity.getContents())
-                .contestLink(entity.getContestLink())
-                .status(entity.getStatus())
-                .startDate(entity.getStartDate())
-                .endDate(entity.getEndDate())
-                .finishDate(entity.getFinishDate())
-                .maxPerson(entity.getMaxPerson())
-                .stackNames(entity.getStackNames())
-                .categories(entity.getCategories())
-                .meetingMethod(entity.getMeetingMethod())
-                .meetingArea(entity.getMeetingArea())
-                .questionMethod(entity.isQuestionMethod())
-                .questionLink(entity.getQuestionLink())
-                .postType(entity.isPostType())
-                .createdAt(entity.getCreatedAt())
-                .modifiedAt(entity.getModifiedAt())
-                .deletedAt(entity.getDeletedAt())
-                .build();
-
     }
 
     @Transactional
     public PostDeleteRes delete(Member member, Long id) {
-        Post entity = postRepository.findByPostIdAndDeletedAtIsNull(id)
-                .orElseThrow(() -> new ApplicationException(NOT_FOUND_EXCEPTION));
+        try{
+            Post entity = postRepository.findByPostIdAndDeletedAtIsNull(id)
+                    .orElseThrow(() -> new ApplicationException(NOT_FOUND_POST_EXCEPTION));
 
-        if(!member.getMemberId().equals(entity.getMember().getMemberId())){
-            throw new ApplicationException(UNAUTHORIZED_EXCEPTION);
+            if(!member.getMemberId().equals(entity.getMember().getMemberId())){
+                throw new ApplicationException(UNAUTHORIZED_EXCEPTION);
+            }
+
+            postRepository.delete(entity);
+            return PostDeleteRes.builder()
+                    .postId(entity.getPostId())
+                    .memberId(entity.getMember().getMemberId())
+                    .build();
+        } catch (Exception e) {
+            throw new ApplicationException(INVALID_VALUE_EXCEPTION);
         }
-
-        postRepository.delete(entity);
-        return PostDeleteRes.builder()
-                .postId(entity.getPostId())
-                .memberId(entity.getMember().getMemberId())
-                .build();
     }
 
     /*
@@ -389,7 +404,7 @@ public class PostService {
     public PostScrapRes scrapPost(Member member, Long postId) {
         try {
             Post post = postRepository.findByPostIdAndDeletedAtIsNull(postId)
-                    .orElseThrow(() -> new ApplicationException(NOT_FOUND_EXCEPTION));
+                    .orElseThrow(() -> new ApplicationException(NOT_FOUND_POST_EXCEPTION));
             if (member.getMemberId() == null) {
                 throw new ApplicationException(UNAUTHORIZED_EXCEPTION);
             }
@@ -407,7 +422,7 @@ public class PostService {
                 if (postScrap.getScrapStatus() == true) { //스크랩한 상태면 취소
                     postScrap.setScrapStatus(false);
                     if (post.getScrapCount() > 0) post.setScrapCount(post.getScrapCount() - 1);
-                    else throw new ApplicationException(NOT_FOUND_EXCEPTION);
+                    else throw new ApplicationException(INVALID_VALUE_EXCEPTION);
                 } else { //스크랩 안 한 경우
                     postScrap.setScrapStatus(true);
                     post.setScrapCount(post.getScrapCount() + 1);
@@ -417,22 +432,24 @@ public class PostService {
             postRepository.save(post);
             return new PostScrapRes(postScrap.getPost().getPostId(), postScrap.getMember().getMemberId(), postScrap.getScrapStatus());
         }catch(Exception e){
-            throw new ApplicationException(NOT_FOUND_EXCEPTION);
+            throw new ApplicationException(NOT_FOUNT_SCRAP_EXCEPTION);
         }
     }
 
     public PostScrapRes scrapGet(Member member, Long postId){
         try {
             Post post = postRepository.findByPostIdAndDeletedAtIsNull(postId)
-                    .orElseThrow(() -> new ApplicationException(NOT_FOUND_EXCEPTION));
+                    .orElseThrow(() -> new ApplicationException(NOT_FOUND_POST_EXCEPTION));
             if (member.getMemberId() == null) {
                 throw new ApplicationException(UNAUTHORIZED_EXCEPTION);
             }
-
+            if(postScrapRepository.findByPostAndMember(post, member)==null){ //post, member 정보는 존재하되, scrap한적이 없는 경우 default false값 반환
+                return new PostScrapRes(post.getPostId(), member.getMemberId(), false);
+            }
             PostScrap postScrap = postScrapRepository.findByPostAndMember(post, member);
             return new PostScrapRes(postScrap.getPost().getPostId(), postScrap.getMember().getMemberId(), postScrap.getScrapStatus());
         }catch(Exception e) {
-            throw new ApplicationException(NOT_FOUND_EXCEPTION);
+            throw new ApplicationException(NOT_FOUNT_SCRAP_EXCEPTION);
         }
     }
 
