@@ -1,36 +1,37 @@
 package com.gongjakso.server.domain.post.dto;
 
 import com.gongjakso.server.domain.post.entity.Category;
+import com.gongjakso.server.domain.post.entity.Post;
 import com.gongjakso.server.domain.post.enumerate.PostStatus;
 import lombok.Builder;
-import lombok.Getter;
 
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
-@Getter
-public class GetContestRes {
-    private Long postId;
-    private String title;
-    private String name; //팀장명
-    private PostStatus status;
-    private LocalDateTime startDate;
-    private LocalDateTime finishDate;
-    private long daysRemaining;
-    private List<Category> categories;
-    private long scrapCount;
-
-    @Builder
-    public GetContestRes(Long postId, String title, String name, PostStatus status, LocalDateTime startDate,
-                         LocalDateTime finishDate, List<Category> categories,long scrapCount){
-        this.postId = postId;
-        this.title = title;
-        this.name = name;
-        this.status = status;
-        this.startDate = startDate;
-        this.finishDate = finishDate;
-        this.daysRemaining = getDaysRemaining();
-        this.categories = categories;
-        this.scrapCount = scrapCount;
+@Builder
+public record GetContestRes (
+    Long postId,
+    String title,
+    String name, //팀장명
+    PostStatus status,
+    LocalDateTime startDate,
+    LocalDateTime endDate,
+    LocalDateTime finishDate,
+    long daysRemaining,
+    List<Category> categories,
+    long scrapCount
+){ public static GetContestRes of(Post post){
+        return GetContestRes.builder()
+                .postId(post.getPostId())
+                .title(post.getTitle())
+                .name(post.getMember().getName())
+                .status(post.getStatus())
+                .startDate(post.getStartDate())
+                .endDate(post.getEndDate())
+                .daysRemaining(post.getFinishDate().isBefore(LocalDateTime.now()) ? -1 : ChronoUnit.DAYS.between(LocalDateTime.now(), post.getFinishDate()))
+                .categories(post.getCategories())
+                .scrapCount(post.getScrapCount())
+                .build();
     }
 }

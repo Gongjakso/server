@@ -17,6 +17,7 @@ import java.util.List;
 public class PostReq {
     private String title;
     private String contents;
+    private String contestLink;
     private PostStatus status;
     private LocalDateTime startDate;
     private LocalDateTime endDate;

@@ -84,9 +84,14 @@ public class PostController {
 
     @Operation(summary = "프로젝트 공고 스크랩 기능", description = "프로젝트 공고 스크랩")
     @PostMapping("/{id}")
-    public ApplicationResponse<Void> scrapPost(@AuthenticationPrincipal PrincipalDetails principalDetails, @PathVariable("id") Long id) {
-        postService.scrapPost(principalDetails.getMember(), id);
-        return ApplicationResponse.ok();
+    public ApplicationResponse<PostScrapRes> scrapPost(@AuthenticationPrincipal PrincipalDetails principalDetails, @PathVariable("id") Long id) {
+        return ApplicationResponse.ok(postService.scrapPost(principalDetails.getMember(), id));
+    }
+
+    @Operation(summary = "프로젝트 공고 스크랩 조회 기능", description = "프로젝트 공고 스크랩 조회")
+    @GetMapping("/scrap/{id}")
+    public ApplicationResponse<PostScrapRes> scrapGet(@AuthenticationPrincipal PrincipalDetails principalDetails, @PathVariable("id") Long id) {
+        return ApplicationResponse.ok(postService.scrapGet(principalDetails.getMember(), id));
     }
 
     @Operation(summary = "내가 모집 중인 팀 조회 API", description = "프로젝트/공모전 별 각 한 개씩 묶어서 리스트 형태로 반환")
