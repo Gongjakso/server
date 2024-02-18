@@ -60,14 +60,14 @@ public class ApplyController {
     //지원서 미선발 요청 api
     @Operation(summary = "미선발 API", description = "미선발 버튼 클릭 시")
     @PatchMapping("/{apply_id}/not-recruit")
-    public ApplicationResponse<Void> updateNotRecruitStatus(@AuthenticationPrincipal PrincipalDetails principalDetails,@PathVariable("apply_id") Long applyId){
+    public ApplicationResponse<Void> updateNotRecruitStatus(@PathVariable("apply_id") Long applyId){
         applyService.updateRecruit(applyId,false);
         return ApplicationResponse.ok();
     }
     // 특정 지원자 지원서 가져오는 api
     @Operation(summary = "지원서 API", description = "내가 모집 중인 팀 페이지에서 지원자 지원서 요청")
     @GetMapping("/{post_id}/{apply_id}/application")
-    public ApplicationResponse<ApplicationRes> findApplication(@AuthenticationPrincipal PrincipalDetails principalDetails,@PathVariable("apply_id") Long applyId,@PathVariable("post_id") Long postId){
+    public ApplicationResponse<ApplicationRes> findApplication(@PathVariable("apply_id") Long applyId,@PathVariable("post_id") Long postId){
         return ApplicationResponse.ok(applyService.findApplication(applyId,postId));
     }
     //공고 카테고리 요청 api
