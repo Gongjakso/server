@@ -6,10 +6,12 @@ import com.gongjakso.server.domain.apply.repository.ApplyRepository;
 import com.gongjakso.server.domain.member.entity.Member;
 import com.gongjakso.server.domain.post.entity.Category;
 import com.gongjakso.server.domain.post.entity.Post;
+import com.gongjakso.server.domain.post.entity.StackName;
 import com.gongjakso.server.domain.post.enumerate.CategoryType;
 import com.gongjakso.server.domain.post.enumerate.PostStatus;
 import com.gongjakso.server.domain.post.repository.CategoryRepository;
 import com.gongjakso.server.domain.post.repository.PostRepository;
+import com.gongjakso.server.domain.post.repository.StackNameRepository;
 import com.gongjakso.server.global.exception.ApplicationException;
 import com.gongjakso.server.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
@@ -17,8 +19,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -34,6 +36,7 @@ public class ApplyService {
     private final ApplyRepository applyRepository;
     private final PostRepository postRepository;
     private final CategoryRepository categoryRepository;
+    private final StackNameRepository stackNameRepository;
     public void save(Member member, Long post_id, ApplyReq req){
         Post post = postRepository.findByPostId(post_id);
         if (post == null) {
@@ -191,14 +194,21 @@ public class ApplyService {
             List<String> list = new ArrayList<>();
             if(categoryList!=null) {
                 for (Category category : categoryList) {
-                    for (int i = 0; i < category.getSize(); i++) {
                         list.add(String.valueOf(category.getCategoryType()));
-                    }
                 }
             }else {
                 throw new ApplicationException(ErrorCode.NOT_FOUND_CATEGORY_EXCEPTION);
             }
-            ApplicationRes applicationRes = ApplicationRes.of(apply,list);
+            List<StackName> stackNameList = stackNameRepository.findStackNameByPost(post);
+            List<String> stackList = new ArrayList<>();
+            if(stackNameList!=null) {
+                for (StackName stackName : stackNameList) {
+                        stackList.add(String.valueOf(stackName.getStackNameType()));
+                }
+            }else {
+                throw new ApplicationException(ErrorCode.NOT_FOUND_CATEGORY_EXCEPTION);
+            }
+            ApplicationRes applicationRes = ApplicationRes.of(apply,list, stackList);
             return applicationRes;
         }
     }
