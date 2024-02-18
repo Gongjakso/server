@@ -239,7 +239,7 @@ public class ApplyService {
         // Business Logic
         List<Apply> applyList = applyRepository.findAllByMemberAndDeletedAtIsNull(member);
         List<Long> postIdList = applyList.stream()
-                .map(Apply::getApplyId)
+                .map(apply -> apply.getPost().getPostId())
                 .toList();
 
         List<Post> postList = postRepository.findAllByPostIdInAndStatusAndDeletedAtIsNull(postIdList, RECRUITING);
