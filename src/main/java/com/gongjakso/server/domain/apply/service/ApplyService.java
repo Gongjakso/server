@@ -63,7 +63,25 @@ public class ApplyService {
             throw new ApplicationException(ErrorCode.NOT_FOUND_POST_EXCEPTION);
         }else{
             int current_person = (int) applyRepository.countApplyByPost(post);
-            ApplyRes applyRes = ApplyRes.of(post,current_person);
+            List<Category> categoryList = categoryRepository.findCategoryByPost(post);
+            List<String> list = new ArrayList<>();
+            if(categoryList!=null) {
+                for (Category category : categoryList) {
+                    list.add(String.valueOf(category.getCategoryType()));
+                }
+            }else {
+                throw new ApplicationException(ErrorCode.NOT_FOUND_CATEGORY_EXCEPTION);
+            }
+            List<StackName> stackNameList = stackNameRepository.findStackNameByPost(post);
+            List<String> stackList = new ArrayList<>();
+            if(stackNameList!=null) {
+                for (StackName stackName : stackNameList) {
+                    stackList.add(String.valueOf(stackName.getStackNameType()));
+                }
+            }else {
+                throw new ApplicationException(ErrorCode.NOT_FOUND_CATEGORY_EXCEPTION);
+            }
+            ApplyRes applyRes = ApplyRes.of(post,current_person, list, stackList);
             return applyRes;
         }
     }
@@ -194,7 +212,7 @@ public class ApplyService {
             List<String> list = new ArrayList<>();
             if(categoryList!=null) {
                 for (Category category : categoryList) {
-                        list.add(String.valueOf(category.getCategoryType()));
+                    list.add(String.valueOf(category.getCategoryType()));
                 }
             }else {
                 throw new ApplicationException(ErrorCode.NOT_FOUND_CATEGORY_EXCEPTION);
@@ -203,7 +221,7 @@ public class ApplyService {
             List<String> stackList = new ArrayList<>();
             if(stackNameList!=null) {
                 for (StackName stackName : stackNameList) {
-                        stackList.add(String.valueOf(stackName.getStackNameType()));
+                    stackList.add(String.valueOf(stackName.getStackNameType()));
                 }
             }else {
                 throw new ApplicationException(ErrorCode.NOT_FOUND_CATEGORY_EXCEPTION);
