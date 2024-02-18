@@ -157,14 +157,16 @@ public class ApplyService {
         if(!apply.getIsDecision()){
             apply.setIsPass(isRecruit);
             apply.setIsDecision(true);
-            Post post = apply.getPost();
-            //지원 파트 size 감소
-            Category category = categoryRepository.findCategoryByPostAndCategoryType(post, CategoryType.valueOf(apply.getRecruit_part()));
-            System.out.println("null"+",post:"+post+",categroy:"+apply.getRecruit_part());
-            if(category.getSize()-1<=0){
-                throw new ApplicationException(ErrorCode.OVER_APPLY_EXCEPTION);
-            }else {
-                category.setSize(category.getSize()-1);
+            if(isRecruit){
+                Post post = apply.getPost();
+                //지원 파트 size 감소
+                Category category = categoryRepository.findCategoryByPostAndCategoryType(post, CategoryType.valueOf(apply.getRecruit_part()));
+                System.out.println("null"+",post:"+post+",categroy:"+apply.getRecruit_part());
+                if(category.getSize()-1<=0){
+                    throw new ApplicationException(ErrorCode.OVER_APPLY_EXCEPTION);
+                }else {
+                    category.setSize(category.getSize()-1);
+                }
             }
         }else {
             throw new ApplicationException(ErrorCode.ALREADY_DECISION_EXCEPION);
