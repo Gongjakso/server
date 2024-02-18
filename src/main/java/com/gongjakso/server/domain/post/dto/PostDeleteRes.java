@@ -1,16 +1,19 @@
 package com.gongjakso.server.domain.post.dto;
 
+import com.gongjakso.server.domain.member.entity.Member;
+import com.gongjakso.server.domain.post.entity.Post;
 import lombok.Builder;
-import lombok.Getter;
 
-@Getter
-public class PostDeleteRes {
-    private Long postId;
-    private Long memberId;
-
-    @Builder
-    public PostDeleteRes(Long postId, Long memberId){
-        this.postId = postId;
-        this.memberId = memberId;
+@Builder
+public record PostDeleteRes(
+    Long postId,
+    Long memberId
+){
+    public static PostDeleteRes of(Post post, Member member){
+        return PostDeleteRes.builder()
+                .postId(post.getPostId())
+                .memberId(member.getMemberId())
+                .build();
     }
+
 }
