@@ -60,28 +60,7 @@ public class PostService {
             entity.getCategories().addAll(categories);
 
             postRepository.save(entity);
-            return PostRes.builder()
-                    .postId(entity.getPostId())
-                    .memberId(entity.getMember().getMemberId())
-                    .title(entity.getTitle())
-                    .contents(entity.getContents())
-                    .contestLink(entity.getContestLink())
-                    .status(entity.getStatus())
-                    .startDate(entity.getStartDate())
-                    .endDate(entity.getEndDate())
-                    .finishDate(entity.getFinishDate())
-                    .maxPerson(entity.getMaxPerson())
-                    .stackNames(entity.getStackNames())
-                    .categories(entity.getCategories())
-                    .meetingMethod(entity.getMeetingMethod())
-                    .meetingArea(entity.getMeetingArea())
-                    .questionMethod(entity.isQuestionMethod())
-                    .questionLink(entity.getQuestionLink())
-                    .postType(entity.isPostType())
-                    .createdAt(entity.getCreatedAt())
-                    .modifiedAt(entity.getModifiedAt())
-                    .deletedAt(entity.getDeletedAt())
-                    .build();
+            return PostRes.of(entity);
         } catch (Exception e) {
             throw new ApplicationException(INVALID_VALUE_EXCEPTION);
         }
@@ -120,28 +99,7 @@ public class PostService {
             entity.getCategories().addAll(categories);
 
 
-            return PostRes.builder()
-                    .postId(entity.getPostId())
-                    .memberId(entity.getMember().getMemberId())
-                    .title(entity.getTitle())
-                    .contents(entity.getContents())
-                    .contestLink(entity.getContestLink())
-                    .status(entity.getStatus())
-                    .startDate(entity.getStartDate())
-                    .endDate(entity.getEndDate())
-                    .finishDate(entity.getFinishDate())
-                    .maxPerson(entity.getMaxPerson())
-                    .stackNames(entity.getStackNames())
-                    .categories(entity.getCategories())
-                    .meetingMethod(entity.getMeetingMethod())
-                    .meetingArea(entity.getMeetingArea())
-                    .questionMethod(entity.isQuestionMethod())
-                    .questionLink(entity.getQuestionLink())
-                    .postType(entity.isPostType())
-                    .createdAt(entity.getCreatedAt())
-                    .modifiedAt(entity.getModifiedAt())
-                    .deletedAt(entity.getDeletedAt())
-                    .build();
+            return PostRes.of(entity);
         } catch (Exception e) {
             throw new ApplicationException(INVALID_VALUE_EXCEPTION);
         }
@@ -158,10 +116,7 @@ public class PostService {
             }
 
             postRepository.delete(entity);
-            return PostDeleteRes.builder()
-                    .postId(entity.getPostId())
-                    .memberId(entity.getMember().getMemberId())
-                    .build();
+            return PostDeleteRes.of(entity, member);
         } catch (Exception e) {
             throw new ApplicationException(INVALID_VALUE_EXCEPTION);
         }
@@ -182,17 +137,7 @@ public class PostService {
             } else{ //스크랩순
                 posts = postRepository.findAllByPostTypeFalseAndDeletedAtIsNullAndFinishDateAfterAndStatusOrderByScrapCountDescCreatedAtDesc(LocalDateTime.now(), RECRUITING, pageable);
             }
-            return posts.map(post -> new GetContestRes(
-                    post.getPostId(),
-                    post.getTitle(),
-                    post.getMember().getName(),
-                    post.getStatus(),
-                    post.getStartDate(),
-                    post.getEndDate(),
-                    post.getFinishDate(),
-                    post.getCategories(),
-                    post.getScrapCount()
-            ));
+            return posts.map(post -> GetContestRes.of(post));
         } catch (Exception e) {
             throw new ApplicationException(INVALID_VALUE_EXCEPTION);
         }
@@ -212,17 +157,7 @@ public class PostService {
             } else{
                 posts = postRepository.findAllByTitleContainsAndPostTypeFalseAndDeletedAtIsNullAndFinishDateAfterAndStatusOrderByScrapCountDescCreatedAtDesc(searchWord.toLowerCase(), LocalDateTime.now(), RECRUITING, pageable);
             }
-            return posts.map(post -> new GetContestRes(
-                    post.getPostId(),
-                    post.getTitle(),
-                    post.getMember().getName(),
-                    post.getStatus(),
-                    post.getStartDate(),
-                    post.getEndDate(),
-                    post.getFinishDate(),
-                    post.getCategories(),
-                    post.getScrapCount()
-            ));
+            return posts.map(post -> GetContestRes.of(post));
         } catch (Exception e) {
             throw new ApplicationException(INVALID_VALUE_EXCEPTION);
         }
@@ -247,17 +182,7 @@ public class PostService {
                 }else{
                     posts = postRepository.findAllPostsJoinedWithCategoriesByTitleContainsAndPostTypeFalseAndDeletedAtIsNullAndFinishDateAfterAndStatusAndMeetingAreaContainsAndCategoriesCategoryTypeContainsOrderByScrapCountDescCreatedAtDesc(searchWord.toLowerCase(), LocalDateTime.now(), RECRUITING, meetingArea, category.toString(), pageable);
                 }
-                return posts.map(post -> new GetContestRes(
-                        post.getPostId(),
-                        post.getTitle(),
-                        post.getMember().getName(),
-                        post.getStatus(),
-                        post.getStartDate(),
-                        post.getEndDate(),
-                        post.getFinishDate(),
-                        post.getCategories(),
-                        post.getScrapCount()
-                ));
+                return posts.map(post -> GetContestRes.of(post));
             } else{
                 Page<Post> posts;
                 if (sort.equals("createdAt,desc")) {
@@ -265,17 +190,7 @@ public class PostService {
                 }else{
                     posts = postRepository.findAllByTitleContainsAndPostTypeFalseAndDeletedAtIsNullAndFinishDateAfterAndStatusAndMeetingAreaContainsOrderByScrapCountDescCreatedAtDesc(searchWord.toLowerCase(), LocalDateTime.now(), RECRUITING, meetingArea, pageable);
                 }
-                return posts.map(post -> new GetContestRes(
-                        post.getPostId(),
-                        post.getTitle(),
-                        post.getMember().getName(),
-                        post.getStatus(),
-                        post.getStartDate(),
-                        post.getEndDate(),
-                        post.getFinishDate(),
-                        post.getCategories(),
-                        post.getScrapCount()
-                ));
+                return posts.map(post -> GetContestRes.of(post));
             }
         } catch (Exception e) {
             throw new ApplicationException(INVALID_VALUE_EXCEPTION);
@@ -297,17 +212,7 @@ public class PostService {
             } else{ //스크랩순
                 posts = postRepository.findAllByPostTypeTrueAndDeletedAtIsNullAndFinishDateAfterAndStatusOrderByScrapCountDescCreatedAtDesc(LocalDateTime.now(), RECRUITING, pageable);
             }
-            return posts.map(post -> new GetProjectRes(
-                    post.getPostId(),
-                    post.getTitle(),
-                    post.getMember().getName(),
-                    post.getStatus(),
-                    post.getStartDate(),
-                    post.getEndDate(),
-                    post.getFinishDate(),
-                    post.getCategories(),
-                    post.getScrapCount()
-            ));
+            return posts.map(post -> GetProjectRes.of(post));
         } catch (Exception e) {
             throw new ApplicationException(INVALID_VALUE_EXCEPTION);
         }
@@ -327,17 +232,7 @@ public class PostService {
             } else{
                 posts = postRepository.findAllByTitleContainsAndPostTypeTrueAndDeletedAtIsNullAndFinishDateAfterAndStatusOrderByScrapCountDescCreatedAtDesc(searchWord.toLowerCase(), LocalDateTime.now(), RECRUITING, pageable);
             }
-            return posts.map(post -> new GetProjectRes(
-                    post.getPostId(),
-                    post.getTitle(),
-                    post.getMember().getName(),
-                    post.getStatus(),
-                    post.getStartDate(),
-                    post.getEndDate(),
-                    post.getFinishDate(),
-                    post.getCategories(),
-                    post.getScrapCount()
-            ));
+            return posts.map(post -> GetProjectRes.of(post));
         } catch (Exception e) {
             throw new ApplicationException(INVALID_VALUE_EXCEPTION);
         }
@@ -362,17 +257,7 @@ public class PostService {
                 }else{
                     posts = postRepository.findAllPostsJoinedWithStackNamesByTitleContainsAndPostTypeTrueAndDeletedAtIsNullAndFinishDateAfterAndStatusAndMeetingAreaContainsAndStackNamesStackNameTypeContainsOrderByScrapCountDescCreatedAtDesc(searchWord.toLowerCase(), LocalDateTime.now(), RECRUITING, meetingArea, stackName.toString(), pageable);
                 }
-                return posts.map(post -> new GetProjectRes(
-                    post.getPostId(),
-                    post.getTitle(),
-                    post.getMember().getName(),
-                    post.getStatus(),
-                    post.getStartDate(),
-                    post.getEndDate(),
-                    post.getFinishDate(),
-                    post.getCategories(),
-                    post.getScrapCount()
-                ));
+                return posts.map(post -> GetProjectRes.of(post));
             } else{
                 Page<Post> posts;
                 if (sort.equals("createdAt,desc")) {
@@ -380,17 +265,7 @@ public class PostService {
                 }else{
                     posts = postRepository.findAllByTitleContainsAndPostTypeTrueAndDeletedAtIsNullAndFinishDateAfterAndStatusAndMeetingAreaContainsOrderByScrapCountDescCreatedAtDesc(searchWord.toLowerCase(), LocalDateTime.now(), RECRUITING, meetingArea, pageable);
                 }
-                return posts.map(post -> new GetProjectRes(
-                        post.getPostId(),
-                        post.getTitle(),
-                        post.getMember().getName(),
-                        post.getStatus(),
-                        post.getStartDate(),
-                        post.getEndDate(),
-                        post.getFinishDate(),
-                        post.getCategories(),
-                        post.getScrapCount()
-                ));
+                return posts.map(post -> GetProjectRes.of(post));
             }
         } catch (Exception e) {
             throw new ApplicationException(INVALID_VALUE_EXCEPTION);
