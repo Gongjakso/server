@@ -50,13 +50,13 @@ public class PostService {
                     req.getQuestionLink(), req.isPostType(), new ArrayList<>(), new ArrayList<>());
 
             List<StackName> stackNames = req.getStackNames().stream()
-                    .map(stackNameReq -> new StackName(entity, stackNameReq.getStackNameType().toString()))
-                    .collect(Collectors.toList());
+                    .map(stackNameReq -> new StackName(entity, stackNameReq.getStackNameType()))
+                    .toList();
             entity.getStackNames().addAll(stackNames);
 
             List<Category> categories = req.getCategories().stream()
                     .map(categoryReq -> new Category(entity, categoryReq.getCategoryType().toString(), categoryReq.getSize()))
-                    .collect(Collectors.toList());
+                    .toList();
             entity.getCategories().addAll(categories);
 
             postRepository.save(entity);
@@ -85,17 +85,18 @@ public class PostService {
             if(!member.getMemberId().equals(entity.getMember().getMemberId())){
                 throw new ApplicationException(UNAUTHORIZED_EXCEPTION);
             }
+            entity.modify(req);
 
             entity.getStackNames().clear();
             entity.getCategories().clear();
             List<StackName> updatedStackNames = req.getStackNames().stream()
-                    .map(stackNameReq ->  new StackName(entity, stackNameReq.getStackNameType().toString()))
-                    .collect(Collectors.toList());
+                    .map(stackNameReq ->  new StackName(entity, stackNameReq.getStackNameType()))
+                    .toList();
             entity.getStackNames().addAll(updatedStackNames);
 
             List<Category> categories = req.getCategories().stream()
                     .map(categoryReq ->  new Category(entity, categoryReq.getCategoryType().toString(), categoryReq.getSize()))
-                    .collect(Collectors.toList());
+                    .toList();
             entity.getCategories().addAll(categories);
 
 
