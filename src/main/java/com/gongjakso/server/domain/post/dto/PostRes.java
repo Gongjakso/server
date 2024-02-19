@@ -18,6 +18,7 @@ public record PostRes(Long postId, Long memberId, String title, String contents,
     public static PostRes of(Post post){
         return PostRes.builder()
                 .postId(post.getPostId())
+                .memberId(post.getMember().getMemberId())
                 .title(post.getTitle())
                 .contents(post.getContents())
                 .contestLink(post.getContestLink())

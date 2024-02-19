@@ -20,13 +20,13 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     /*
     내가 모집 중인 공모전 공고 개수
      */
-    Integer countByMemberAndPostTypeFalseAndDeletedAtIsNullAndFinishDateAfterAndStatus
+    Long countByMemberAndPostTypeFalseAndDeletedAtIsNullAndFinishDateAfterAndStatus
     (Member member, LocalDateTime currentTimestamp, PostStatus status);
 
     /*
     내가 모집 중인 프로젝트 공고 개수
      */
-    Integer countByMemberAndPostTypeTrueAndDeletedAtIsNullAndFinishDateAfterAndStatus
+    Long countByMemberAndPostTypeTrueAndDeletedAtIsNullAndFinishDateAfterAndStatus
     (Member member, LocalDateTime currentTimestamp, PostStatus status);
 
     /*
