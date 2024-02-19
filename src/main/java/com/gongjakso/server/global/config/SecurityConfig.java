@@ -88,7 +88,7 @@ public class SecurityConfig {
         // 인증정보 주고받도록 허용
         config.setAllowCredentials(true);
         // 허용할 주소
-        config.setAllowedOrigins(List.of("*"));
+        config.setAllowedOriginPatterns(List.of("*"));
         // 허용할 HTTP Method
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
         // 허용할 헤더 정보
