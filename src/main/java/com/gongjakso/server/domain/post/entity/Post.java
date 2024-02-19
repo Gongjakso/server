@@ -1,7 +1,7 @@
 package com.gongjakso.server.domain.post.entity;
 
 import com.gongjakso.server.domain.member.entity.Member;
-import com.gongjakso.server.domain.post.dto.PostReq;
+import com.gongjakso.server.domain.post.dto.PostModifyReq;
 import com.gongjakso.server.domain.post.enumerate.MeetingMethod;
 import com.gongjakso.server.domain.post.enumerate.PostStatus;
 import com.gongjakso.server.global.common.BaseTimeEntity;
@@ -112,22 +112,20 @@ public class Post extends BaseTimeEntity {
         this.categories = categories;
     }
 
-    public void modify(PostReq req) {
-        this.title = req.getTitle();
-        this.contents = req.getContents();
-        this.contestLink = req.getContestLink();
-        this.status = req.getStatus();
-        this.startDate = req.getStartDate();
-        this.endDate = req.getEndDate();
-        this.finishDate = req.getFinishDate();
-        this.maxPerson = req.getMaxPerson();
-        this.meetingMethod = req.getMeetingMethod();
-        this.meetingArea = req.getMeetingArea();
-        this.questionMethod = req.isQuestionMethod();
-        this.questionLink = req.getQuestionLink();
-        this.postType = req.isPostType();
+    public void modify(PostModifyReq req) {
+        this.title = req.title();
+        this.contents = req.contents();
+        this.contestLink = req.contestLink();
+        this.status = req.status();
+        this.startDate = req.startDate();
+        this.endDate = req.endDate();
+        this.finishDate = req.finishDate();
+        this.maxPerson = req.maxPerson();
+        this.meetingMethod = req.meetingMethod();
+        this.meetingArea = req.meetingArea();
+        this.questionMethod = req.questionMethod();
+        this.questionLink = req.questionLink();
+        this.postType = req.postType();
         this.daysRemaining = finishDate.isBefore(LocalDateTime.now()) ? -1 : ChronoUnit.DAYS.between(LocalDateTime.now(), finishDate);
-        this.stackNames = req.getStackNames();
-        this.categories = req.getCategories();
     }
 }

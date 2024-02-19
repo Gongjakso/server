@@ -38,30 +38,32 @@ public class PostService {
     @Transactional
     public PostRes create(Member member, PostReq req) {
         try {
-            if (!req.isPostType() && !postRepository.countByMemberAndPostTypeFalseAndDeletedAtIsNullAndFinishDateAfterAndStatus(member, LocalDateTime.now(), RECRUITING).equals(0)) { //공모전 공고 모집 개수 제한
+            if (!req.postType() && postRepository.countByMemberAndPostTypeFalseAndDeletedAtIsNullAndFinishDateAfterAndStatus(member, LocalDateTime.now(), RECRUITING) > 0) { //공모전 공고 모집 개수 제한
                 throw new ApplicationException(NOT_POST_EXCEPTION);
             }
-            if (req.isPostType() && !postRepository.countByMemberAndPostTypeTrueAndDeletedAtIsNullAndFinishDateAfterAndStatus(member, LocalDateTime.now(), RECRUITING).equals(0)) { //프로젝트 공고 모집 개수 제한
+            if (req.postType()  && postRepository.countByMemberAndPostTypeTrueAndDeletedAtIsNullAndFinishDateAfterAndStatus(member, LocalDateTime.now(), RECRUITING) > 0) { //프로젝트 공고 모집 개수 제한
                 throw new ApplicationException(NOT_POST_EXCEPTION);
             }
 
-            Post entity = new Post(req.getTitle(), member, req.getContents(), req.getContestLink(), req.getStartDate(), req.getEndDate(),
-                    req.getFinishDate(), req.getMaxPerson(), req.getMeetingMethod(), req.getMeetingArea(), req.isQuestionMethod(),
-                    req.getQuestionLink(), req.isPostType(), new ArrayList<>(), new ArrayList<>());
+            Post entity = new Post(req.title(), member, req.contents(), req.contestLink(), req.startDate(), req.endDate(),
+                    req.finishDate(), req.maxPerson(), req.meetingMethod(), req.meetingArea(), req.questionMethod(),
+                    req.questionLink(), req.postType(), new ArrayList<>(), new ArrayList<>());
 
-            List<StackName> stackNames = req.getStackNames().stream()
+            List<StackName> stackNames = req.stackNames().stream()
                     .map(stackNameReq -> new StackName(entity, stackNameReq.getStackNameType()))
                     .toList();
             entity.getStackNames().addAll(stackNames);
 
-            List<Category> categories = req.getCategories().stream()
+            List<Category> categories = req.categories().stream()
                     .map(categoryReq -> new Category(entity, categoryReq.getCategoryType().toString(), categoryReq.getSize()))
                     .toList();
             entity.getCategories().addAll(categories);
 
             postRepository.save(entity);
             return PostRes.of(entity);
-        } catch (Exception e) {
+        } catch (ApplicationException e) {
+            throw new ApplicationException(NOT_POST_EXCEPTION);
+        } catch (Exception e){
             throw new ApplicationException(INVALID_VALUE_EXCEPTION);
         }
     }
@@ -78,7 +80,7 @@ public class PostService {
     }
 
     @Transactional
-    public PostRes modify(Member member, Long id, PostReq req) {
+    public PostRes modify(Member member, Long id, PostModifyReq req) {
         try{
             Post entity = postRepository.findByPostIdAndDeletedAtIsNull(id)
                     .orElseThrow(() -> new ApplicationException(NOT_FOUND_POST_EXCEPTION));
@@ -89,12 +91,12 @@ public class PostService {
 
             entity.getStackNames().clear();
             entity.getCategories().clear();
-            List<StackName> updatedStackNames = req.getStackNames().stream()
+            List<StackName> updatedStackNames = req.stackNames().stream()
                     .map(stackNameReq ->  new StackName(entity, stackNameReq.getStackNameType()))
                     .toList();
             entity.getStackNames().addAll(updatedStackNames);
 
-            List<Category> categories = req.getCategories().stream()
+            List<Category> categories = req.categories().stream()
                     .map(categoryReq ->  new Category(entity, categoryReq.getCategoryType().toString(), categoryReq.getSize()))
                     .toList();
             entity.getCategories().addAll(categories);
