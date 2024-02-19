@@ -71,12 +71,12 @@ public class PostService {
     }
 
     @Transactional
-    public PostDetailRes read(Member member, Long id) {
+    public PostDetailRes read(Long id) {
         try {
             Post post = postRepository.findById(id)
                     .orElseThrow(() -> new ApplicationException(NOT_FOUND_POST_EXCEPTION));
             int current_person = (int) applyRepository.countApplyByPost(post);
-            return PostDetailRes.of(post, member, current_person);
+            return PostDetailRes.of(post, current_person);
         }catch (Exception e){
             throw new ApplicationException(INVALID_VALUE_EXCEPTION);
         }
