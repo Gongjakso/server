@@ -27,7 +27,7 @@ public record PostDetailRes(
         LocalDateTime endDate,
         Long daysRemaining,
         Long maxPerson,
-        Long currentPerson,
+        int currentPerson,
         List<StackName> stackNames,
         List<Category> categories,
         MeetingMethod meetingMethod,
@@ -39,11 +39,11 @@ public record PostDetailRes(
         Long scrapCount
 ) {
 
-    public static PostDetailRes of(Post post, Member member, Long currentPerson) {
+    public static PostDetailRes of(Post post, Member member, int currentPerson) {
         return PostDetailRes.builder()
                 .postId(post.getPostId())
-                .memberId(member.getMemberId())
-                .memberName(member.getName())
+                .memberId(post.getMember().getMemberId())
+                .memberName(post.getMember().getName())
                 .title(post.getTitle())
                 .contents(post.getContents())
                 .urlLink("https://www.naver.com")
