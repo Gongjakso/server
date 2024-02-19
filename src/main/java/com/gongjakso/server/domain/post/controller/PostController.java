@@ -30,8 +30,8 @@ public class PostController {
 
     @Operation(summary = "공모전/프로젝트 공고 상세 조회 API", description = "공모전/프로젝트 공고 상세 조회")
     @GetMapping("/{id}")
-    public ApplicationResponse<PostDetailRes> read(@AuthenticationPrincipal PrincipalDetails principalDetails, @PathVariable("id") Long id) {
-        return ApplicationResponse.ok(postService.read(principalDetails.getMember(), id));
+    public ApplicationResponse<PostDetailRes> read(@PathVariable("id") Long id) {
+        return ApplicationResponse.ok(postService.read(id));
     }
 
     @Operation(summary = "공모전/프로젝트 공고 수정 API", description = "팀빌딩 페이지에서 정보 입력 후 공고 수정")

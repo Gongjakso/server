@@ -39,7 +39,7 @@ public record PostDetailRes(
         Long scrapCount
 ) {
 
-    public static PostDetailRes of(Post post, Member member, int currentPerson) {
+    public static PostDetailRes of(Post post, int currentPerson) {
         return PostDetailRes.builder()
                 .postId(post.getPostId())
                 .memberId(post.getMember().getMemberId())
