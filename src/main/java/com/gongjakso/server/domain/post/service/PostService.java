@@ -1,5 +1,6 @@
 package com.gongjakso.server.domain.post.service;
 
+import com.gongjakso.server.domain.apply.repository.ApplyRepository;
 import com.gongjakso.server.domain.member.entity.Member;
 import com.gongjakso.server.domain.post.common.Pagination;
 import com.gongjakso.server.domain.post.dto.*;
@@ -34,6 +35,7 @@ import static com.gongjakso.server.global.exception.ErrorCode.*;
 public class PostService {
     private final PostRepository postRepository;
     private final PostScrapRepository postScrapRepository;
+    private final ApplyRepository applyRepository;
 
     @Transactional
     public PostRes create(Member member, PostReq req) {
@@ -73,7 +75,8 @@ public class PostService {
         try {
             Post post = postRepository.findById(id)
                     .orElseThrow(() -> new ApplicationException(NOT_FOUND_POST_EXCEPTION));
-            return PostDetailRes.of(post, member, 3L);
+            int current_person = (int) applyRepository.countApplyByPost(post);
+            return PostDetailRes.of(post, member, current_person);
         }catch (Exception e){
             throw new ApplicationException(INVALID_VALUE_EXCEPTION);
         }
