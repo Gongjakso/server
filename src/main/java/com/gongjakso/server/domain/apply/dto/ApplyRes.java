@@ -8,7 +8,7 @@ import java.util.List;
 public record ApplyRes(
         String title,
         LocalDateTime startDate,
-        LocalDateTime finishDate,
+        LocalDateTime endDate,
         Long max_person,
         int current_person,
         Boolean postType,
@@ -16,6 +16,6 @@ public record ApplyRes(
         List<String> stackName
 ) {
     public static ApplyRes of(Post post, int current_person, List<String> category, List<String> stackName){
-        return new ApplyRes(post.getTitle(),post.getStartDate(),post.getFinishDate(),post.getMaxPerson(),current_person,post.isPostType(), category, stackName);
+        return new ApplyRes(post.getTitle(),post.getStartDate(),post.getEndDate(),post.getMaxPerson(),current_person,post.isPostType(), category, stackName);
     }
 }
