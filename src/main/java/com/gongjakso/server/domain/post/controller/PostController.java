@@ -36,7 +36,7 @@ public class PostController {
 
     @Operation(summary = "공모전/프로젝트 공고 수정 API", description = "팀빌딩 페이지에서 정보 입력 후 공고 수정")
     @PutMapping("/{id}")
-    public ApplicationResponse<PostRes> modify(@AuthenticationPrincipal PrincipalDetails principalDetails, @PathVariable("id") Long id, @RequestBody PostReq req) {
+    public ApplicationResponse<PostRes> modify(@AuthenticationPrincipal PrincipalDetails principalDetails, @PathVariable("id") Long id, @RequestBody PostModifyReq req) {
         return ApplicationResponse.ok(postService.modify(principalDetails.getMember(), id, req));
     }
 
