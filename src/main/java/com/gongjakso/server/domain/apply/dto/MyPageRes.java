@@ -30,8 +30,8 @@ public record MyPageRes(
     public static MyPageRes of(Post post, Member member, List<String> categoryList) {
         return MyPageRes.builder()
                 .postId(post.getPostId())
-                .memberId(member.getMemberId())
-                .memberName(member.getName())
+                .memberId(post.getMember().getMemberId())
+                .memberName(post.getMember().getName())
                 .title(post.getTitle())
                 .contents(post.getContents())
                 .status(post.getStatus())
