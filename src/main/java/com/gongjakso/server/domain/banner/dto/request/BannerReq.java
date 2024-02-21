@@ -35,6 +35,8 @@ public record BannerReq(
                 .domainType(this.domainType)
                 .imageUrl(imageUrl)
                 .linkUrl(this.linkUrl)
+                .priority(this.priority)
+                .isPost(this.isPost)
                 .build();
     }
 }
