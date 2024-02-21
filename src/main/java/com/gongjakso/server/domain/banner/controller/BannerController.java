@@ -1,14 +1,15 @@
 package com.gongjakso.server.domain.banner.controller;
 
+import com.gongjakso.server.domain.banner.dto.request.BannerReq;
 import com.gongjakso.server.domain.banner.dto.response.BannerRes;
 import com.gongjakso.server.domain.banner.service.BannerService;
 import com.gongjakso.server.global.common.ApplicationResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -36,5 +37,30 @@ public class BannerController {
     @GetMapping("/content")
     public ApplicationResponse<List<BannerRes>> getContestImageList() {
         return ApplicationResponse.ok(bannerService.getContestImageList());
+    }
+
+    @Operation(description = "배너 등록 API (관리자만 가능)")
+    @PostMapping("")
+    public ApplicationResponse<BannerRes> registerBanner(@Valid @RequestPart(value = "data") BannerReq bannerReq, @RequestPart(value = "file") MultipartFile multipartFile) {
+        return ApplicationResponse.ok(bannerService.registerBanner(bannerReq, multipartFile));
+    }
+
+    @Operation(description = "배너 수정 API (관리자만 가능)")
+    @PutMapping("/{banner_id}")
+    public ApplicationResponse<BannerRes> updateBanner(@PathVariable(value = "banner_id") Long bannerId, @Valid @RequestPart(value = "data") BannerReq bannerReq, @RequestPart(value = "file") MultipartFile multipartFile) {
+        return ApplicationResponse.ok(bannerService.updateBanner(bannerId, bannerReq, multipartFile));
+    }
+
+    @Operation(description = "배너 게시 여부 변경 API (관리자만 가능)")
+    @PatchMapping("/{banner_id}")
+    public ApplicationResponse<BannerRes> changeIsPost(@PathVariable(value = "banner_id") Long bannerId) {
+        return ApplicationResponse.ok(bannerService.changeIsPost(bannerId));
+    }
+
+    @Operation(description = "배너 삭제 API (관리자만 가능)")
+    @DeleteMapping("/{banner_id}")
+    public ApplicationResponse<Void> deleteBanner(@PathVariable(value = "banner_id") Long bannerId) {
+        bannerService.deleteBanner(bannerId);
+        return ApplicationResponse.ok();
     }
 }
