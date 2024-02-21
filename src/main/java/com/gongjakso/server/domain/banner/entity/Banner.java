@@ -8,10 +8,12 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.SQLDelete;
 
 @Getter
 @Entity
 @Table(name = "banner")
+@SQLDelete(sql = "UPDATE banner SET deleted_at = NOW() where banner_id = ?")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Banner extends BaseTimeEntity {
 
@@ -49,11 +51,11 @@ public class Banner extends BaseTimeEntity {
     }
 
     @Builder
-    public Banner(DomainType domainType, String imageUrl, String linkUrl, Integer priority) {
+    public Banner(DomainType domainType, String imageUrl, String linkUrl, Integer priority, Boolean isPost) {
         this.domainType = domainType;
         this.imageUrl = imageUrl;
         this.linkUrl = linkUrl;
         this.priority = priority;
-        this.isPost = Boolean.TRUE;
+        this.isPost = isPost;
     }
 }

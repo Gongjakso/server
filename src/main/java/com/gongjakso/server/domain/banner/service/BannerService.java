@@ -5,6 +5,8 @@ import com.gongjakso.server.domain.banner.dto.response.BannerRes;
 import com.gongjakso.server.domain.banner.entity.Banner;
 import com.gongjakso.server.domain.banner.enumerate.DomainType;
 import com.gongjakso.server.domain.banner.repository.BannerRepository;
+import com.gongjakso.server.domain.member.entity.Member;
+import com.gongjakso.server.domain.member.enumerate.MemberType;
 import com.gongjakso.server.global.exception.ApplicationException;
 import com.gongjakso.server.global.exception.ErrorCode;
 import com.gongjakso.server.global.util.s3.S3Client;
@@ -55,8 +57,11 @@ public class BannerService {
     }
 
     @Transactional
-    public BannerRes registerBanner(BannerReq bannerReq, MultipartFile multipartFile) {
+    public BannerRes registerBanner(Member member, BannerReq bannerReq, MultipartFile multipartFile) {
         // Validation
+        if(!member.getMemberType().equals(MemberType.ADMIN)) {
+            throw new ApplicationException(ErrorCode.UNAUTHORIZED_EXCEPTION);
+        }
         if(multipartFile == null || multipartFile.isEmpty()) {
             throw new ApplicationException(ErrorCode.INVALID_VALUE_EXCEPTION);
         }
@@ -71,13 +76,16 @@ public class BannerService {
     }
 
     @Transactional
-    public BannerRes updateBanner(Long bannerId, BannerReq bannerReq, MultipartFile multipartFile) {
+    public BannerRes updateBanner(Member member, Long bannerId, BannerReq bannerReq, MultipartFile multipartFile) {
         // Validation
+        if(!member.getMemberType().equals(MemberType.ADMIN)) {
+            throw new ApplicationException(ErrorCode.UNAUTHORIZED_EXCEPTION);
+        }
         Banner banner = bannerRepository.findById(bannerId).orElseThrow(() -> new ApplicationException(ErrorCode.NOT_FOUND_EXCEPTION));
 
         // Business Logic
         String imageUrl = "";
-        if(multipartFile != null && multipartFile.isEmpty()) {
+        if(multipartFile != null && !multipartFile.isEmpty()) {
             s3Client.delete(banner.getImageUrl());
             imageUrl = s3Client.upload(multipartFile, "banner");
         }
@@ -90,8 +98,11 @@ public class BannerService {
     }
 
     @Transactional
-    public BannerRes changeIsPost(Long bannerId) {
+    public BannerRes changeIsPost(Member member, Long bannerId) {
         // Validation
+        if(!member.getMemberType().equals(MemberType.ADMIN)) {
+            throw new ApplicationException(ErrorCode.UNAUTHORIZED_EXCEPTION);
+        }
         Banner banner = bannerRepository.findById(bannerId).orElseThrow(() -> new ApplicationException(ErrorCode.NOT_FOUND_EXCEPTION));
 
         // Business Logic
@@ -103,8 +114,11 @@ public class BannerService {
     }
 
     @Transactional
-    public void deleteBanner(Long bannerId) {
+    public void deleteBanner(Member member, Long bannerId) {
         // Validation
+        if(!member.getMemberType().equals(MemberType.ADMIN)) {
+            throw new ApplicationException(ErrorCode.UNAUTHORIZED_EXCEPTION);
+        }
         Banner banner = bannerRepository.findById(bannerId).orElseThrow(() -> new ApplicationException(ErrorCode.NOT_FOUND_EXCEPTION));
 
         // Business Logic
