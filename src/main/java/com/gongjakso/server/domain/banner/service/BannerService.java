@@ -11,6 +11,9 @@ import com.gongjakso.server.global.exception.ApplicationException;
 import com.gongjakso.server.global.exception.ErrorCode;
 import com.gongjakso.server.global.util.s3.S3Client;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -19,6 +22,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@CacheConfig(cacheNames = "banner")
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class BannerService {
@@ -26,6 +30,7 @@ public class BannerService {
     private final BannerRepository bannerRepository;
     private final S3Client s3Client;
 
+    @Cacheable(key = "'MAIN'")
     public List<BannerRes> getMainImageList() {
         // Business Logic
         List<Banner> bannerList = bannerRepository.findAllByDomainTypeAndDeletedAtIsNullOrderByPriorityAsc(DomainType.MAIN);
@@ -36,6 +41,7 @@ public class BannerService {
                 .collect(Collectors.toList());
     }
 
+    @Cacheable(key = "'PROJECT'")
     public List<BannerRes> getProjectImageList() {
         // Business Logic
         List<Banner> bannerList = bannerRepository.findAllByDomainTypeAndDeletedAtIsNullOrderByPriorityAsc(DomainType.PROJECT);
@@ -46,6 +52,7 @@ public class BannerService {
                 .collect(Collectors.toList());
     }
 
+    @Cacheable(key = "'CONTEST'")
     public List<BannerRes> getContestImageList() {
         // Business Logic
         List<Banner> bannerList = bannerRepository.findAllByDomainTypeAndDeletedAtIsNullOrderByPriorityAsc(DomainType.CONTEST);
@@ -56,6 +63,7 @@ public class BannerService {
                 .collect(Collectors.toList());
     }
 
+    @CacheEvict(key = "#bannerReq.domainType", condition = "#bannerReq != null && #bannerReq.domainType != null")
     @Transactional
     public BannerRes registerBanner(Member member, BannerReq bannerReq, MultipartFile multipartFile) {
         // Validation
@@ -75,6 +83,7 @@ public class BannerService {
         return BannerRes.of(savedBanner);
     }
 
+    @CacheEvict(key = "#bannerReq.domainType", condition = "#bannerReq != null && #bannerReq.domainType != null")
     @Transactional
     public BannerRes updateBanner(Member member, Long bannerId, BannerReq bannerReq, MultipartFile multipartFile) {
         // Validation
@@ -97,6 +106,7 @@ public class BannerService {
         return BannerRes.of(updatedBanner);
     }
 
+    @CacheEvict(allEntries = true)
     @Transactional
     public BannerRes changeIsPost(Member member, Long bannerId) {
         // Validation
@@ -113,6 +123,7 @@ public class BannerService {
         return BannerRes.of(updatedBanner);
     }
 
+    @CacheEvict(value = {"bannerMain", "bannerProject", "bannerContest"})
     @Transactional
     public void deleteBanner(Member member, Long bannerId) {
         // Validation
