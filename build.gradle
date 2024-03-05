@@ -26,7 +26,6 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
-	implementation 'org.springframework.boot:spring-boot-starter-cache'
 
 	// Lombok
 	compileOnly 'org.projectlombok:lombok'
@@ -54,8 +53,9 @@ dependencies {
 	// MAC OS
 	implementation 'io.netty:netty-resolver-dns-native-macos:4.1.68.Final:osx-aarch_64'
 
-	// AWS
-	implementation 'com.amazonaws:aws-java-sdk-s3:1.12.661'
+	// Prometheus + Grafana
+	implementation 'org.springframework.boot:spring-boot-starter-actuator'
+	runtimeOnly 'io.micrometer:micrometer-registry-prometheus'
 }
 
 tasks.named('test') {
