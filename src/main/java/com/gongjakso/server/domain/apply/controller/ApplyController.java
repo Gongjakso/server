@@ -67,8 +67,8 @@ public class ApplyController {
     // 특정 지원자 지원서 가져오는 api
     @Operation(summary = "지원서 API", description = "내가 모집 중인 팀 페이지에서 지원자 지원서 요청")
     @GetMapping("/{post_id}/{apply_id}/application")
-    public ApplicationResponse<ApplicationRes> findApplication(@PathVariable("apply_id") Long applyId,@PathVariable("post_id") Long postId){
-        return ApplicationResponse.ok(applyService.findApplication(applyId,postId));
+    public ApplicationResponse<ApplicationRes> findApplication(@AuthenticationPrincipal PrincipalDetails principalDetails,@PathVariable("apply_id") Long applyId,@PathVariable("post_id") Long postId){
+        return ApplicationResponse.ok(applyService.findApplication(principalDetails.getMember(),applyId,postId));
     }
     //공고 카테고리 요청 api
     @Operation(summary = "공고 카테고리 API", description = "팀 지원하기 모달 창에서 카테고리들(지원 분야) 요청")

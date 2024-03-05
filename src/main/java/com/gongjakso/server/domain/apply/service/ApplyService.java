@@ -204,32 +204,37 @@ public class ApplyService {
         }
     }
 
-    public ApplicationRes findApplication(Long apply_id,Long post_id){
+    public ApplicationRes findApplication(Member member,Long apply_id,Long post_id){
         Apply apply = applyRepository.findById(apply_id).orElseThrow(()->new ApplicationException(ErrorCode.NOT_FOUND_APPLY_EXCEPTION));
         Post post = postRepository.findByPostId(post_id);
         if (post == null) {
             throw new ApplicationException(ErrorCode.NOT_FOUND_POST_EXCEPTION);
         }else{
-            List<Category> categoryList = categoryRepository.findCategoryByPost(post);
-            List<String> list = new ArrayList<>();
-            if(categoryList!=null) {
-                for (Category category : categoryList) {
-                    list.add(String.valueOf(category.getCategoryType()));
+            //지원서 보기 권한
+            if(post.getMember()==member){
+                List<Category> categoryList = categoryRepository.findCategoryByPost(post);
+                List<String> list = new ArrayList<>();
+                if(categoryList!=null) {
+                    for (Category category : categoryList) {
+                        list.add(String.valueOf(category.getCategoryType()));
+                    }
+                }else {
+                    throw new ApplicationException(ErrorCode.NOT_FOUND_CATEGORY_EXCEPTION);
                 }
-            }else {
-                throw new ApplicationException(ErrorCode.NOT_FOUND_CATEGORY_EXCEPTION);
-            }
-            List<StackName> stackNameList = stackNameRepository.findStackNameByPost(post);
-            List<String> stackList = new ArrayList<>();
-            if(stackNameList!=null) {
-                for (StackName stackName : stackNameList) {
-                    stackList.add(String.valueOf(stackName.getStackNameType()));
+                List<StackName> stackNameList = stackNameRepository.findStackNameByPost(post);
+                List<String> stackList = new ArrayList<>();
+                if(stackNameList!=null) {
+                    for (StackName stackName : stackNameList) {
+                        stackList.add(String.valueOf(stackName.getStackNameType()));
+                    }
+                }else {
+                    throw new ApplicationException(ErrorCode.NOT_FOUND_CATEGORY_EXCEPTION);
                 }
+                ApplicationRes applicationRes = ApplicationRes.of(apply,list, stackList);
+                return applicationRes;
             }else {
-                throw new ApplicationException(ErrorCode.NOT_FOUND_CATEGORY_EXCEPTION);
+                throw new ApplicationException(ErrorCode.UNAUTHORIZED_EXCEPTION);
             }
-            ApplicationRes applicationRes = ApplicationRes.of(apply,list, stackList);
-            return applicationRes;
         }
     }
 
