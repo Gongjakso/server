@@ -2,7 +2,6 @@ package com.gongjakso.server.domain.post.service;
 
 import com.gongjakso.server.domain.apply.repository.ApplyRepository;
 import com.gongjakso.server.domain.member.entity.Member;
-import com.gongjakso.server.domain.post.common.Pagination;
 import com.gongjakso.server.domain.post.dto.*;
 import com.gongjakso.server.domain.post.entity.Category;
 import com.gongjakso.server.domain.post.entity.Post;
@@ -112,11 +111,8 @@ public class PostService {
     /*
     전체 공모전 공고 목록 조회
      */
-    public Page<GetContestRes> getContests(String sort, Pageable p) throws ApplicationException {
-        int page = p.getPageNumber();
-        int size = p.getPageSize();
-        Pagination pagination = new Pagination((int) postRepository.count(), page, size);
-        Pageable pageable = PageRequest.of(pagination.getPage(), size);
+    public Page<GetContestRes> getContests(String sort, Pageable page) throws ApplicationException {
+        Pageable pageable = PageRequest.of(page.getPageNumber(), page.getPageSize());
         Page<Post> posts;
         if(sort.equals("createdAt,desc")){ //최신순
             posts = postRepository.findAllByPostTypeFalseAndDeletedAtIsNullAndFinishDateAfterAndStatusOrderByCreatedAtDesc(LocalDateTime.now(), RECRUITING, pageable);
@@ -130,8 +126,7 @@ public class PostService {
    검색어 기반 공모전 공고 목록 조회
     */
     public Page<GetContestRes> getContestsBySearchWord(String sort, String searchWord, Pageable page) throws ApplicationException {
-        Pagination pagination = new Pagination((int) postRepository.count(), page.getPageNumber(), page.getPageSize());
-        Pageable pageable = PageRequest.of(pagination.getPage(), page.getPageSize());
+        Pageable pageable = PageRequest.of(page.getPageNumber(), page.getPageSize());
         searchWord = searchWord.replaceAll(" ", ""); // 검색어에서 공백 제거
         Page<Post> posts;
         if (sort.equals("createdAt,desc")) {
@@ -147,8 +142,7 @@ public class PostService {
      */
     public Page<GetContestRes> getContestsByMeetingAreaAndCategoryAndSearchWord(
             String sort, String meetingArea, String category, String searchWord, Pageable page) throws ApplicationException {
-        Pagination pagination = new Pagination((int) postRepository.count(), page.getPageNumber(), page.getPageSize());
-        Pageable pageable = PageRequest.of(pagination.getPage(), page.getPageSize());
+        Pageable pageable = PageRequest.of(page.getPageNumber(), page.getPageSize());
         searchWord = searchWord.replaceAll(" ", "");
         if(!category.isBlank()) {
             if (!CategoryType.isValid(category)){
@@ -175,11 +169,8 @@ public class PostService {
     /*
     전체 프로젝트 공고 목록 조회
      */
-    public Page<GetProjectRes> getProjects(String sort, Pageable p) throws ApplicationException {
-        int page = p.getPageNumber();
-        int size = p.getPageSize();
-        Pagination pagination = new Pagination((int) postRepository.count(), page, size);
-        Pageable pageable = PageRequest.of(pagination.getPage(), size);
+    public Page<GetProjectRes> getProjects(String sort, Pageable page) throws ApplicationException {
+        Pageable pageable = PageRequest.of(page.getPageNumber(), page.getPageSize());
         Page<Post> posts;
         if(sort.equals("createdAt,desc")){ //최신순
             posts = postRepository.findAllByPostTypeTrueAndDeletedAtIsNullAndFinishDateAfterAndStatusOrderByCreatedAtDesc(LocalDateTime.now(), RECRUITING, pageable);
@@ -193,8 +184,7 @@ public class PostService {
     검색어 기반 프로젝트 공고 목록 조회
      */
     public Page<GetProjectRes> getProjectsBySearchWord(String sort, String searchWord, Pageable page) throws ApplicationException {
-        Pagination pagination = new Pagination((int) postRepository.count(), page.getPageNumber(), page.getPageSize());
-        Pageable pageable = PageRequest.of(pagination.getPage(), page.getPageSize());
+        Pageable pageable = PageRequest.of(page.getPageNumber(), page.getPageSize());
         searchWord = searchWord.replaceAll(" ", ""); // 검색어에서 공백 제거
         Page<Post> posts;
         if (sort.equals("createdAt,desc")) {
@@ -210,8 +200,7 @@ public class PostService {
      */
     public Page<GetProjectRes> getProjectsByMeetingAreaAndStackNameAndSearchWord(
             String sort, String meetingArea, String stackName, String searchWord, Pageable page) throws ApplicationException {
-        Pagination pagination = new Pagination((int) postRepository.count(), page.getPageNumber(), page.getPageSize());
-        Pageable pageable = PageRequest.of(pagination.getPage(), page.getPageSize());
+        Pageable pageable = PageRequest.of(page.getPageNumber(), page.getPageSize());
         searchWord = searchWord.replaceAll(" ", "");
         if(!stackName.isBlank()) {
             if (!StackNameType.isValid(stackName)){
