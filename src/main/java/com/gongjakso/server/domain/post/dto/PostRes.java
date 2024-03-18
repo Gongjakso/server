@@ -13,7 +13,7 @@ import java.util.List;
 @Builder
 public record PostRes(Long postId, Long memberId, String title, String contents, String contestLink, PostStatus status, LocalDateTime startDate,
                       LocalDateTime endDate, LocalDateTime finishDate, Long maxPerson, List<StackName> stackNames,
-                      List<Category> categories, MeetingMethod meetingMethod, String meetingArea,
+                      List<Category> categories, MeetingMethod meetingMethod, String meetingCity, String meetingTown,
                       boolean questionMethod, String questionLink, boolean postType, LocalDateTime createdAt, LocalDateTime modifiedAt, LocalDateTime deletedAt){
     public static PostRes of(Post post){
         return PostRes.builder()
@@ -30,7 +30,8 @@ public record PostRes(Long postId, Long memberId, String title, String contents,
                 .stackNames(post.getStackNames())
                 .categories(post.getCategories())
                 .meetingMethod(post.getMeetingMethod())
-                .meetingArea(post.getMeetingArea())
+                .meetingCity(post.getMeetingCity())
+                .meetingTown(post.getMeetingTown())
                 .questionMethod(post.isQuestionMethod())
                 .questionLink(post.getQuestionLink())
                 .postType(post.isPostType())

@@ -20,7 +20,8 @@ public record PostModifyReq (
         List<StackName> stackNames,
         List<Category> categories,
         MeetingMethod meetingMethod,
-        String meetingArea,
+        String meetingCity,
+        String meetingTown,
         boolean questionMethod,
         String questionLink,
         boolean postType

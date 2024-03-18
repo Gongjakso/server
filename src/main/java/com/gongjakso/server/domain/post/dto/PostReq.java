@@ -20,7 +20,8 @@ public record PostReq (
         List<StackName> stackNames,
         List<Category> categories,
         MeetingMethod meetingMethod,
-        String meetingArea,
+        String meetingCity,
+        String meetingTown,
         boolean questionMethod,
         String questionLink,
         boolean postType
@@ -36,7 +37,8 @@ public record PostReq (
                 .finishDate(this.finishDate)
                 .maxPerson(this.maxPerson)
                 .meetingMethod(this.meetingMethod)
-                .meetingArea(this.meetingArea)
+                .meetingCity(this.meetingCity)
+                .meetingTown(this.meetingTown)
                 .questionMethod(this.questionMethod)
                 .questionLink(this.questionLink)
                 .postType(this.postType)
