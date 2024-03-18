@@ -1,7 +1,6 @@
 package com.gongjakso.server.domain.post.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.gongjakso.server.domain.member.entity.Member;
 import com.gongjakso.server.domain.post.entity.Category;
 import com.gongjakso.server.domain.post.entity.Post;
 import com.gongjakso.server.domain.post.entity.StackName;
@@ -31,7 +30,8 @@ public record PostDetailRes(
         List<StackName> stackNames,
         List<Category> categories,
         MeetingMethod meetingMethod,
-        String meetingArea,
+        String meetingCity,
+        String meetingTown,
         boolean questionMethod,
         String questionLink,
         boolean postType,
@@ -56,7 +56,8 @@ public record PostDetailRes(
                 .stackNames(post.getStackNames())
                 .categories(post.getCategories())
                 .meetingMethod(post.getMeetingMethod())
-                .meetingArea(post.getMeetingArea())
+                .meetingCity(post.getMeetingCity())
+                .meetingTown(post.getMeetingTown())
                 .questionMethod(post.isQuestionMethod())
                 .questionLink(post.getQuestionLink())
                 .postType(post.isPostType())
