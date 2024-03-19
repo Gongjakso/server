@@ -11,8 +11,10 @@ import com.gongjakso.server.domain.post.enumerate.CategoryType;
 import com.gongjakso.server.domain.post.enumerate.StackNameType;
 import com.gongjakso.server.domain.post.repository.PostRepository;
 import com.gongjakso.server.domain.post.repository.PostScrapRepository;
+import com.gongjakso.server.domain.post.repository.StackNameRepository;
 import com.gongjakso.server.global.exception.ApplicationException;
 import lombok.RequiredArgsConstructor;
+import org.hibernate.Hibernate;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -29,12 +31,12 @@ import static com.gongjakso.server.global.exception.ErrorCode.*;
 
 
 @Service
-@Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class PostService {
     private final PostRepository postRepository;
     private final PostScrapRepository postScrapRepository;
     private final ApplyRepository applyRepository;
+    private final StackNameRepository stackNameRepository;
 
     @Transactional
     public PostRes create(Member member, PostReq req) {
@@ -65,9 +67,12 @@ public class PostService {
 
     @Transactional
     public PostDetailRes read(Long id) {
-        Post post = postRepository.findById(id)
-                .orElseThrow(() -> new ApplicationException(NOT_FOUND_POST_EXCEPTION));
-        int current_person = (int) applyRepository.countApplyByPost(post);
+        Post post = postRepository.findWithStackNameUsingFetchJoinByPostId(id);
+        if (post == null) {
+            throw new ApplicationException(NOT_FOUND_POST_EXCEPTION);
+        }
+        int current_person = (int) applyRepository.countApplyWithStackNameUsingFetchJoinByPost(post);
+        Hibernate.initialize(post.getStackNames());
         return PostDetailRes.of(post, current_person);
     }
 
@@ -111,6 +116,7 @@ public class PostService {
     /*
     전체 공모전 공고 목록 조회
      */
+    @Transactional
     public Page<GetContestRes> getContests(String sort, Pageable page) throws ApplicationException {
         Pageable pageable = PageRequest.of(page.getPageNumber(), page.getPageSize());
         Page<Post> posts;
@@ -125,6 +131,7 @@ public class PostService {
     /*
    검색어 기반 공모전 공고 목록 조회
     */
+    @Transactional
     public Page<GetContestRes> getContestsBySearchWord(String sort, String searchWord, Pageable page) throws ApplicationException {
         Pageable pageable = PageRequest.of(page.getPageNumber(), page.getPageSize());
         searchWord = searchWord.replaceAll(" ", ""); // 검색어에서 공백 제거
@@ -140,6 +147,7 @@ public class PostService {
     /*
     지역, 카테고리 기반 공모전 공고 목록 조회
      */
+    @Transactional
     public Page<GetContestRes> getContestsByMeetingAreaAndCategoryAndSearchWord(
             String sort, String meetingCity, String meetingTown, String category, String searchWord, Pageable page) throws ApplicationException {
         Pageable pageable = PageRequest.of(page.getPageNumber(), page.getPageSize());
@@ -172,6 +180,7 @@ public class PostService {
     /*
     전체 프로젝트 공고 목록 조회
      */
+    @Transactional
     public Page<GetProjectRes> getProjects(String sort, Pageable page) throws ApplicationException {
         Pageable pageable = PageRequest.of(page.getPageNumber(), page.getPageSize());
         Page<Post> posts;
@@ -186,6 +195,7 @@ public class PostService {
     /*
     검색어 기반 프로젝트 공고 목록 조회
      */
+    @Transactional
     public Page<GetProjectRes> getProjectsBySearchWord(String sort, String searchWord, Pageable page) throws ApplicationException {
         Pageable pageable = PageRequest.of(page.getPageNumber(), page.getPageSize());
         searchWord = searchWord.replaceAll(" ", ""); // 검색어에서 공백 제거
@@ -201,6 +211,7 @@ public class PostService {
     /*
     지역, 스택 기반 프로젝트 공고 목록 조회
      */
+    @Transactional
     public Page<GetProjectRes> getProjectsByMeetingAreaAndStackNameAndSearchWord(
             String sort, String meetingCity, String meetingTown, String stackName, String searchWord, Pageable page) throws ApplicationException {
         Pageable pageable = PageRequest.of(page.getPageNumber(), page.getPageSize());
