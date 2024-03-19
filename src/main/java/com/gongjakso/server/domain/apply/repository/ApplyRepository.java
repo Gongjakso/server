@@ -10,7 +10,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 public interface ApplyRepository extends JpaRepository<Apply,Long> {
-    long countApplyByPost(Post post);
+    long countApplyWithStackNameUsingFetchJoinByPost(Post post);
     boolean existsApplyByMemberAndPost(Member member,Post post);
     Page<Apply> findAllByPost(Post post, Pageable pageable);
 
