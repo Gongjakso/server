@@ -46,7 +46,7 @@ public record PostDetailRes(
                 .memberName(post.getMember().getName())
                 .title(post.getTitle())
                 .contents(post.getContents())
-                .urlLink("https://www.naver.com")
+                .urlLink(post.getContestLink())
                 .status(post.getStatus())
                 .startDate(post.getStartDate())
                 .endDate(post.getEndDate())
