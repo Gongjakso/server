@@ -46,7 +46,7 @@ public class PostService {
         }
 
         Post entity = new Post(req.title(), member, req.contents(), req.contestLink(), req.startDate(), req.endDate(),
-                req.finishDate(), req.maxPerson(), req.meetingMethod(), req.meetingArea(), req.questionMethod(),
+                req.finishDate(), req.maxPerson(), req.meetingMethod(), req.meetingCity(), req.meetingTown(), req.questionMethod(),
                 req.questionLink(), req.postType(), new ArrayList<>(), new ArrayList<>());
 
         List<StackName> stackNames = req.stackNames().stream()
@@ -141,26 +141,29 @@ public class PostService {
     지역, 카테고리 기반 공모전 공고 목록 조회
      */
     public Page<GetContestRes> getContestsByMeetingAreaAndCategoryAndSearchWord(
-            String sort, String meetingArea, String category, String searchWord, Pageable page) throws ApplicationException {
+            String sort, String meetingCity, String meetingTown, String category, String searchWord, Pageable page) throws ApplicationException {
         Pageable pageable = PageRequest.of(page.getPageNumber(), page.getPageSize());
         searchWord = searchWord.replaceAll(" ", "");
+        if(meetingTown.equals("전체")){
+            meetingTown = "";
+        }
         if(!category.isBlank()) {
             if (!CategoryType.isValid(category)){
                 throw new ApplicationException(INVALID_VALUE_EXCEPTION);
             }
             Page<Post> posts;
             if (sort.equals("createdAt,desc")) {
-                posts = postRepository.findAllPostsJoinedWithCategoriesByTitleContainsAndPostTypeFalseAndDeletedAtIsNullAndFinishDateAfterAndStatusAndMeetingAreaContainsAndCategoriesCategoryTypeContainsOrderByCreatedAtDesc(searchWord.toLowerCase(), LocalDateTime.now(), RECRUITING, meetingArea, category.toString(), pageable);
+                posts = postRepository.findAllPostsJoinedWithCategoriesByTitleContainsAndPostTypeFalseAndDeletedAtIsNullAndFinishDateAfterAndStatusAndMeetingCityContainsAndMeetingTownContainsAndCategoriesCategoryTypeContainsOrderByCreatedAtDesc(searchWord.toLowerCase(), LocalDateTime.now(), RECRUITING, meetingCity, meetingTown, category.toString(), pageable);
             }else{
-                posts = postRepository.findAllPostsJoinedWithCategoriesByTitleContainsAndPostTypeFalseAndDeletedAtIsNullAndFinishDateAfterAndStatusAndMeetingAreaContainsAndCategoriesCategoryTypeContainsOrderByScrapCountDescCreatedAtDesc(searchWord.toLowerCase(), LocalDateTime.now(), RECRUITING, meetingArea, category.toString(), pageable);
+                posts = postRepository.findAllPostsJoinedWithCategoriesByTitleContainsAndPostTypeFalseAndDeletedAtIsNullAndFinishDateAfterAndStatusAndMeetingCityContainsAndMeetingTownContainsAndCategoriesCategoryTypeContainsOrderByScrapCountDescCreatedAtDesc(searchWord.toLowerCase(), LocalDateTime.now(), RECRUITING, meetingCity, meetingTown, category.toString(), pageable);
             }
             return posts.map(post -> GetContestRes.of(post));
         } else{
             Page<Post> posts;
             if (sort.equals("createdAt,desc")) {
-                posts = postRepository.findAllByTitleContainsAndPostTypeFalseAndDeletedAtIsNullAndFinishDateAfterAndStatusAndMeetingAreaContainsOrderByCreatedAtDesc(searchWord.toLowerCase(), LocalDateTime.now(), RECRUITING, meetingArea, pageable);
+                posts = postRepository.findAllByTitleContainsAndPostTypeFalseAndDeletedAtIsNullAndFinishDateAfterAndStatusAndMeetingCityContainsAndMeetingTownContainsOrderByCreatedAtDesc(searchWord.toLowerCase(), LocalDateTime.now(), RECRUITING, meetingCity, meetingTown, pageable);
             }else{
-                posts = postRepository.findAllByTitleContainsAndPostTypeFalseAndDeletedAtIsNullAndFinishDateAfterAndStatusAndMeetingAreaContainsOrderByScrapCountDescCreatedAtDesc(searchWord.toLowerCase(), LocalDateTime.now(), RECRUITING, meetingArea, pageable);
+                posts = postRepository.findAllByTitleContainsAndPostTypeFalseAndDeletedAtIsNullAndFinishDateAfterAndStatusAndMeetingCityContainsAndMeetingTownContainsOrderByScrapCountDescCreatedAtDesc(searchWord.toLowerCase(), LocalDateTime.now(), RECRUITING, meetingCity, meetingTown, pageable);
             }
             return posts.map(post -> GetContestRes.of(post));
         }
@@ -199,26 +202,29 @@ public class PostService {
     지역, 스택 기반 프로젝트 공고 목록 조회
      */
     public Page<GetProjectRes> getProjectsByMeetingAreaAndStackNameAndSearchWord(
-            String sort, String meetingArea, String stackName, String searchWord, Pageable page) throws ApplicationException {
+            String sort, String meetingCity, String meetingTown, String stackName, String searchWord, Pageable page) throws ApplicationException {
         Pageable pageable = PageRequest.of(page.getPageNumber(), page.getPageSize());
         searchWord = searchWord.replaceAll(" ", "");
+        if(meetingTown.equals("전체")){
+            meetingTown = "";
+        }
         if(!stackName.isBlank()) {
             if (!StackNameType.isValid(stackName)){
                 throw new ApplicationException(INVALID_VALUE_EXCEPTION);
             }
             Page<Post> posts;
             if (sort.equals("createdAt,desc")) {
-                posts = postRepository.findAllPostsJoinedWithStackNamesByTitleContainsAndPostTypeTrueAndDeletedAtIsNullAndFinishDateAfterAndStatusAndMeetingAreaContainsAndStackNamesStackNameTypeContainsOrderByCreatedAtDesc(searchWord.toLowerCase(), LocalDateTime.now(), RECRUITING, meetingArea, stackName.toString(), pageable);
+                posts = postRepository.findAllPostsJoinedWithStackNamesByTitleContainsAndPostTypeTrueAndDeletedAtIsNullAndFinishDateAfterAndStatusAndMeetingCityContainsAndMeetingTownContainsAndStackNamesStackNameTypeContainsOrderByCreatedAtDesc(searchWord.toLowerCase(), LocalDateTime.now(), RECRUITING, meetingCity,meetingTown, stackName.toString(), pageable);
             }else{
-                posts = postRepository.findAllPostsJoinedWithStackNamesByTitleContainsAndPostTypeTrueAndDeletedAtIsNullAndFinishDateAfterAndStatusAndMeetingAreaContainsAndStackNamesStackNameTypeContainsOrderByScrapCountDescCreatedAtDesc(searchWord.toLowerCase(), LocalDateTime.now(), RECRUITING, meetingArea, stackName.toString(), pageable);
+                posts = postRepository.findAllPostsJoinedWithStackNamesByTitleContainsAndPostTypeTrueAndDeletedAtIsNullAndFinishDateAfterAndStatusAndMeetingCityContainsAndMeetingTownContainsAndStackNamesStackNameTypeContainsOrderByScrapCountDescCreatedAtDesc(searchWord.toLowerCase(), LocalDateTime.now(), RECRUITING, meetingCity,meetingTown, stackName.toString(), pageable);
             }
             return posts.map(post -> GetProjectRes.of(post));
         } else{
             Page<Post> posts;
             if (sort.equals("createdAt,desc")) {
-                posts = postRepository.findAllByTitleContainsAndPostTypeTrueAndDeletedAtIsNullAndFinishDateAfterAndStatusAndMeetingAreaContainsOrderByCreatedAtDesc(searchWord.toLowerCase(), LocalDateTime.now(), RECRUITING, meetingArea, pageable);
+                posts = postRepository.findAllByTitleContainsAndPostTypeTrueAndDeletedAtIsNullAndFinishDateAfterAndStatusAndMeetingCityContainsAndMeetingTownContainsOrderByCreatedAtDesc(searchWord.toLowerCase(), LocalDateTime.now(), RECRUITING, meetingCity,meetingTown, pageable);
             }else{
-                posts = postRepository.findAllByTitleContainsAndPostTypeTrueAndDeletedAtIsNullAndFinishDateAfterAndStatusAndMeetingAreaContainsOrderByScrapCountDescCreatedAtDesc(searchWord.toLowerCase(), LocalDateTime.now(), RECRUITING, meetingArea, pageable);
+                posts = postRepository.findAllByTitleContainsAndPostTypeTrueAndDeletedAtIsNullAndFinishDateAfterAndStatusAndMeetingCityContainsAndMeetingTownContainsOrderByScrapCountDescCreatedAtDesc(searchWord.toLowerCase(), LocalDateTime.now(), RECRUITING, meetingCity,meetingTown, pageable);
             }
             return posts.map(post -> GetProjectRes.of(post));
         }
