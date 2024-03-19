@@ -38,7 +38,7 @@ public class ApplyService {
     private final CategoryRepository categoryRepository;
     private final StackNameRepository stackNameRepository;
     public void save(Member member, Long post_id, ApplyReq req){
-        Post post = postRepository.findByPostId(post_id);
+        Post post = postRepository.findWithStackNameUsingFetchJoinByPostId(post_id);
         if (post == null) {
             throw new ApplicationException(ErrorCode.NOT_FOUND_POST_EXCEPTION);
         }else {
@@ -58,11 +58,11 @@ public class ApplyService {
     }
 
     public ApplyRes findApply(Long post_id){
-        Post post = postRepository.findByPostId(post_id);
+        Post post = postRepository.findWithStackNameUsingFetchJoinByPostId(post_id);
         if (post == null) {
             throw new ApplicationException(ErrorCode.NOT_FOUND_POST_EXCEPTION);
         }else{
-            int current_person = (int) applyRepository.countApplyByPost(post);
+            int current_person = (int) applyRepository.countApplyWithStackNameUsingFetchJoinByPost(post);
             List<Category> categoryList = categoryRepository.findCategoryByPost(post);
             List<String> list = new ArrayList<>();
             if(categoryList!=null) {
@@ -86,7 +86,7 @@ public class ApplyService {
         }
     }
     public ApplyPageRes applyListPage(long post_id,int page,int size){
-        Post post = postRepository.findByPostId(post_id);
+        Post post = postRepository.findWithStackNameUsingFetchJoinByPostId(post_id);
         if (post == null) {
             throw new ApplicationException(ErrorCode.NOT_FOUND_POST_EXCEPTION);
         }else{
@@ -113,7 +113,7 @@ public class ApplyService {
         return ParticipationPageRes.of(participationLists,pageNo,size,totalPages,last);
     }
     public CategoryRes findPostCategory(Long post_id){
-        Post post = postRepository.findByPostId(post_id);
+        Post post = postRepository.findWithStackNameUsingFetchJoinByPostId(post_id);
         if (post == null) {
             throw new ApplicationException(ErrorCode.NOT_FOUND_POST_EXCEPTION);
         }else {
@@ -174,7 +174,7 @@ public class ApplyService {
 
     }
     public void updatePostState(Long post_id,String state){
-        Post post = postRepository.findByPostId(post_id);
+        Post post = postRepository.findWithStackNameUsingFetchJoinByPostId(post_id);
         if (post == null) {
             throw new ApplicationException(ErrorCode.NOT_FOUND_POST_EXCEPTION);
         }else{
@@ -191,7 +191,7 @@ public class ApplyService {
         }
     }
     public void updatePostPeriod(Long post_id, PeriodReq req) {
-        Post post = postRepository.findByPostId(post_id);
+        Post post = postRepository.findWithStackNameUsingFetchJoinByPostId(post_id);
         if (post == null) {
             throw new ApplicationException(ErrorCode.NOT_FOUND_POST_EXCEPTION);
         }else {
@@ -206,7 +206,7 @@ public class ApplyService {
 
     public ApplicationRes findApplication(Long apply_id,Long post_id){
         Apply apply = applyRepository.findById(apply_id).orElseThrow(()->new ApplicationException(ErrorCode.NOT_FOUND_APPLY_EXCEPTION));
-        Post post = postRepository.findByPostId(post_id);
+        Post post = postRepository.findWithStackNameUsingFetchJoinByPostId(post_id);
         if (post == null) {
             throw new ApplicationException(ErrorCode.NOT_FOUND_POST_EXCEPTION);
         }else{
