@@ -11,7 +11,6 @@ import com.gongjakso.server.domain.post.enumerate.CategoryType;
 import com.gongjakso.server.domain.post.enumerate.StackNameType;
 import com.gongjakso.server.domain.post.repository.PostRepository;
 import com.gongjakso.server.domain.post.repository.PostScrapRepository;
-import com.gongjakso.server.domain.post.repository.StackNameRepository;
 import com.gongjakso.server.global.exception.ApplicationException;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.Hibernate;
@@ -36,7 +35,6 @@ public class PostService {
     private final PostRepository postRepository;
     private final PostScrapRepository postScrapRepository;
     private final ApplyRepository applyRepository;
-    private final StackNameRepository stackNameRepository;
 
     @Transactional
     public PostRes create(Member member, PostReq req) {
@@ -67,12 +65,13 @@ public class PostService {
 
     @Transactional
     public PostDetailRes read(Long id) {
-        Post post = postRepository.findWithStackNameUsingFetchJoinByPostId(id);
+        Post post = postRepository.findWithStackNameAndCategoryUsingFetchJoinByPostId(id);
         if (post == null) {
             throw new ApplicationException(NOT_FOUND_POST_EXCEPTION);
         }
         int current_person = (int) applyRepository.countApplyWithStackNameUsingFetchJoinByPost(post);
         Hibernate.initialize(post.getStackNames());
+        Hibernate.initialize(post.getCategories());
         return PostDetailRes.of(post, current_person);
     }
 
@@ -189,6 +188,7 @@ public class PostService {
         } else{ //스크랩순
             posts = postRepository.findAllByPostTypeTrueAndDeletedAtIsNullAndFinishDateAfterAndStatusOrderByScrapCountDescCreatedAtDesc(LocalDateTime.now(), RECRUITING, pageable);
         }
+        posts.forEach(post -> post.getCategories().size());
         return posts.map(post -> GetProjectRes.of(post));
     }
 
@@ -205,6 +205,7 @@ public class PostService {
         } else{
             posts = postRepository.findAllByTitleContainsAndPostTypeTrueAndDeletedAtIsNullAndFinishDateAfterAndStatusOrderByScrapCountDescCreatedAtDesc(searchWord.toLowerCase(), LocalDateTime.now(), RECRUITING, pageable);
         }
+        posts.forEach(post -> post.getCategories().size());
         return posts.map(post -> GetProjectRes.of(post));
     }
 
@@ -229,6 +230,7 @@ public class PostService {
             }else{
                 posts = postRepository.findAllPostsJoinedWithStackNamesByTitleContainsAndPostTypeTrueAndDeletedAtIsNullAndFinishDateAfterAndStatusAndMeetingCityContainsAndMeetingTownContainsAndStackNamesStackNameTypeContainsOrderByScrapCountDescCreatedAtDesc(searchWord.toLowerCase(), LocalDateTime.now(), RECRUITING, meetingCity,meetingTown, stackName.toString(), pageable);
             }
+            posts.forEach(post -> post.getCategories().size());
             return posts.map(post -> GetProjectRes.of(post));
         } else{
             Page<Post> posts;
@@ -237,6 +239,7 @@ public class PostService {
             }else{
                 posts = postRepository.findAllByTitleContainsAndPostTypeTrueAndDeletedAtIsNullAndFinishDateAfterAndStatusAndMeetingCityContainsAndMeetingTownContainsOrderByScrapCountDescCreatedAtDesc(searchWord.toLowerCase(), LocalDateTime.now(), RECRUITING, meetingCity,meetingTown, pageable);
             }
+            posts.forEach(post -> post.getCategories().size());
             return posts.map(post -> GetProjectRes.of(post));
         }
     }
