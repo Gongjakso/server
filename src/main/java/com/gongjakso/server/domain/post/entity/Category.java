@@ -2,7 +2,6 @@ package com.gongjakso.server.domain.post.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.gongjakso.server.domain.post.enumerate.CategoryType;
-import com.gongjakso.server.global.common.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -11,7 +10,7 @@ import lombok.*;
 @Entity
 @Table(name = "category")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Category extends BaseTimeEntity {
+public class Category {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
