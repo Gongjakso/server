@@ -1,7 +1,7 @@
 package com.gongjakso.server.domain.post.enumerate;
 
 public enum CategoryType {
-    PLAN,DESIGN,FE,BE,ETC,LATER;
+    PLAN,DESIGN,FE,BE,ETC;
     @Override
     public String toString() {
         return name();
