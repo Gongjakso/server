@@ -56,6 +56,10 @@ dependencies {
 
 	// AWS
 	implementation 'com.amazonaws:aws-java-sdk-s3:1.12.661'
+
+	// Prometheus + Grafana
+	implementation 'org.springframework.boot:spring-boot-starter-actuator'
+	runtimeOnly 'io.micrometer:micrometer-registry-prometheus'
 }
 
 tasks.named('test') {
