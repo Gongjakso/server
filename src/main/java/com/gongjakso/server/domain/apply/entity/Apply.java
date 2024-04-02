@@ -1,5 +1,6 @@
 package com.gongjakso.server.domain.apply.entity;
 
+import com.gongjakso.server.domain.apply.enumerate.ApplyType;
 import com.gongjakso.server.domain.apply.enumerate.PostType;
 import com.gongjakso.server.domain.member.entity.Member;
 import com.gongjakso.server.domain.post.entity.Post;
@@ -38,17 +39,11 @@ public class Apply extends BaseTimeEntity {
     @Enumerated(EnumType.STRING)
     private PostType type;
 
-    @Column(name = "is_pass", columnDefinition = "boolean" )
-    private Boolean isPass;
-
-    @Column(name = "is_open", columnDefinition = "boolean" )
-    private Boolean is_open;
-
-    @Column(name = "is_decision", columnDefinition = "boolean" )
-    private Boolean isDecision;
+    @Enumerated(EnumType.STRING)
+    private ApplyType applyType;
 
     @Builder
-    public Apply(Long applyId, Member member,Post post, String application,String recruit_part,String recruit_role,PostType type, Boolean isPass,Boolean is_open,Boolean isDecision){
+    public Apply(Long applyId, Member member,Post post, String application,String recruit_part,String recruit_role,PostType type, ApplyType applyType){
         this.applyId=applyId;
         this.member=member;
         this.post=post;
@@ -56,8 +51,6 @@ public class Apply extends BaseTimeEntity {
         this.recruit_part=recruit_part;
         this.recruit_role=recruit_role;
         this.type=type;
-        this.isPass=isPass;
-        this.is_open=is_open;
-        this.isDecision=isDecision;
+        this.applyType=applyType;
     }
 }

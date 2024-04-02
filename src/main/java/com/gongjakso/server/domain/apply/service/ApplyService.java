@@ -2,6 +2,7 @@ package com.gongjakso.server.domain.apply.service;
 
 import com.gongjakso.server.domain.apply.dto.*;
 import com.gongjakso.server.domain.apply.entity.Apply;
+import com.gongjakso.server.domain.apply.enumerate.ApplyType;
 import com.gongjakso.server.domain.apply.repository.ApplyRepository;
 import com.gongjakso.server.domain.member.entity.Member;
 import com.gongjakso.server.domain.post.entity.Category;
@@ -133,31 +134,26 @@ public class ApplyService {
         }
     }
     private String decisionState(Apply apply){
-        if(apply.getIsDecision()){
-            if(apply.getIsPass()) {
-                return "합류 완료";
-            }else {
-                return "미선발";
-            }
-        }else {
-            if(apply.getIs_open()){
-                return "열람 완료";
-            }else {
-                return "미열람";
-            }
+        if (apply.getApplyType().equals(ApplyType.OPEN_APPLY)) {
+            return "열람 완료";
+        }else if (apply.getApplyType().equals(ApplyType.NOT_PASS)) {
+            return "미선발";
         }
-
+        else if (apply.getApplyType().equals(ApplyType.PASS)) {
+            return "합류 완료";
+        }
+        return "미열람";
     }
     public void updateOpen(Long apply_id){
         Apply apply = applyRepository.findById(apply_id).orElseThrow(()->new ApplicationException(ErrorCode.NOT_FOUND_APPLY_EXCEPTION));
-        apply.setIs_open(true);
+        apply.setApplyType(ApplyType.OPEN_APPLY);
     }
-    public void updateRecruit(Long apply_id, Boolean isRecruit){
+    public void updateState(Long apply_id, ApplyType applyType){
         Apply apply = applyRepository.findById(apply_id).orElseThrow(()->new ApplicationException(ErrorCode.NOT_FOUND_APPLY_EXCEPTION));
-        if(!apply.getIsDecision()){
-            apply.setIsPass(isRecruit);
-            apply.setIsDecision(true);
-            if(isRecruit){
+        //applyState 결정 했는지 판단
+        if(apply.getApplyType().equals(ApplyType.NONE)||apply.getApplyType().equals(ApplyType.OPEN_APPLY)){
+            apply.setApplyType(applyType);
+            if(applyType.equals(ApplyType.PASS)){
                 Post post = apply.getPost();
                 //지원 파트 size 감소
                 Category category = categoryRepository.findCategoryByPostAndCategoryType(post, CategoryType.valueOf(apply.getRecruit_part()));
