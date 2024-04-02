@@ -104,7 +104,7 @@ public class ApplyService {
     }
     public ParticipationPageRes myParticipationPostListPage(int page,int size){
         Pageable pageable = PageRequest.of(page,size, Sort.by(Sort.Direction.DESC,"createdAt"));
-        Page<Apply> participationPage = applyRepository.findApplyByIsPass(true,pageable);
+        Page<Apply> participationPage = applyRepository.findApplyByApplyType(ApplyType.PASS,pageable);
         List<ParticipationList> participationLists = participationPage.getContent().stream()
                 .map(apply -> ParticipationList.of(apply.getPost(), CategoryType.valueOf(apply.getRecruit_part())))
                 .collect(Collectors.toList());
