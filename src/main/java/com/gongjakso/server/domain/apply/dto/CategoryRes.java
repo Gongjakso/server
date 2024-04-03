@@ -6,10 +6,10 @@ import java.util.List;
 public record CategoryRes(
         List<String> category,
         @JsonInclude(JsonInclude.Include.NON_NULL)
-        List<String> stackName
+        List<String> stack
 ) {
     public static CategoryRes of(List<String> category,
-                                 List<String> stackName){
-        return new CategoryRes(category,stackName);
+                                 List<String> stack){
+        return new CategoryRes(category,stack);
     }
 }

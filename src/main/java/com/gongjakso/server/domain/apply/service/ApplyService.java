@@ -58,16 +58,24 @@ public class ApplyService {
 
     }
 
-    public ApplyRes findApply(Long post_id) {
+    public ApplyRes findApply(Member member,Long post_id) {
         //Get Post
         Post post = postRepository.findById(post_id).orElseThrow(() -> new ApplicationException(ErrorCode.NOT_FOUND_POST_EXCEPTION));
         if (post == null) {
             throw new ApplicationException(ErrorCode.NOT_FOUND_POST_EXCEPTION);
         }
+        if(post.getMember()!=member){
+            throw new ApplicationException(ErrorCode.UNAUTHORIZED_EXCEPTION);
+        }
 
         //Change List Type
         List<String> categoryList = changeCategoryType(post);
-        List<String> stackNameList = changeStackNameType(post);
+        List<String> stackNameList;
+        if(post.isPostType()){
+            stackNameList = changeStackNameType(post);
+        }else {
+            stackNameList= null;
+        }
 
         int current_person = (int) applyRepository.countApplyByPost(post);
         return ApplyRes.of(post, current_person, categoryList, stackNameList);
@@ -78,7 +86,12 @@ public class ApplyService {
 
         //Change List Type
         List<String> categoryList = changeCategoryType(post);
-        List<String> stackNameList = changeStackNameType(post);
+        List<String> stackNameList;
+        if(post.isPostType()){
+            stackNameList = changeStackNameType(post);
+        }else {
+            stackNameList= null;
+        }
 
         return CategoryRes.of(categoryList, stackNameList);
 
@@ -95,7 +108,12 @@ public class ApplyService {
 
         //Change List Type
         List<String> categoryList = changeCategoryType(post);
-        List<String> stackNameList = changeStackNameType(post);
+        List<String> stackNameList;
+        if(post.isPostType()){
+            stackNameList = changeStackNameType(post);
+        }else {
+            stackNameList= null;
+        }
 
         return ApplicationRes.of(apply, categoryList, stackNameList);
 
@@ -118,9 +136,6 @@ public class ApplyService {
 
     public List<String> changeStackNameType(Post post){
         List<StackName> stackNameList = stackNameRepository.findStackNameByPost(post);
-        if(stackNameList==null){
-            return null;
-        }
         List<String> stringTypelist = new ArrayList<>();
         for (StackName stackName : stackNameList) {
             stringTypelist.add(String.valueOf(stackName.getStackNameType()));
@@ -129,8 +144,11 @@ public class ApplyService {
         return stringTypelist;
     }
 
-    public ApplyPageRes applyListPage(long post_id, int page, int size) {
+    public ApplyPageRes applyListPage(Member member,long post_id, int page, int size) {
         Post post = postRepository.findById(post_id).orElseThrow(() -> new ApplicationException(ErrorCode.NOT_FOUND_POST_EXCEPTION));
+        if (post.getMember() != member) {
+            throw new ApplicationException(ErrorCode.UNAUTHORIZED_EXCEPTION);
+        }
 
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
         Page<Apply> applyPage = applyRepository.findAllByPost(post, pageable);
@@ -188,8 +206,11 @@ public class ApplyService {
 
     }
 
-    public void updatePostState(Long post_id, PostStatus postStatus) {
+    public void updatePostState(Member member,Long post_id, PostStatus postStatus) {
         Post post = postRepository.findById(post_id).orElseThrow(() -> new ApplicationException(ErrorCode.NOT_FOUND_POST_EXCEPTION));
+        if (post.getMember() != member) {
+            throw new ApplicationException(ErrorCode.UNAUTHORIZED_EXCEPTION);
+        }
         //CHECK POST STATUS
         if (!(post.getStatus() == RECRUITING)) {
             throw new ApplicationException(ErrorCode.NOT_RECRUITING_EXCEPION);
@@ -198,8 +219,11 @@ public class ApplyService {
         post.setStatus(postStatus);
     }
 
-    public void updatePostPeriod(Long post_id, PeriodReq req) {
+    public void updatePostPeriod(Member member,Long post_id, PeriodReq req) {
         Post post = postRepository.findById(post_id).orElseThrow(() -> new ApplicationException(ErrorCode.NOT_FOUND_POST_EXCEPTION));
+        if (post.getMember() != member) {
+            throw new ApplicationException(ErrorCode.UNAUTHORIZED_EXCEPTION);
+        }
         //Check Post Status
         if (!(post.getStatus() == RECRUITING)) {
             throw new ApplicationException(ErrorCode.NOT_RECRUITING_EXCEPION);

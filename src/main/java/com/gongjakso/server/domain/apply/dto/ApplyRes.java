@@ -15,9 +15,9 @@ public record ApplyRes(
         Boolean postType,
         List<String> category,
         @JsonInclude(JsonInclude.Include.NON_NULL)
-        List<String> stackName
+        List<String> stack
 ) {
-    public static ApplyRes of(Post post, int current_person, List<String> category, List<String> stackName){
-        return new ApplyRes(post.getTitle(),post.getStartDate(),post.getEndDate(),post.getMaxPerson(),current_person,post.isPostType(), category, stackName);
+    public static ApplyRes of(Post post, int current_person, List<String> category, List<String> stack){
+        return new ApplyRes(post.getTitle(),post.getStartDate(),post.getEndDate(),post.getMaxPerson(),current_person,post.isPostType(), category, stack);
     }
 }

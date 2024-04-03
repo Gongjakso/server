@@ -30,14 +30,14 @@ public class ApplyController {
     //팀 공고 요청 api
     @Operation(summary = "내가 모집 중인 팀 정보 API", description = "내가 모집 중인 팀 페이지에서 필요한 팀 정보 요청")
     @GetMapping("/{post_id}")
-    public ApplicationResponse<ApplyRes> getApply(@PathVariable("post_id") Long postId){
-        return ApplicationResponse.ok(applyService.findApply(postId));
+    public ApplicationResponse<ApplyRes> getApply(@AuthenticationPrincipal PrincipalDetails principalDetails,@PathVariable("post_id") Long postId){
+        return ApplicationResponse.ok(applyService.findApply(principalDetails.getMember(),postId));
     }
     //내가 모집 중인 팀 지원자 정보 요청 api
     @Operation(summary = "내가 모집 중인 팀 지원자 정보 API", description = "내가 모집 중인 팀 페이지에서 필요한 지원자 정보 요청")
     @GetMapping("/{post_id}/applylist")
-    public ApplicationResponse<ApplyPageRes> getApplyList(@PathVariable("post_id") Long postId,@RequestParam(name = "page", defaultValue = "0") int page,@RequestParam(name = "size", defaultValue = "11") int size){
-        return ApplicationResponse.ok(applyService.applyListPage(postId,page,size));
+    public ApplicationResponse<ApplyPageRes> getApplyList(@AuthenticationPrincipal PrincipalDetails principalDetails,@PathVariable("post_id") Long postId,@RequestParam(name = "page", defaultValue = "0") int page,@RequestParam(name = "size", defaultValue = "11") int size){
+        return ApplicationResponse.ok(applyService.applyListPage(principalDetails.getMember(),postId,page,size));
     }
     //내가 참여한 공고 정보 요청 api
     @Operation(summary = "내가 참여한 공고 정보 API", description = "내가 참여한 공고 정보")
@@ -82,21 +82,21 @@ public class ApplyController {
     @Operation(summary = "공고 마감 API", description = "내가 모집 중인 팀 페이지에서 공고 마감 버튼 클릭시")
     @PatchMapping("/{post_id}/close")
     public ApplicationResponse<Void> updatePostStatusToClose(@AuthenticationPrincipal PrincipalDetails principalDetails, @PathVariable("post_id") Long postId){
-        applyService.updatePostState(postId, PostStatus.CLOSE);
+        applyService.updatePostState(principalDetails.getMember(),postId, PostStatus.CLOSE);
         return ApplicationResponse.ok();
     }
     //공고 취소 요청 api
     @Operation(summary = "공고 취소 API", description = "내가 모집 중인 팀 페이지에서 공고 취소 버튼 클릭시")
     @PatchMapping("/{post_id}/cancel")
     public ApplicationResponse<Void> updatePostStatusToCancel(@AuthenticationPrincipal PrincipalDetails principalDetails, @PathVariable("post_id") Long postId){
-        applyService.updatePostState(postId,PostStatus.CANCEL);
+        applyService.updatePostState(principalDetails.getMember(),postId, PostStatus.CLOSE);
         return ApplicationResponse.ok();
     }
     //공고 기간 연장 요청 api
     @Operation(summary = "공고 연장 API", description = "내가 모집 중인 팀 페이지에서 공고 연장 버튼 클릭시")
     @PatchMapping("/{post_id}/extension")
     public ApplicationResponse<Void> updatePostPeriod(@AuthenticationPrincipal PrincipalDetails principalDetails, @PathVariable("post_id") Long postId, @RequestBody PeriodReq req){
-        applyService.updatePostPeriod(postId,req);
+        applyService.updatePostPeriod(principalDetails.getMember(),postId,req);
         return ApplicationResponse.ok();
     }
 
