@@ -12,12 +12,13 @@ public record ApplyRes(
         LocalDateTime endDate,
         Long max_person,
         int current_person,
+        int pass_person,
         Boolean postType,
         List<String> category,
         @JsonInclude(JsonInclude.Include.NON_NULL)
         List<String> stack
 ) {
     public static ApplyRes of(Post post, int current_person, List<String> category, List<String> stack){
-        return new ApplyRes(post.getTitle(),post.getStartDate(),post.getEndDate(),post.getMaxPerson(),current_person,post.isPostType(), category, stack);
+        return new ApplyRes(post.getTitle(),post.getStartDate(),post.getEndDate(),(post.getMaxPerson()+1),(current_person+1),current_person,post.isPostType(), category, stack);
     }
 }
