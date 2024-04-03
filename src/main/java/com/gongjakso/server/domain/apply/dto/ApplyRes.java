@@ -10,15 +10,13 @@ public record ApplyRes(
         String title,
         LocalDateTime startDate,
         LocalDateTime endDate,
-        Long max_person,
+        Long total_person,
         int current_person,
-        int pass_person,
+        Long max_person,
         Boolean postType,
-        List<String> category,
-        @JsonInclude(JsonInclude.Include.NON_NULL)
-        List<String> stack
+        List<String> category
 ) {
-    public static ApplyRes of(Post post, int current_person, List<String> category, List<String> stack){
-        return new ApplyRes(post.getTitle(),post.getStartDate(),post.getEndDate(),(post.getMaxPerson()+1),(current_person+1),current_person,post.isPostType(), category, stack);
+    public static ApplyRes of(Post post, int current_person, List<String> category){
+        return new ApplyRes(post.getTitle(),post.getStartDate(),post.getEndDate(),(post.getMaxPerson()+1),(current_person+1),post.getMaxPerson(),post.isPostType(), category);
     }
 }

@@ -70,15 +70,9 @@ public class ApplyService {
 
         //Change List Type
         List<String> categoryList = changeCategoryType(post);
-        List<String> stackNameList;
-        if(post.isPostType()){
-            stackNameList = changeStackNameType(post);
-        }else {
-            stackNameList= null;
-        }
 
         int current_person = (int) applyRepository.countApplyByPost(post);
-        return ApplyRes.of(post, current_person, categoryList, stackNameList);
+        return ApplyRes.of(post, current_person, categoryList);
     }
 
     public CategoryRes findPostCategory(Long post_id) {
