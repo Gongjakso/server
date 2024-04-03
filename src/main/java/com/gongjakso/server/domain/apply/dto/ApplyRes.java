@@ -1,10 +1,11 @@
 package com.gongjakso.server.domain.apply.dto;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.gongjakso.server.domain.post.entity.Post;
 
 import java.time.LocalDateTime;
 import java.util.List;
-
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
 public record ApplyRes(
         String title,
         LocalDateTime startDate,

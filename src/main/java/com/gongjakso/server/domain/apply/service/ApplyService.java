@@ -3,6 +3,7 @@ package com.gongjakso.server.domain.apply.service;
 import com.gongjakso.server.domain.apply.dto.*;
 import com.gongjakso.server.domain.apply.entity.Apply;
 import com.gongjakso.server.domain.apply.enumerate.ApplyType;
+import com.gongjakso.server.domain.apply.enumerate.StackType;
 import com.gongjakso.server.domain.apply.repository.ApplyRepository;
 import com.gongjakso.server.domain.member.entity.Member;
 import com.gongjakso.server.domain.post.entity.Category;
@@ -50,10 +51,15 @@ public class ApplyService {
 //                    throw new ApplicationException(ErrorCode.NOT_APPLY_EXCEPTION);
 //                }else {
                     Apply apply = req.toEntity(member, post);
-                    List<StackName> stackNames = req.stackNames().stream()
-                            .map(stackNameReq -> new StackName(apply, stackNameReq.getStackNameType()))
-                            .toList();
-                    apply.getStackNames().addAll(stackNames);
+//                    List<StackType> stackTypeList = new ArrayList<>();
+//                    for (String stackName : stackNames) {
+//                        try {
+//                            StackType stackType = StackType.valueOf(stackName.toUpperCase());
+//                            stackTypeList.add(stackType);
+//                        } catch (IllegalArgumentException e) {
+//                            throw new ApplicationException(ErrorCode.NOT_FOUND_POST_EXCEPTION);
+//                        }
+//                    }
                     applyRepository.save(apply);
 //                }
 //            }else {
@@ -215,7 +221,7 @@ public class ApplyService {
             throw new ApplicationException(ErrorCode.NOT_FOUND_POST_EXCEPTION);
         }else{
             //지원서 보기 권한
-            if(post.getMember()==member){
+//            if(post.getMember()==member){
                 List<Category> categoryList = categoryRepository.findCategoryByPost(post);
                 List<String> list = new ArrayList<>();
                 if(categoryList!=null) {
@@ -236,9 +242,9 @@ public class ApplyService {
                 }
                 ApplicationRes applicationRes = ApplicationRes.of(apply,list, stackList);
                 return applicationRes;
-            }else {
-                throw new ApplicationException(ErrorCode.UNAUTHORIZED_EXCEPTION);
-            }
+//            }else {
+//                throw new ApplicationException(ErrorCode.UNAUTHORIZED_EXCEPTION);
+//            }
         }
     }
 
