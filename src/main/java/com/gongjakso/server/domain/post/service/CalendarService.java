@@ -3,6 +3,7 @@ package com.gongjakso.server.domain.post.service;
 import com.gongjakso.server.domain.member.entity.Member;
 import com.gongjakso.server.domain.post.dto.CalendarRes;
 import com.gongjakso.server.domain.post.dto.GetContestRes;
+import com.gongjakso.server.domain.post.dto.ScrapPost;
 import com.gongjakso.server.domain.post.entity.Post;
 import com.gongjakso.server.domain.post.entity.PostScrap;
 import com.gongjakso.server.domain.post.repository.PostRepository;
@@ -27,7 +28,7 @@ public class CalendarService {
         List<PostScrap> postScraps = postScrapRepository.findByMemberAndScrapStatus(member,true);
         List<Long> postIdList = postScraps.stream().map(postScrap -> postScrap.getPost().getPostId()).toList();
         List<Post> posts = postRepository.findAllByEndDateBetweenAndPostIdIn(getFirstDayOfMonth(year,month),getLastDayOfMonth(year,month), postIdList);
-        List<GetContestRes> scrapPosts = posts.stream().map(GetContestRes::of)
+        List<ScrapPost> scrapPosts = posts.stream().map(ScrapPost::of)
                 .collect(Collectors.toList());
         return CalendarRes.of(scrapPosts);
     }
