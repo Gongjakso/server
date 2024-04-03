@@ -49,21 +49,21 @@ public class ApplyController {
     @Operation(summary = "지원서 열람 API", description = "내가 모집 중인 팀 페이지에서 지원서 열람 시")
     @PatchMapping("/{apply_id}/open")
     public ApplicationResponse<Void> updateIsOpenStatus(@AuthenticationPrincipal PrincipalDetails principalDetails,@PathVariable("apply_id") Long applyId){
-        applyService.updateState(applyId, ApplyType.OPEN_APPLY);
+        applyService.updateState(principalDetails.getMember(),applyId, ApplyType.OPEN_APPLY);
         return ApplicationResponse.ok();
     }
     //지원서 지원 요청 api
     @Operation(summary = "합류하기 API", description = "합류하기 버튼 클릭 시")
     @PatchMapping("/{apply_id}/recruit")
     public ApplicationResponse<Void> updateIsRecruitStatus(@AuthenticationPrincipal PrincipalDetails principalDetails,@PathVariable("apply_id") Long applyId){
-        applyService.updateState(applyId,ApplyType.PASS);
+        applyService.updateState(principalDetails.getMember(),applyId,ApplyType.PASS);
         return ApplicationResponse.ok();
     }
     //지원서 미선발 요청 api
     @Operation(summary = "미선발 API", description = "미선발 버튼 클릭 시")
     @PatchMapping("/{apply_id}/not-recruit")
-    public ApplicationResponse<Void> updateNotRecruitStatus(@PathVariable("apply_id") Long applyId){
-        applyService.updateState(applyId,ApplyType.NOT_PASS);
+    public ApplicationResponse<Void> updateNotRecruitStatus(@AuthenticationPrincipal PrincipalDetails principalDetails,@PathVariable("apply_id") Long applyId){
+        applyService.updateState(principalDetails.getMember(),applyId,ApplyType.NOT_PASS);
         return ApplicationResponse.ok();
     }
     // 특정 지원자 지원서 가져오는 api

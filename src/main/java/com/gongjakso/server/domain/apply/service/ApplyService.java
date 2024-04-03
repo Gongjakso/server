@@ -44,13 +44,13 @@ public class ApplyService {
     public void save(Member member, Long post_id, ApplyReq req) {
         Post post = postRepository.findById(post_id).orElseThrow(() -> new ApplicationException(ErrorCode.NOT_FOUND_POST_EXCEPTION));
         //Check reapply
-//        if (applyRepository.existsApplyByMemberAndPost(member, post)) {
-//            throw new ApplicationException(ErrorCode.ALREADY_APPLY_EXCEPTION);
-//        }
+        if (applyRepository.existsApplyByMemberAndPost(member, post)) {
+            throw new ApplicationException(ErrorCode.ALREADY_APPLY_EXCEPTION);
+        }
         //Check Post Date
-//        if (post.getFinishDate().isBefore(LocalDateTime.now())) {
-//            throw new ApplicationException(ErrorCode.NOT_APPLY_EXCEPTION);
-//        }
+        if (post.getFinishDate().isBefore(LocalDateTime.now())) {
+            throw new ApplicationException(ErrorCode.NOT_APPLY_EXCEPTION);
+        }
 
 
         Apply apply = req.toEntity(member, post);
@@ -111,6 +111,7 @@ public class ApplyService {
         List<String> stackNameList;
         if(post.isPostType()){
             stackNameList = changeStackNameType(post);
+            System.out.println("change stack name");
         }else {
             stackNameList= null;
         }
@@ -185,7 +186,7 @@ public class ApplyService {
         return "미열람";
     }
 
-    public void updateState(Long apply_id, ApplyType applyType) {
+    public void updateState(Member member,Long apply_id, ApplyType applyType) {
         Apply apply = applyRepository.findById(apply_id).orElseThrow(() -> new ApplicationException(ErrorCode.NOT_FOUND_APPLY_EXCEPTION));
         //Check ApplyType
         if (apply.getApplyType().equals(ApplyType.NONE) || apply.getApplyType().equals(ApplyType.OPEN_APPLY)) {
@@ -195,6 +196,9 @@ public class ApplyService {
         apply.setApplyType(applyType);
         if (applyType.equals(ApplyType.PASS)) {
             Post post = apply.getPost();
+            if(post.getMember()!=member){
+                throw new ApplicationException(ErrorCode.UNAUTHORIZED_EXCEPTION);
+            }
             Category category = categoryRepository.findCategoryByPostAndCategoryType(post, CategoryType.valueOf(apply.getRecruit_part()));
             if (category.getSize() - 1 <= 0) {
                 throw new ApplicationException(ErrorCode.OVER_APPLY_EXCEPTION);

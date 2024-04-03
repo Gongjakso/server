@@ -18,9 +18,10 @@ public record ApplicationRes(
         List<String> category,
         String recruit_role,
         @JsonInclude(JsonInclude.Include.NON_NULL)
-        List<String> stackName,
+        List<String> postStack,
         @Null
-        List<StackType> myStackName
+        @JsonInclude(JsonInclude.Include.NON_NULL)
+        List<StackType> myStack
 
 ) {
     public static ApplicationRes of(Apply apply, List<String> category,List<String> stackName){
