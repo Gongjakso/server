@@ -1,7 +1,6 @@
 package com.gongjakso.server.domain.apply.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.gongjakso.server.domain.post.entity.StackName;
 
 import java.util.List;
 public record CategoryRes(

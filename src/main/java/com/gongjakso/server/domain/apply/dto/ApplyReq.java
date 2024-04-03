@@ -23,7 +23,7 @@ public record ApplyReq(
         String type,
         String applyType,
         @Null
-        List<String> stackNames
+        List<String> stack
 ) {
     public Apply toEntity(Member member, Post post){
         if(type.equals("CONTEST")){
@@ -38,7 +38,7 @@ public record ApplyReq(
                     .build();
         }else {
             List<StackType> stackTypeList = new ArrayList<>();
-            for (String stackName : stackNames) {
+            for (String stackName : stack) {
                 try {
                     StackType stackType = StackType.valueOf(stackName.toUpperCase());
                     stackTypeList.add(stackType);

@@ -74,7 +74,7 @@ public class ApplyService {
     }
 
     public CategoryRes findPostCategory(Long post_id) {
-        Post post = postRepository.findById(post_id).orElseThrow(() -> new ApplicationException(ErrorCode.NOT_FOUND_POST_EXCEPTION));
+        Post post = postRepository.findByPostId(post_id);
 
         //Change List Type
         List<String> categoryList = changeCategoryType(post);
@@ -104,7 +104,7 @@ public class ApplyService {
 
     public List<String> changeCategoryType(Post post){
         List<Category> categoryList = categoryRepository.findCategoryByPost(post);
-        if (categoryList != null) {
+        if (categoryList == null) {
             throw new ApplicationException(ErrorCode.NOT_FOUND_CATEGORY_EXCEPTION);
         }
 
