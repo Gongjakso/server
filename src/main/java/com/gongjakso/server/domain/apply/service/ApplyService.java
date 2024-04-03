@@ -126,8 +126,16 @@ public class ApplyService {
                         list.add(String.valueOf(category.getCategoryType()));
                     }
                 }
-                CategoryRes categoryRes = new CategoryRes(list);
-                return categoryRes;
+                List<StackName> stackNameList = stackNameRepository.findStackNameByPost(post);
+                List<String> stackList = new ArrayList<>();
+                if(stackNameList!=null) {
+                    for (StackName stackName : stackNameList) {
+                        stackList.add(String.valueOf(stackName.getStackNameType()));
+                    }
+                }else {
+                    throw new ApplicationException(ErrorCode.NOT_FOUND_CATEGORY_EXCEPTION);
+                }
+                return CategoryRes.of(list,stackList);
             }else {
                 throw new ApplicationException(ErrorCode.NOT_FOUND_CATEGORY_EXCEPTION);
             }
@@ -143,10 +151,6 @@ public class ApplyService {
             return "합류 완료";
         }
         return "미열람";
-    }
-    public void updateOpen(Long apply_id){
-        Apply apply = applyRepository.findById(apply_id).orElseThrow(()->new ApplicationException(ErrorCode.NOT_FOUND_APPLY_EXCEPTION));
-        apply.setApplyType(ApplyType.OPEN_APPLY);
     }
     public void updateState(Long apply_id, ApplyType applyType){
         Apply apply = applyRepository.findById(apply_id).orElseThrow(()->new ApplicationException(ErrorCode.NOT_FOUND_APPLY_EXCEPTION));

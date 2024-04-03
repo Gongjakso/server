@@ -72,7 +72,7 @@ public class ApplyController {
         return ApplicationResponse.ok(applyService.findApplication(principalDetails.getMember(),applyId,postId));
     }
     //공고 카테고리 요청 api
-    @Operation(summary = "공고 카테고리 API", description = "팀 지원하기 모달 창에서 카테고리들(지원 분야) 요청")
+    @Operation(summary = "지원시 뜨는 공고 정보 API", description = "팀 지원하기 모달 창에서 카테고리들(지원 분야) 요청")
     @GetMapping("/{post_id}/category")
     public ApplicationResponse<CategoryRes> getCategory(@PathVariable("post_id") Long postId){
         return ApplicationResponse.ok(applyService.findPostCategory(postId));
