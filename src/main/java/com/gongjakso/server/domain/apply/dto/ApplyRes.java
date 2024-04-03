@@ -17,6 +17,6 @@ public record ApplyRes(
         List<String> category
 ) {
     public static ApplyRes of(Post post, int current_person, List<String> category){
-        return new ApplyRes(post.getTitle(),post.getStartDate(),post.getEndDate(),(post.getMaxPerson()+1),(current_person+1),post.getMaxPerson(),post.isPostType(), category);
+        return new ApplyRes(post.getTitle(),post.getStartDate(),post.getEndDate(),(post.getMaxPerson()+1),current_person,post.getMaxPerson(),post.isPostType(), category);
     }
 }
