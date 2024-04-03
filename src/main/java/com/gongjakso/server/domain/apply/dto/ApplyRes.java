@@ -14,6 +14,7 @@ public record ApplyRes(
         int current_person,
         Boolean postType,
         List<String> category,
+        @JsonInclude(JsonInclude.Include.NON_NULL)
         List<String> stackName
 ) {
     public static ApplyRes of(Post post, int current_person, List<String> category, List<String> stackName){

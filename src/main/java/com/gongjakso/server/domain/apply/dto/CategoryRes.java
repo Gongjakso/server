@@ -4,10 +4,9 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.gongjakso.server.domain.post.entity.StackName;
 
 import java.util.List;
-
-@JsonInclude(JsonInclude.Include.NON_NULL)
 public record CategoryRes(
         List<String> category,
+        @JsonInclude(JsonInclude.Include.NON_NULL)
         List<String> stackName
 ) {
     public static CategoryRes of(List<String> category,

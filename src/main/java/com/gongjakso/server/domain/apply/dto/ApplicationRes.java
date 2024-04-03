@@ -4,11 +4,11 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.gongjakso.server.domain.apply.entity.Apply;
 import com.gongjakso.server.domain.apply.enumerate.ApplyType;
 import com.gongjakso.server.domain.apply.enumerate.StackType;
+import jakarta.validation.constraints.Null;
 import lombok.Builder;
 
 import java.util.List;
 
-//@JsonInclude(JsonInclude.Include.NON_EMPTY)
 @Builder
 public record ApplicationRes(
         ApplyType applyType,
@@ -17,7 +17,9 @@ public record ApplicationRes(
         String recruit_part,
         List<String> category,
         String recruit_role,
+        @JsonInclude(JsonInclude.Include.NON_NULL)
         List<String> stackName,
+        @Null
         List<StackType> myStackName
 
 ) {

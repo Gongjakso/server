@@ -3,6 +3,7 @@ package com.gongjakso.server.domain.apply.controller;
 import com.gongjakso.server.domain.apply.dto.*;
 import com.gongjakso.server.domain.apply.enumerate.ApplyType;
 import com.gongjakso.server.domain.apply.service.ApplyService;
+import com.gongjakso.server.domain.post.enumerate.PostStatus;
 import com.gongjakso.server.global.common.ApplicationResponse;
 import com.gongjakso.server.global.security.PrincipalDetails;
 import io.swagger.v3.oas.annotations.Operation;
@@ -22,7 +23,7 @@ public class ApplyController {
     //지원 요청 api
     @Operation(summary = "공고 지원 API", description = "팀 지원하기 모달창에서 지원 요청")
     @PostMapping("/{post_id}")
-    public ApplicationResponse<Void> addApply(@AuthenticationPrincipal PrincipalDetails principalDetails, @PathVariable("post_id") Long postId, @RequestBody ApplyReq req){
+    public ApplicationResponse<Void> createApply(@AuthenticationPrincipal PrincipalDetails principalDetails, @PathVariable("post_id") Long postId, @RequestBody ApplyReq req){
         applyService.save(principalDetails.getMember(),postId,req);
         return ApplicationResponse.created();
     }
@@ -81,14 +82,14 @@ public class ApplyController {
     @Operation(summary = "공고 마감 API", description = "내가 모집 중인 팀 페이지에서 공고 마감 버튼 클릭시")
     @PatchMapping("/{post_id}/close")
     public ApplicationResponse<Void> updatePostStatusToClose(@AuthenticationPrincipal PrincipalDetails principalDetails, @PathVariable("post_id") Long postId){
-        applyService.updatePostState(postId,"close");
+        applyService.updatePostState(postId, PostStatus.CLOSE);
         return ApplicationResponse.ok();
     }
     //공고 취소 요청 api
     @Operation(summary = "공고 취소 API", description = "내가 모집 중인 팀 페이지에서 공고 취소 버튼 클릭시")
     @PatchMapping("/{post_id}/cancel")
     public ApplicationResponse<Void> updatePostStatusToCancel(@AuthenticationPrincipal PrincipalDetails principalDetails, @PathVariable("post_id") Long postId){
-        applyService.updatePostState(postId,"cancel");
+        applyService.updatePostState(postId,PostStatus.CANCEL);
         return ApplicationResponse.ok();
     }
     //공고 기간 연장 요청 api

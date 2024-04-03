@@ -62,4 +62,16 @@ public class Apply extends BaseTimeEntity {
         this.type=type;
         this.applyType=applyType;
     }
+
+    @Builder
+    public Apply(Long applyId, Member member,Post post,String application,String recruit_part,String recruit_role,PostType type, ApplyType applyType){
+        this.applyId=applyId;
+        this.member=member;
+        this.post=post;
+        this.application=application;
+        this.recruit_part=recruit_part;
+        this.recruit_role=recruit_role;
+        this.type=type;
+        this.applyType=applyType;
+    }
 }
