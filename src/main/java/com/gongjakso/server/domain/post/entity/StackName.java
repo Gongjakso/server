@@ -1,6 +1,7 @@
 package com.gongjakso.server.domain.post.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.gongjakso.server.domain.apply.entity.Apply;
 import com.gongjakso.server.global.common.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -24,12 +25,23 @@ public class StackName extends BaseTimeEntity {
     @JsonIgnore
     private Post post;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "apply_id")
+    @JsonIgnore
+    private Apply apply;
+
     @Column(name = "stack_name_type", nullable = false, columnDefinition = "varchar(20)")
     private String stackNameType;
 
     @Builder
     public StackName(Post post, String stackNameType) {
         this.post = post;
+        this.stackNameType = stackNameType;
+    }
+
+    @Builder
+    public StackName(Apply apply, String stackNameType) {
+        this.apply = apply;
         this.stackNameType = stackNameType;
     }
 }

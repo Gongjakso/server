@@ -44,17 +44,21 @@ public class ApplyService {
             throw new ApplicationException(ErrorCode.NOT_FOUND_POST_EXCEPTION);
         }else {
             //재지원 판단
-            if(!applyRepository.existsApplyByMemberAndPost(member, post)){
+//            if(!applyRepository.existsApplyByMemberAndPost(member, post)){
                 //지원 기간인지 판단
-                if(post.getFinishDate().isBefore(LocalDateTime.now())){
-                    throw new ApplicationException(ErrorCode.NOT_APPLY_EXCEPTION);
-                }else {
+//                if(post.getFinishDate().isBefore(LocalDateTime.now())){
+//                    throw new ApplicationException(ErrorCode.NOT_APPLY_EXCEPTION);
+//                }else {
                     Apply apply = req.toEntity(member, post);
+                    List<StackName> stackNames = req.stackNames().stream()
+                            .map(stackNameReq -> new StackName(apply, stackNameReq.getStackNameType()))
+                            .toList();
+                    apply.getStackNames().addAll(stackNames);
                     applyRepository.save(apply);
-                }
-            }else {
-                throw new ApplicationException(ErrorCode.ALREADY_APPLY_EXCEPTION);
-            }
+//                }
+//            }else {
+//                throw new ApplicationException(ErrorCode.ALREADY_APPLY_EXCEPTION);
+//            }
         }
     }
 

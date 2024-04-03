@@ -4,9 +4,13 @@ import com.gongjakso.server.domain.apply.enumerate.ApplyType;
 import com.gongjakso.server.domain.apply.enumerate.PostType;
 import com.gongjakso.server.domain.member.entity.Member;
 import com.gongjakso.server.domain.post.entity.Post;
+import com.gongjakso.server.domain.post.entity.StackName;
 import com.gongjakso.server.global.common.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Setter
@@ -27,6 +31,9 @@ public class Apply extends BaseTimeEntity {
     @JoinColumn(name = "post_id")
     private Post post;
 
+    @OneToMany(mappedBy = "apply", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<StackName> stackNames = new ArrayList<>();
+
     @Column(name = "application",nullable = false,columnDefinition = "varchar(500)")
     private String application;
 
@@ -43,10 +50,11 @@ public class Apply extends BaseTimeEntity {
     private ApplyType applyType;
 
     @Builder
-    public Apply(Long applyId, Member member,Post post, String application,String recruit_part,String recruit_role,PostType type, ApplyType applyType){
+    public Apply(Long applyId, Member member,Post post,List<StackName> stackNames, String application,String recruit_part,String recruit_role,PostType type, ApplyType applyType){
         this.applyId=applyId;
         this.member=member;
         this.post=post;
+        this.stackNames=stackNames;
         this.application=application;
         this.recruit_part=recruit_part;
         this.recruit_role=recruit_role;
