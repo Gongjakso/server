@@ -18,4 +18,5 @@ public interface ApplyRepository extends JpaRepository<Apply,Long> {
 
     List<Apply> findAllByMemberAndDeletedAtIsNull(Member member);
     List<Apply> findAllByPost(Post post);
+    Long findApplyIdByMemberAndPost(Member member,Post post);
 }

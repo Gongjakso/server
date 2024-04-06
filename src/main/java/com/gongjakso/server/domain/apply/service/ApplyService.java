@@ -275,4 +275,15 @@ public class ApplyService {
         return applicantApply.map(Apply::getApplyId)
                 .orElse(null);
     }
+
+    public ApplicationRes getMyApplication(Member member, Long postId){
+        Post post = postRepository.findWithStackNameAndCategoryUsingFetchJoinByPostId(postId);
+
+        if (post == null) {
+            throw new ApplicationException(ErrorCode.NOT_FOUND_POST_EXCEPTION);
+        }else{
+            Long applyId = applyRepository.findApplyIdByMemberAndPost(member, post);
+            return findApplication(applyId, postId);
+        }
+    }
 }
