@@ -1,5 +1,6 @@
 package com.gongjakso.server.domain.post.controller;
 
+import com.gongjakso.server.domain.apply.service.ApplyService;
 import com.gongjakso.server.domain.post.dto.*;
 import com.gongjakso.server.domain.post.service.PostService;
 import com.gongjakso.server.global.common.ApplicationResponse;
@@ -14,6 +15,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/v1/post")
@@ -22,16 +24,48 @@ import java.util.List;
 public class PostController {
 
     private final PostService postService;
+    private final ApplyService applyService;
+
     @Operation(summary = "공모전/프로젝트 공고 생성 API", description = "팀빌딩 페이지에서 정보 입력 후 공고 생성")
     @PostMapping("")
     public ApplicationResponse<PostRes> create(@AuthenticationPrincipal PrincipalDetails principalDetails, @RequestBody PostReq req) {
         return ApplicationResponse.ok(postService.create(principalDetails.getMember(), req));
     }
 
-    @Operation(summary = "공모전/프로젝트 공고 상세 조회 API", description = "공모전/프로젝트 공고 상세 조회")
+    @Operation(summary = "사용자 구분 API", description = "사용자 구분 API")
     @GetMapping("/{id}")
-    public ApplicationResponse<PostDetailRes> read(@PathVariable("id") Long id) {
-        return ApplicationResponse.ok(postService.read(id));
+    public ApplicationResponse<?> divideUser(@AuthenticationPrincipal Optional<PrincipalDetails> principalDetailsOptional, @PathVariable("id") Long id) {
+        if(principalDetailsOptional != null && principalDetailsOptional.isPresent()) {
+            PrincipalDetails principalDetails = principalDetailsOptional.orElse(null);
+            //지원자인지 판단
+            if(applyService.getApplicantApplyId(principalDetails.getMember().getMemberId(), id)!= null){
+                return applicantView(principalDetails, id);
+            }else{
+                //팀장인지 판단
+                if(postService.isLeader(principalDetails.getMember().getMemberId(), id)){
+                    return LeaderView(principalDetails, id);
+                }else {
+                    return generalView(id);
+                }
+            }
+        } else{
+            return generalView(id);
+        }
+    }
+
+    @Operation(summary = "팀장의 공모전/프로젝트 공고 상세 조회 API", description = "팀장의 공모전/프로젝트 공고 상세 조회")
+    public ApplicationResponse<ParticipationPostDetailRes> LeaderView(PrincipalDetails principalDetails, Long id) {
+        return ApplicationResponse.ok(postService.participationView("LEADER", principalDetails, id));
+    }
+
+    @Operation(summary = "지원자의 공모전/프로젝트 공고 상세 조회 API", description = "지원자의 공모전/프로젝트 공고 상세 조회")
+    public ApplicationResponse<ParticipationPostDetailRes> applicantView(PrincipalDetails principalDetails, Long id) {
+        return ApplicationResponse.ok(postService.participationView("APPLICANT", principalDetails, id));
+    }
+
+    @Operation(summary = "일반사용자의 공모전/프로젝트 공고 상세 조회 API", description = "일반사용자의 공모전/프로젝트 공고 상세 조회")
+    public ApplicationResponse<PostDetailRes> generalView(Long id) {
+        return ApplicationResponse.ok(postService.generalView(id));
     }
 
     @Operation(summary = "공모전/프로젝트 공고 수정 API", description = "팀빌딩 페이지에서 정보 입력 후 공고 수정")
@@ -96,7 +130,7 @@ public class PostController {
         return ApplicationResponse.ok(postService.scrapGet(principalDetails.getMember(), id));
     }
 
-    @Operation(summary = "내가 모집 중인 팀 조회 API", description = "프로젝트/공모전 별 각 한 개씩 묶어서 리스트 형태로 반환")
+    @Operation(summary = "내가 스크랩한 공고 조회 API", description = "프로젝트/공모전 별 각 한 개씩 묶어서 리스트 형태로 반환")
     @GetMapping("/my")
     public ApplicationResponse<List<MyPageRes>> getMyPostList(@AuthenticationPrincipal PrincipalDetails principalDetails) {
         return ApplicationResponse.ok(postService.getMyPostList(principalDetails.getMember()));

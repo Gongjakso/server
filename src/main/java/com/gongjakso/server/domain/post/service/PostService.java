@@ -12,6 +12,7 @@ import com.gongjakso.server.domain.post.enumerate.StackNameType;
 import com.gongjakso.server.domain.post.repository.PostRepository;
 import com.gongjakso.server.domain.post.repository.PostScrapRepository;
 import com.gongjakso.server.global.exception.ApplicationException;
+import com.gongjakso.server.global.security.PrincipalDetails;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.Hibernate;
 import org.springframework.data.domain.Page;
@@ -64,7 +65,7 @@ public class PostService {
     }
 
     @Transactional
-    public PostDetailRes read(Long id) {
+    public PostDetailRes generalView(Long id) {
         Post post = postRepository.findWithStackNameAndCategoryUsingFetchJoinByPostId(id);
         if (post == null) {
             throw new ApplicationException(NOT_FOUND_POST_EXCEPTION);
@@ -73,6 +74,18 @@ public class PostService {
         Hibernate.initialize(post.getStackNames());
         Hibernate.initialize(post.getCategories());
         return PostDetailRes.of(post, current_person);
+    }
+
+    @Transactional
+    public ParticipationPostDetailRes participationView(String role, PrincipalDetails principalDetails, Long id) {
+        Post post = postRepository.findWithStackNameAndCategoryUsingFetchJoinByPostId(id);
+        if (post == null) {
+            throw new ApplicationException(NOT_FOUND_POST_EXCEPTION);
+        }
+        int current_person = (int) applyRepository.countApplyWithStackNameUsingFetchJoinByPost(post);
+        Hibernate.initialize(post.getStackNames());
+        Hibernate.initialize(post.getCategories());
+        return ParticipationPostDetailRes.of(role, principalDetails.getMember().getMemberId(), post, current_person);
     }
 
     @Transactional
@@ -310,5 +323,13 @@ public class PostService {
 
         // Return
         return myPageResList;
+    }
+
+    public boolean isLeader(Long memberId, Long postId){
+        Post post = postRepository.findWithStackNameAndCategoryUsingFetchJoinByPostId(postId);
+        if (post == null) {
+            throw new ApplicationException(NOT_FOUND_POST_EXCEPTION);
+        }
+        return post.getMember().getMemberId().equals(memberId);
     }
 }
