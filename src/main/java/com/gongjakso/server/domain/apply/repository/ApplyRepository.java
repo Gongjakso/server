@@ -17,4 +17,5 @@ public interface ApplyRepository extends JpaRepository<Apply,Long> {
     Page<Apply> findApplyByIsPass(Boolean IsPass, Pageable pageable);
 
     List<Apply> findAllByMemberAndDeletedAtIsNull(Member member);
+    List<Apply> findAllByPost(Post post);
 }
