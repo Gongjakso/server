@@ -34,33 +34,34 @@ public class PostController {
 
     @Operation(summary = "사용자 구분 API", description = "사용자 구분 API")
     @GetMapping("/{id}")
-    public ApplicationResponse<?> divideUser(@AuthenticationPrincipal Optional<PrincipalDetails> principalDetailsOptional, @PathVariable("id") Long id) {
+    public ApplicationResponse<?> divideUser(@AuthenticationPrincipal Optional<PrincipalDetails> principalDetailsOptional, @PathVariable("id") Long postId) {
         if(principalDetailsOptional != null && principalDetailsOptional.isPresent()) {
             PrincipalDetails principalDetails = principalDetailsOptional.orElse(null);
+            Long applyId = applyService.getApplicantApplyId(principalDetails.getMember().getMemberId(), postId);
             //지원자인지 판단
-            if(applyService.getApplicantApplyId(principalDetails.getMember().getMemberId(), id)!= null){
-                return applicantView(principalDetails, id);
+            if(applyId != null){
+                return applicantView(principalDetails, applyId, postId);
             }else{
                 //팀장인지 판단
-                if(postService.isLeader(principalDetails.getMember().getMemberId(), id)){
-                    return LeaderView(principalDetails, id);
+                if(postService.isLeader(principalDetails.getMember().getMemberId(), postId)){
+                    return leaderView(principalDetails, postId);
                 }else {
-                    return generalView(id);
+                    return generalView(postId);
                 }
             }
         } else{
-            return generalView(id);
+            return generalView(postId);
         }
     }
 
     @Operation(summary = "팀장의 공모전/프로젝트 공고 상세 조회 API", description = "팀장의 공모전/프로젝트 공고 상세 조회")
-    public ApplicationResponse<ParticipationPostDetailRes> LeaderView(PrincipalDetails principalDetails, Long id) {
-        return ApplicationResponse.ok(postService.participationView("LEADER", principalDetails, id));
+    public ApplicationResponse<LeaderPostDetailRes> leaderView(PrincipalDetails principalDetails, Long id) {
+        return ApplicationResponse.ok(postService.leaderView("LEADER", principalDetails, id));
     }
 
     @Operation(summary = "지원자의 공모전/프로젝트 공고 상세 조회 API", description = "지원자의 공모전/프로젝트 공고 상세 조회")
-    public ApplicationResponse<ParticipationPostDetailRes> applicantView(PrincipalDetails principalDetails, Long id) {
-        return ApplicationResponse.ok(postService.participationView("APPLICANT", principalDetails, id));
+    public ApplicationResponse<ApplicantPostDetailRes> applicantView(PrincipalDetails principalDetails, Long applyId, Long postId) {
+        return ApplicationResponse.ok(postService.applicantView("APPLICANT", principalDetails, applyId, postId));
     }
 
     @Operation(summary = "일반사용자의 공모전/프로젝트 공고 상세 조회 API", description = "일반사용자의 공모전/프로젝트 공고 상세 조회")

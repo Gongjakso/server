@@ -15,7 +15,7 @@ import java.util.List;
 
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public record ParticipationPostDetailRes(
+public record ApplicantPostDetailRes(
         @Schema(
                 description = "post가 생성된 순서를 관리하며 숫자가 높을수록 최신 공고임"
         )
@@ -140,11 +140,17 @@ public record ParticipationPostDetailRes(
         @Schema(
                 description = "현재 로그인된 사용자의 id"
         )
-        Long currentId
+        Long currentId,
+
+        @Schema(
+                description = "해당 공고에 대한 사용자의 applyId"
+        )
+        Long applyId
+
 ) {
 
-    public static ParticipationPostDetailRes of(String role, Long currentId, Post post, int currentPerson) {
-        return ParticipationPostDetailRes.builder()
+    public static ApplicantPostDetailRes of(String role, Long currentId, Long applyId, Post post, int currentPerson) {
+        return ApplicantPostDetailRes.builder()
                 .postId(post.getPostId())
                 .memberId(post.getMember().getMemberId())
                 .memberName(post.getMember().getName())
@@ -169,6 +175,8 @@ public record ParticipationPostDetailRes(
                 .scrapCount(post.getScrapCount())
                 .role(role)
                 .currentId(currentId)
+                .applyId(applyId)
                 .build();
     }
 }
+

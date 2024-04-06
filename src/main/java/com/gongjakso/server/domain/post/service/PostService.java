@@ -77,7 +77,7 @@ public class PostService {
     }
 
     @Transactional
-    public ParticipationPostDetailRes participationView(String role, PrincipalDetails principalDetails, Long id) {
+    public LeaderPostDetailRes leaderView(String role, PrincipalDetails principalDetails, Long id) {
         Post post = postRepository.findWithStackNameAndCategoryUsingFetchJoinByPostId(id);
         if (post == null) {
             throw new ApplicationException(NOT_FOUND_POST_EXCEPTION);
@@ -85,7 +85,19 @@ public class PostService {
         int current_person = (int) applyRepository.countApplyWithStackNameUsingFetchJoinByPost(post);
         Hibernate.initialize(post.getStackNames());
         Hibernate.initialize(post.getCategories());
-        return ParticipationPostDetailRes.of(role, principalDetails.getMember().getMemberId(), post, current_person);
+        return LeaderPostDetailRes.of(role, principalDetails.getMember().getMemberId(), post, current_person);
+    }
+
+    @Transactional
+    public ApplicantPostDetailRes applicantView(String role, PrincipalDetails principalDetails, Long applyId, Long postId) {
+        Post post = postRepository.findWithStackNameAndCategoryUsingFetchJoinByPostId(postId);
+        if (post == null) {
+            throw new ApplicationException(NOT_FOUND_POST_EXCEPTION);
+        }
+        int current_person = (int) applyRepository.countApplyWithStackNameUsingFetchJoinByPost(post);
+        Hibernate.initialize(post.getStackNames());
+        Hibernate.initialize(post.getCategories());
+        return ApplicantPostDetailRes.of(role, principalDetails.getMember().getMemberId(), applyId, post, current_person);
     }
 
     @Transactional
