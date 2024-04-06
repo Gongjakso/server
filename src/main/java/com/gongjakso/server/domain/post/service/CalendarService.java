@@ -2,6 +2,7 @@ package com.gongjakso.server.domain.post.service;
 
 import com.gongjakso.server.domain.member.entity.Member;
 import com.gongjakso.server.domain.post.dto.CalendarRes;
+import com.gongjakso.server.domain.post.dto.GetContestRes;
 import com.gongjakso.server.domain.post.dto.ScrapPost;
 import com.gongjakso.server.domain.post.entity.Post;
 import com.gongjakso.server.domain.post.entity.PostScrap;
