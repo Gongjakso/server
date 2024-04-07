@@ -16,7 +16,6 @@ public record ApplicationRes(
         String application,
         String recruit_part,
         List<String> category,
-        String recruit_role,
         @JsonInclude(JsonInclude.Include.NON_NULL)
         List<String> postStack,
         @Null
@@ -25,6 +24,6 @@ public record ApplicationRes(
 
 ) {
     public static ApplicationRes of(Apply apply, List<String> category,List<String> stackName){
-        return new ApplicationRes(apply.getApplyType(),apply.getMember().getMajor(),apply.getApplication(), apply.getRecruit_part(), category, apply.getRecruit_role(), stackName,apply.getStackTypeList());
+        return new ApplicationRes(apply.getApplyType(),apply.getMember().getMajor(),apply.getApplication(), apply.getRecruit_part(), category, stackName,apply.getStackTypeList());
     }
 }

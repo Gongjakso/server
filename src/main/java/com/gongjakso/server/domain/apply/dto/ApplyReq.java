@@ -19,7 +19,6 @@ import java.util.List;
 public record ApplyReq(
         String application,
         String recruit_part,
-        String recruit_role,
         String type,
         String applyType,
         @Null
@@ -32,7 +31,6 @@ public record ApplyReq(
                     .post(post)
                     .application(application)
                     .recruit_part(recruit_part)
-                    .recruit_role(recruit_role)
                     .type(PostType.valueOf(type))
                     .applyType(ApplyType.NONE)
                     .build();
@@ -52,7 +50,6 @@ public record ApplyReq(
                     .post(post)
                     .application(application)
                     .recruit_part(recruit_part)
-                    .recruit_role(recruit_role)
                     .type(PostType.valueOf(type))
                     .applyType(ApplyType.NONE)
                     .stackTypeList(stackTypeList)

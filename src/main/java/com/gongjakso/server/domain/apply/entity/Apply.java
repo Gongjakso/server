@@ -38,9 +38,6 @@ public class Apply extends BaseTimeEntity {
     @Column(name = "recruit_part",nullable = false,columnDefinition = "varchar(50)")
     private String recruit_part;
 
-    @Column(name = "recruit_role",columnDefinition = "varchar(50)")
-    private String recruit_role;
-
     @Enumerated(EnumType.STRING)
     private PostType type;
 
@@ -51,26 +48,24 @@ public class Apply extends BaseTimeEntity {
     private List<StackType> stackTypeList = new ArrayList<>();
 
     @Builder
-    public Apply(Long applyId, Member member,Post post,List<StackType> stackTypeList, String application,String recruit_part,String recruit_role,PostType type, ApplyType applyType){
+    public Apply(Long applyId, Member member,Post post,List<StackType> stackTypeList, String application,String recruit_part,PostType type, ApplyType applyType){
         this.applyId=applyId;
         this.member=member;
         this.post=post;
         this.stackTypeList=stackTypeList;
         this.application=application;
         this.recruit_part=recruit_part;
-        this.recruit_role=recruit_role;
         this.type=type;
         this.applyType=applyType;
     }
 
     @Builder
-    public Apply(Long applyId, Member member,Post post,String application,String recruit_part,String recruit_role,PostType type, ApplyType applyType){
+    public Apply(Long applyId, Member member,Post post,String application,String recruit_part,PostType type, ApplyType applyType){
         this.applyId=applyId;
         this.member=member;
         this.post=post;
         this.application=application;
         this.recruit_part=recruit_part;
-        this.recruit_role=recruit_role;
         this.type=type;
         this.applyType=applyType;
     }
