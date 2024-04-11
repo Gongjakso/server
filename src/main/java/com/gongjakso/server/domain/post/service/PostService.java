@@ -353,4 +353,23 @@ public class PostService {
         // Return
         return myPageResList;
     }
+
+    public GetPostRelation checkPostRelation(Member member, Long postId) {
+        // Validation
+        Post post = postRepository.findByPostIdAndDeletedAtIsNull(postId).orElseThrow(() -> new ApplicationException(ALREADY_DELETE_EXCEPTION));
+
+        // Business Logic
+        String status = "GENERAL";
+        if(post.getMember().getMemberId().equals(member.getMemberId())){
+            status = "LEADER";
+        }
+        else {
+            if(applyRepository.existsApplyByMemberAndPost(member, post)) {
+             status = "APPLICANT";
+            }
+        }
+
+        // Return
+        return GetPostRelation.of(status);
+    }
 }
