@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.gongjakso.server.domain.post.enumerate.PostStatus.EXTENSION;
 import static com.gongjakso.server.domain.post.enumerate.PostStatus.RECRUITING;
 
 @Service
@@ -208,7 +209,7 @@ public class ApplyService {
             throw new ApplicationException(ErrorCode.UNAUTHORIZED_EXCEPTION);
         }
         //CHECK POST STATUS
-        if (!(post.getStatus() == RECRUITING)) {
+        if ((!(post.getStatus() == RECRUITING))&&(!(post.getStatus() == EXTENSION))) {
             throw new ApplicationException(ErrorCode.NOT_RECRUITING_EXCEPION);
         }
 
@@ -221,10 +222,10 @@ public class ApplyService {
             throw new ApplicationException(ErrorCode.UNAUTHORIZED_EXCEPTION);
         }
         //Check Post Status
-        if (!(post.getStatus() == RECRUITING)) {
+        if ((!(post.getStatus() == RECRUITING))&&(!(post.getStatus() == EXTENSION))) {
             throw new ApplicationException(ErrorCode.NOT_RECRUITING_EXCEPION);
         }
-
+        post.setStatus(EXTENSION);
         post.setFinishDate(req.finishDate());
     }
 
@@ -238,7 +239,8 @@ public class ApplyService {
 
         // Response
         return applyList.stream()
-                .filter(apply -> apply.getPost().getStatus() == PostStatus.RECRUITING)
+                .filter(apply -> apply.getPost().getStatus() == PostStatus.RECRUITING ||
+                        apply.getPost().getStatus() == PostStatus.EXTENSION)
                 .map(apply -> {
                     Post post = apply.getPost();
                     List<String> categoryList = post.getCategories().stream()
