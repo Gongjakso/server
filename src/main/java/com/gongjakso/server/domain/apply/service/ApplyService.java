@@ -3,9 +3,7 @@ package com.gongjakso.server.domain.apply.service;
 import com.gongjakso.server.domain.apply.dto.*;
 import com.gongjakso.server.domain.apply.entity.Apply;
 import com.gongjakso.server.domain.apply.enumerate.ApplyType;
-import com.gongjakso.server.domain.apply.enumerate.StackType;
 import com.gongjakso.server.domain.apply.repository.ApplyRepository;
-import com.gongjakso.server.domain.banner.entity.Banner;
 import com.gongjakso.server.domain.member.entity.Member;
 import com.gongjakso.server.domain.post.entity.Category;
 import com.gongjakso.server.domain.post.entity.Post;
@@ -236,20 +234,18 @@ public class ApplyService {
 
         // Business Logic
         List<Apply> applyList = applyRepository.findAllByMemberAndDeletedAtIsNull(member);
-        List<Long> postIdList = applyList.stream()
-                .map(apply -> apply.getPost().getPostId())
-                .toList();
 
-        List<Post> postList = postRepository.findAllByPostIdInAndStatusAndDeletedAtIsNull(postIdList, RECRUITING);
 
         // Response
-        return postList.stream()
-                .map(post -> {
+        return applyList.stream()
+                .filter(apply -> apply.getPost().getStatus() == PostStatus.RECRUITING)
+                .map(apply -> {
+                    Post post = apply.getPost();
                     List<String> categoryList = post.getCategories().stream()
                             .map(category -> category.getCategoryType().toString())
                             .toList();
 
-                    return MyPageRes.of(post, member, categoryList);
+                    return MyPageRes.of(post, apply, categoryList);
                 })
                 .collect(Collectors.toList());
     }
