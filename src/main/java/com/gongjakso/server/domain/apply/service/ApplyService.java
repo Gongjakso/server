@@ -47,7 +47,7 @@ public class ApplyService {
             throw new ApplicationException(ErrorCode.ALREADY_APPLY_EXCEPTION);
         }
         //Check Post Date
-        if (post.getFinishDate().isBefore(LocalDateTime.now())) {
+        if ((!(post.getStatus() == RECRUITING))&&(!(post.getStatus() == EXTENSION))) {
             throw new ApplicationException(ErrorCode.NOT_APPLY_EXCEPTION);
         }
 
