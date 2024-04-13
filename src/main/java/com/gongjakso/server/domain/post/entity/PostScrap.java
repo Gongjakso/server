@@ -1,7 +1,6 @@
 package com.gongjakso.server.domain.post.entity;
 
 import com.gongjakso.server.domain.member.entity.Member;
-import com.gongjakso.server.global.common.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -9,7 +8,7 @@ import lombok.*;
 @Getter
 @Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class PostScrap extends BaseTimeEntity{
+public class PostScrap{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long postScrapId;

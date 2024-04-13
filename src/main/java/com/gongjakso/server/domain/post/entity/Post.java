@@ -53,18 +53,21 @@ public class Post extends BaseTimeEntity {
     @Column(name = "max_person", nullable = false, columnDefinition = "bigint")
     private Long maxPerson;
 
-    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<StackName> stackNames = new ArrayList<>();
 
-    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Category> categories = new ArrayList<>();
 
     @Column(name = "meeting_method", columnDefinition = "varchar(10)")
     @Enumerated(EnumType.STRING)
     private MeetingMethod meetingMethod;
 
-    @Column(name = "meeting_area", columnDefinition = "varchar(100)")
-    private String meetingArea;
+    @Column(name = "meeting_city", columnDefinition = "varchar(100)")
+    private String meetingCity;
+
+    @Column(name = "meeting_town", columnDefinition = "varchar(100)")
+    private String meetingTown;
 
     @Column(name = "constest_link", columnDefinition = "varchar(100)")
     private String contestLink;
@@ -91,7 +94,7 @@ public class Post extends BaseTimeEntity {
     @Builder
     public Post(String title, Member member, String contents, String contestLink, LocalDateTime startDate,
                 LocalDateTime endDate, LocalDateTime finishDate, Long maxPerson, MeetingMethod meetingMethod,
-                String meetingArea, boolean questionMethod, String questionLink, boolean postType,
+                String meetingCity, String meetingTown, boolean questionMethod, String questionLink, boolean postType,
                 List<StackName> stackNames, List<Category> categories) {
         this.title = title;
         this.member = member;
@@ -103,7 +106,8 @@ public class Post extends BaseTimeEntity {
         this.endDate = endDate;
         this.maxPerson = maxPerson;
         this.meetingMethod = meetingMethod;
-        this.meetingArea = meetingArea;
+        this.meetingCity = meetingCity;
+        this.meetingTown = meetingTown;
         this.questionMethod = questionMethod;
         this.questionLink = questionLink;
         this.postType = postType;
@@ -122,7 +126,8 @@ public class Post extends BaseTimeEntity {
         this.finishDate = req.finishDate();
         this.maxPerson = req.maxPerson();
         this.meetingMethod = req.meetingMethod();
-        this.meetingArea = req.meetingArea();
+        this.meetingCity = req.meetingCity();
+        this.meetingTown = req.meetingTown();
         this.questionMethod = req.questionMethod();
         this.questionLink = req.questionLink();
         this.postType = req.postType();

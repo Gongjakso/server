@@ -51,16 +51,17 @@ public class PostController {
     public ApplicationResponse<Page<GetContestRes>> contestList(@PageableDefault(size = 6) Pageable pageable,
                                                          @RequestParam(value = "searchWord", required = false) String searchWord,
                                                          @RequestParam(value = "category", required = false) String category,
-                                                         @RequestParam(value = "meetingArea", required = false) String meetingArea,
+                                                         @RequestParam(value = "meetingCity", required = false) String meetingCity,
+                                                         @RequestParam(value = "meetingTown", required = false) String meetingTown,
                                                          @RequestParam(value = "sort", required = false) String sort) {
-        if(category.isBlank() && meetingArea.isBlank()){
+        if(category.isBlank() && meetingCity.isBlank()){
             if(searchWord.isBlank()){
                 return ApplicationResponse.ok(postService.getContests(sort, pageable));
             }else {
                 return ApplicationResponse.ok(postService.getContestsBySearchWord(sort, searchWord, pageable));
             }
         }else {
-            return ApplicationResponse.ok(postService.getContestsByMeetingAreaAndCategoryAndSearchWord(sort, meetingArea, category, searchWord, pageable));
+            return ApplicationResponse.ok(postService.getContestsByMeetingAreaAndCategoryAndSearchWord(sort, meetingCity, meetingTown, category, searchWord, pageable));
         }
     }
 
@@ -69,16 +70,17 @@ public class PostController {
     public ApplicationResponse<Page<GetProjectRes>> projectList(@PageableDefault(size = 6) Pageable pageable,
                                                          @RequestParam(value = "searchWord", required = false) String searchWord,
                                                          @RequestParam(value = "stackName", required = false) String stackName,
-                                                         @RequestParam(value = "meetingArea", required = false) String meetingArea,
+                                                                @RequestParam(value = "meetingCity", required = false) String meetingCity,
+                                                                @RequestParam(value = "meetingTown", required = false) String meetingTown,
                                                          @RequestParam(value = "sort", required = false) String sort) {
-        if(stackName.isBlank() && meetingArea.isBlank()){
+        if(stackName.isBlank() && meetingCity.isBlank()){
             if(searchWord.isBlank()){
                 return ApplicationResponse.ok(postService.getProjects(sort, pageable));
             }else {
                 return ApplicationResponse.ok(postService.getProjectsBySearchWord(sort, searchWord, pageable));
             }
         }else {
-            return ApplicationResponse.ok(postService.getProjectsByMeetingAreaAndStackNameAndSearchWord(sort, meetingArea, stackName, searchWord, pageable));
+            return ApplicationResponse.ok(postService.getProjectsByMeetingAreaAndStackNameAndSearchWord(sort, meetingCity, meetingTown, stackName, searchWord, pageable));
         }
     }
 
