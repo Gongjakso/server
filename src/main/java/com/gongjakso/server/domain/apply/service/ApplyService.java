@@ -25,10 +25,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Optional;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.gongjakso.server.domain.post.enumerate.PostStatus.RECRUITING;
+import static com.gongjakso.server.global.exception.ErrorCode.NOT_FOUND_POST_EXCEPTION;
 
 @Service
 @Transactional
@@ -248,5 +250,34 @@ public class ApplyService {
                     return MyPageRes.of(post, apply, categoryList);
                 })
                 .collect(Collectors.toList());
+    }
+
+    public Long getApplicantApplyId(Long memberId, Long postId) {
+        Post post = postRepository.findWithStackNameAndCategoryUsingFetchJoinByPostId(postId);
+
+        if (post == null) {
+            throw new ApplicationException(NOT_FOUND_POST_EXCEPTION);
+        }
+
+        List<Apply> applyList = applyRepository.findAllByPost(post);
+
+        // 지원자 목록에 해당 멤버가 포함되어 있는지 확인하고 해당하는 apply의 id를 반환
+        Optional<Apply> applicantApply = applyList.stream()
+                .filter(apply -> memberId.equals(apply.getMember().getMemberId()))
+                .findFirst();
+
+        return applicantApply.map(Apply::getApplyId)
+                .orElse(null);
+    }
+
+    public ApplicationRes getMyApplication(Member member, Long postId){
+        Post post = postRepository.findWithStackNameAndCategoryUsingFetchJoinByPostId(postId);
+
+        if (post == null) {
+            throw new ApplicationException(ErrorCode.NOT_FOUND_POST_EXCEPTION);
+        }else{
+            Long applyId = applyRepository.findApplyIdByMemberAndPost(member, post);
+            return findApplication(member, applyId, postId);
+        }
     }
 }
