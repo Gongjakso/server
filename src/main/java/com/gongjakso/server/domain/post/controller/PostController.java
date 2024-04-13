@@ -101,4 +101,10 @@ public class PostController {
     public ApplicationResponse<List<MyPageRes>> getMyPostList(@AuthenticationPrincipal PrincipalDetails principalDetails) {
         return ApplicationResponse.ok(postService.getMyPostList(principalDetails.getMember()));
     }
+
+    @Operation(summary = "공고와 관련된 유저인지를 확인하는 API", description = "팀장이거나, 신청자인 경우를 확인해서 결과로 반환")
+    @GetMapping("/check/{post_id}")
+    public ApplicationResponse<GetPostRelation> checkPostRelation(@AuthenticationPrincipal PrincipalDetails principalDetails, @PathVariable("post_id") Long postId) {
+        return ApplicationResponse.ok(postService.checkPostRelation(principalDetails.getMember(), postId));
+    }
 }
