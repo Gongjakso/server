@@ -2,16 +2,11 @@ package com.gongjakso.server.domain.apply.entity;
 
 import com.gongjakso.server.domain.apply.enumerate.ApplyType;
 import com.gongjakso.server.domain.apply.enumerate.PostType;
-import com.gongjakso.server.domain.apply.enumerate.StackType;
 import com.gongjakso.server.domain.member.entity.Member;
 import com.gongjakso.server.domain.post.entity.Post;
-import com.gongjakso.server.domain.post.entity.StackName;
 import com.gongjakso.server.global.common.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.*;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Getter
 @Setter
@@ -43,21 +38,6 @@ public class Apply extends BaseTimeEntity {
 
     @Enumerated(EnumType.STRING)
     private ApplyType applyType;
-
-    @Column(name = "stackTypeList")
-    private List<StackType> stackTypeList = new ArrayList<>();
-
-    @Builder
-    public Apply(Long applyId, Member member,Post post,List<StackType> stackTypeList, String application,String recruit_part,PostType type, ApplyType applyType){
-        this.applyId=applyId;
-        this.member=member;
-        this.post=post;
-        this.stackTypeList=stackTypeList;
-        this.application=application;
-        this.recruit_part=recruit_part;
-        this.type=type;
-        this.applyType=applyType;
-    }
 
     @Builder
     public Apply(Long applyId, Member member,Post post,String application,String recruit_part,PostType type, ApplyType applyType){

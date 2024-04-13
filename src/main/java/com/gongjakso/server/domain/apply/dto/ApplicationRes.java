@@ -3,7 +3,6 @@ package com.gongjakso.server.domain.apply.dto;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.gongjakso.server.domain.apply.entity.Apply;
 import com.gongjakso.server.domain.apply.enumerate.ApplyType;
-import com.gongjakso.server.domain.apply.enumerate.StackType;
 import jakarta.validation.constraints.Null;
 import lombok.Builder;
 
@@ -20,10 +19,10 @@ public record ApplicationRes(
         List<String> postStack,
         @Null
         @JsonInclude(JsonInclude.Include.NON_NULL)
-        List<StackType> myStack
+        List<String> applyStack
 
 ) {
-    public static ApplicationRes of(Apply apply, List<String> category,List<String> stackName){
-        return new ApplicationRes(apply.getApplyType(),apply.getMember().getMajor(),apply.getApplication(), apply.getRecruit_part(), category, stackName,apply.getStackTypeList());
+    public static ApplicationRes of(Apply apply, List<String> category,List<String> stackName,List<String> applyStack){
+        return new ApplicationRes(apply.getApplyType(),apply.getMember().getMajor(),apply.getApplication(), apply.getRecruit_part(), category, stackName,applyStack);
     }
 }

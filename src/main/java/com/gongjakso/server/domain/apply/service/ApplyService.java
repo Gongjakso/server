@@ -2,14 +2,17 @@ package com.gongjakso.server.domain.apply.service;
 
 import com.gongjakso.server.domain.apply.dto.*;
 import com.gongjakso.server.domain.apply.entity.Apply;
+import com.gongjakso.server.domain.apply.entity.ApplyStack;
 import com.gongjakso.server.domain.apply.enumerate.ApplyType;
 import com.gongjakso.server.domain.apply.repository.ApplyRepository;
+import com.gongjakso.server.domain.apply.repository.ApplyStackRepository;
 import com.gongjakso.server.domain.member.entity.Member;
 import com.gongjakso.server.domain.post.entity.Category;
 import com.gongjakso.server.domain.post.entity.Post;
 import com.gongjakso.server.domain.post.entity.StackName;
 import com.gongjakso.server.domain.post.enumerate.CategoryType;
 import com.gongjakso.server.domain.post.enumerate.PostStatus;
+import com.gongjakso.server.domain.post.enumerate.StackNameType;
 import com.gongjakso.server.domain.post.repository.CategoryRepository;
 import com.gongjakso.server.domain.post.repository.PostRepository;
 import com.gongjakso.server.domain.post.repository.StackNameRepository;
@@ -26,10 +29,12 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static com.gongjakso.server.domain.post.enumerate.PostStatus.EXTENSION;
 import static com.gongjakso.server.domain.post.enumerate.PostStatus.RECRUITING;
+import static com.gongjakso.server.global.exception.ErrorCode.INVALID_VALUE_EXCEPTION;
 
 @Service
 @Transactional
@@ -39,6 +44,7 @@ public class ApplyService {
     private final PostRepository postRepository;
     private final CategoryRepository categoryRepository;
     private final StackNameRepository stackNameRepository;
+    private final ApplyStackRepository applyStackRepository;
 
     public void save(Member member, Long post_id, ApplyReq req) {
         Post post = postRepository.findById(post_id).orElseThrow(() -> new ApplicationException(ErrorCode.NOT_FOUND_POST_EXCEPTION));
@@ -54,7 +60,18 @@ public class ApplyService {
 
         Apply apply = req.toEntity(member, post);
         applyRepository.save(apply);
-
+        if(post.isPostType()){
+            System.out.println("project");
+            for(String stackNameType : req.stack()){
+                //StackNameType인지 판단
+                if (!StackNameType.isValid(stackNameType)){
+                    throw new ApplicationException(INVALID_VALUE_EXCEPTION);
+                }
+                StackName stackName = stackNameRepository.findStackNameByPostAndStackNameType(post,stackNameType);
+                ApplyStack applyStack = ApplyStack.builder().apply(apply).stackName(stackName).build();
+                applyStackRepository.save(applyStack);
+            }
+        }
     }
 
     public ApplyRes findApply(Member member,Long post_id) {
@@ -95,21 +112,27 @@ public class ApplyService {
         Post post = postRepository.findById(post_id).orElseThrow(() -> new ApplicationException(ErrorCode.NOT_FOUND_POST_EXCEPTION));
 
         //Check leader
-        if (post.getMember() != member) {
+        if (!Objects.equals(post.getMember().getMemberId(), member.getMemberId())) {
             throw new ApplicationException(ErrorCode.UNAUTHORIZED_EXCEPTION);
         }
 
         //Change List Type
         List<String> categoryList = changeCategoryType(post);
         List<String> stackNameList;
+        List<String> applyStackList = null;
         if(post.isPostType()){
             stackNameList = changeStackNameType(post);
             System.out.println("change stack name");
+            List<ApplyStack> applyStacks = applyStackRepository.findAllByApply(apply);
+            applyStackList = new ArrayList<>();
+            for(ApplyStack applyStack : applyStacks){
+                applyStackList.add(applyStack.getStackName().getStackNameType());
+            }
         }else {
             stackNameList= null;
         }
 
-        return ApplicationRes.of(apply, categoryList, stackNameList);
+        return ApplicationRes.of(apply, categoryList, stackNameList,applyStackList);
 
 
     }

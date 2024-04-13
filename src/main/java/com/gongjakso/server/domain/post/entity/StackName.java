@@ -1,6 +1,7 @@
 package com.gongjakso.server.domain.post.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.gongjakso.server.domain.apply.entity.Apply;
 import com.gongjakso.server.global.common.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -8,6 +9,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
+import java.util.List;
 @Getter
 @Entity
 @Table(name = "stack_name")
@@ -33,3 +36,4 @@ public class StackName extends BaseTimeEntity {
         this.stackNameType = stackNameType;
     }
 }
+
