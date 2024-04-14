@@ -7,7 +7,6 @@ import com.gongjakso.server.domain.apply.enumerate.PostType;
 import com.gongjakso.server.domain.apply.enumerate.StackType;
 import com.gongjakso.server.domain.member.entity.Member;
 import com.gongjakso.server.domain.post.entity.Post;
-import com.gongjakso.server.domain.post.entity.StackName;
 import com.gongjakso.server.global.exception.ApplicationException;
 import com.gongjakso.server.global.exception.ErrorCode;
 import jakarta.validation.constraints.Null;
@@ -19,7 +18,6 @@ import java.util.List;
 public record ApplyReq(
         String application,
         String recruit_part,
-        String recruit_role,
         String type,
         String applyType,
         @Null
@@ -32,7 +30,6 @@ public record ApplyReq(
                     .post(post)
                     .application(application)
                     .recruit_part(recruit_part)
-                    .recruit_role(recruit_role)
                     .type(PostType.valueOf(type))
                     .applyType(ApplyType.NONE)
                     .build();
@@ -52,7 +49,6 @@ public record ApplyReq(
                     .post(post)
                     .application(application)
                     .recruit_part(recruit_part)
-                    .recruit_role(recruit_role)
                     .type(PostType.valueOf(type))
                     .applyType(ApplyType.NONE)
                     .stackTypeList(stackTypeList)

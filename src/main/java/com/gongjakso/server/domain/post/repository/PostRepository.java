@@ -16,7 +16,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     Post findWithStackNameAndCategoryUsingFetchJoinByPostId(Long postId);
 
     Optional<Post> findByPostIdAndDeletedAtIsNull(Long postId);
-    List<Post> findAllByEndDateBetweenAndPostIdIn(LocalDateTime endDate, LocalDateTime endDate2, List<Long> postIdList);
+    List<Post> findAllByFinishDateBetweenAndPostIdIn(LocalDateTime finishDate, LocalDateTime finishDate2, List<Long> postIdList);
     /*
     내가 모집 중인 공모전 공고 개수
      */
@@ -131,4 +131,6 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     List<Post> findAllByMemberAndStatusAndDeletedAtIsNull(Member member, PostStatus status);
 
     List<Post> findAllByPostIdInAndStatusAndDeletedAtIsNull(List<Long> postId, PostStatus status);
+
+    Post findByPostId(Long postId);
 }

@@ -15,7 +15,6 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/v1/post")
@@ -32,41 +31,10 @@ public class PostController {
         return ApplicationResponse.ok(postService.create(principalDetails.getMember(), req));
     }
 
-    @Operation(summary = "사용자 구분 API", description = "사용자 구분 API")
-    @GetMapping("/{id}")
-    public ApplicationResponse<?> divideUser(@AuthenticationPrincipal Optional<PrincipalDetails> principalDetailsOptional, @PathVariable("id") Long postId) {
-        if(principalDetailsOptional != null && principalDetailsOptional.isPresent()) {
-            PrincipalDetails principalDetails = principalDetailsOptional.orElse(null);
-            Long applyId = applyService.getApplicantApplyId(principalDetails.getMember().getMemberId(), postId);
-            //지원자인지 판단
-            if(applyId != null){
-                return applicantView(principalDetails, applyId, postId);
-            }else{
-                //팀장인지 판단
-                if(postService.isLeader(principalDetails.getMember().getMemberId(), postId)){
-                    return leaderView(principalDetails, postId);
-                }else {
-                    return generalView(postId);
-                }
-            }
-        } else{
-            return generalView(postId);
-        }
-    }
-
-    @Operation(summary = "팀장의 공모전/프로젝트 공고 상세 조회 API", description = "팀장의 공모전/프로젝트 공고 상세 조회")
-    public ApplicationResponse<LeaderPostDetailRes> leaderView(PrincipalDetails principalDetails, Long id) {
-        return ApplicationResponse.ok(postService.leaderView("LEADER", principalDetails, id));
-    }
-
-    @Operation(summary = "지원자의 공모전/프로젝트 공고 상세 조회 API", description = "지원자의 공모전/프로젝트 공고 상세 조회")
-    public ApplicationResponse<ApplicantPostDetailRes> applicantView(PrincipalDetails principalDetails, Long applyId, Long postId) {
-        return ApplicationResponse.ok(postService.applicantView("APPLICANT", principalDetails, applyId, postId));
-    }
-
-    @Operation(summary = "일반사용자의 공모전/프로젝트 공고 상세 조회 API", description = "일반사용자의 공모전/프로젝트 공고 상세 조회")
-    public ApplicationResponse<PostDetailRes> generalView(Long id) {
-        return ApplicationResponse.ok(postService.generalView(id));
+    @Operation(summary = "사용자 별 상세 조회 API", description = "사용자별로 공고 상세 조회 다르게 반환")
+    @GetMapping("/read")
+    public ApplicationResponse<?> read(@AuthenticationPrincipal PrincipalDetails principalDetails, @RequestParam(value = "id", required = true) Long postId, @RequestParam(value = "role", required = false) String role ) {
+        return ApplicationResponse.ok(postService.read(principalDetails, postId, role));
     }
 
     @Operation(summary = "공모전/프로젝트 공고 수정 API", description = "팀빌딩 페이지에서 정보 입력 후 공고 수정")
@@ -135,5 +103,11 @@ public class PostController {
     @GetMapping("/my")
     public ApplicationResponse<List<MyPageRes>> getMyPostList(@AuthenticationPrincipal PrincipalDetails principalDetails) {
         return ApplicationResponse.ok(postService.getMyPostList(principalDetails.getMember()));
+    }
+
+    @Operation(summary = "공고와 관련된 유저인지를 확인하는 API", description = "팀장이거나, 신청자인 경우를 확인해서 결과로 반환")
+    @GetMapping("/check/{post_id}")
+    public ApplicationResponse<GetPostRelation> checkPostRelation(@AuthenticationPrincipal PrincipalDetails principalDetails, @PathVariable("post_id") Long postId) {
+        return ApplicationResponse.ok(postService.checkPostRelation(principalDetails.getMember(), postId));
     }
 }
