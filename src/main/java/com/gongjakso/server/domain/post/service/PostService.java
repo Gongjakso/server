@@ -24,6 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.gongjakso.server.domain.post.enumerate.PostStatus.RECRUITING;
@@ -65,7 +66,7 @@ public class PostService {
     }
 
     @Transactional
-    public PostDetailRes generalView(Long id) {
+    public Optional<?> read(PrincipalDetails principalDetails, Long id, String role) {
         Post post = postRepository.findWithStackNameAndCategoryUsingFetchJoinByPostId(id);
         if (post == null) {
             throw new ApplicationException(NOT_FOUND_POST_EXCEPTION);
@@ -73,32 +74,16 @@ public class PostService {
         int current_person = (int) applyRepository.countApplyWithStackNameUsingFetchJoinByPost(post);
         Hibernate.initialize(post.getStackNames());
         Hibernate.initialize(post.getCategories());
-        return PostDetailRes.of(post, current_person);
-    }
 
-    @Transactional
-    public LeaderPostDetailRes leaderView(String role, PrincipalDetails principalDetails, Long id) {
-        Post post = postRepository.findWithStackNameAndCategoryUsingFetchJoinByPostId(id);
-        if (post == null) {
+        if(principalDetails == null) {
+            return Optional.of(PostDetailRes.of(post, current_person, role, null));
+        }else if(("GENERAL".equals(role) ||  "LEADER".equals(role) || "APPLICANT".equals(role)) && principalDetails != null){
+            return Optional.of(PostDetailRes.of(post, current_person, role, principalDetails.getMember().getMemberId()));
+        } else {
             throw new ApplicationException(NOT_FOUND_POST_EXCEPTION);
         }
-        int current_person = (int) applyRepository.countApplyWithStackNameUsingFetchJoinByPost(post);
-        Hibernate.initialize(post.getStackNames());
-        Hibernate.initialize(post.getCategories());
-        return LeaderPostDetailRes.of(role, principalDetails.getMember().getMemberId(), post, current_person);
     }
 
-    @Transactional
-    public ApplicantPostDetailRes applicantView(String role, PrincipalDetails principalDetails, Long applyId, Long postId) {
-        Post post = postRepository.findWithStackNameAndCategoryUsingFetchJoinByPostId(postId);
-        if (post == null) {
-            throw new ApplicationException(NOT_FOUND_POST_EXCEPTION);
-        }
-        int current_person = (int) applyRepository.countApplyWithStackNameUsingFetchJoinByPost(post);
-        Hibernate.initialize(post.getStackNames());
-        Hibernate.initialize(post.getCategories());
-        return ApplicantPostDetailRes.of(role, principalDetails.getMember().getMemberId(), applyId, post, current_person);
-    }
 
     @Transactional
     public PostRes modify(Member member, Long id, PostModifyReq req) {
@@ -337,11 +322,22 @@ public class PostService {
         return myPageResList;
     }
 
-    public boolean isLeader(Long memberId, Long postId){
-        Post post = postRepository.findWithStackNameAndCategoryUsingFetchJoinByPostId(postId);
-        if (post == null) {
-            throw new ApplicationException(NOT_FOUND_POST_EXCEPTION);
+    public GetPostRelation checkPostRelation(Member member, Long postId) {
+        // Validation
+        Post post = postRepository.findByPostIdAndDeletedAtIsNull(postId).orElseThrow(() -> new ApplicationException(ALREADY_DELETE_EXCEPTION));
+
+        // Business Logic
+        String role = "GENERAL";
+        if(post.getMember().getMemberId().equals(member.getMemberId())){
+            role = "LEADER";
         }
-        return post.getMember().getMemberId().equals(memberId);
+        else {
+            if(applyRepository.existsApplyByMemberAndPost(member, post)) {
+             role = "APPLICANT";
+            }
+        }
+
+        // Return
+        return GetPostRelation.of(role);
     }
 }
