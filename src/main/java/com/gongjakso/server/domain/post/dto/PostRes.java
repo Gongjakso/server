@@ -145,7 +145,6 @@ public record PostRes(
                 .modifiedAt(post.getModifiedAt())
                 .deletedAt(post.getDeletedAt())
                 .build();
-
     }
 
     public boolean isPostType() {
