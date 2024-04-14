@@ -13,10 +13,11 @@ import java.util.List;
 import java.util.Optional;
 
 public interface PostRepository extends JpaRepository<Post, Long> {
+    Post findByPostId(Long postId);
     Post findWithStackNameAndCategoryUsingFetchJoinByPostId(Long postId);
 
     Optional<Post> findByPostIdAndDeletedAtIsNull(Long postId);
-    List<Post> findAllByEndDateBetweenAndPostIdIn(LocalDateTime endDate, LocalDateTime endDate2, List<Long> postIdList);
+    List<Post> findAllByFinishDateBetweenAndPostIdIn(LocalDateTime finishDate, LocalDateTime finishDate2, List<Long> postIdList);
     /*
     내가 모집 중인 공모전 공고 개수
      */

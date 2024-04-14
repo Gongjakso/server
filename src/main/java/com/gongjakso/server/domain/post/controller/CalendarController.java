@@ -18,7 +18,7 @@ public class CalendarController {
     private final CalendarService calendarService;
     @Operation(summary = "캘린더 정보 API", description = "자신이 스크랩한 공고 정보 요청")
     @GetMapping("")
-    public ApplicationResponse<CalendarRes> addApply(@AuthenticationPrincipal PrincipalDetails principalDetails, @RequestParam(name = "year", defaultValue = "2024") int year, @RequestParam(name = "month", defaultValue = "11") int month){
+    public ApplicationResponse<CalendarRes> addApply(@AuthenticationPrincipal PrincipalDetails principalDetails, @RequestParam(name = "year", defaultValue = "2024") int year, @RequestParam(name = "month", defaultValue = "4") int month){
         return ApplicationResponse.ok(calendarService.findScrapPost(principalDetails.getMember(),year,month));
     }
 }

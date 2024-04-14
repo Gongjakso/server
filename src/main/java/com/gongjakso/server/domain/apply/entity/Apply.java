@@ -1,11 +1,17 @@
 package com.gongjakso.server.domain.apply.entity;
 
+import com.gongjakso.server.domain.apply.enumerate.ApplyType;
 import com.gongjakso.server.domain.apply.enumerate.PostType;
+import com.gongjakso.server.domain.apply.enumerate.StackType;
 import com.gongjakso.server.domain.member.entity.Member;
 import com.gongjakso.server.domain.post.entity.Post;
+import com.gongjakso.server.domain.post.entity.StackName;
 import com.gongjakso.server.global.common.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Setter
@@ -32,32 +38,35 @@ public class Apply extends BaseTimeEntity {
     @Column(name = "recruit_part",nullable = false,columnDefinition = "varchar(50)")
     private String recruit_part;
 
-    @Column(name = "recruit_role",columnDefinition = "varchar(50)")
-    private String recruit_role;
-
     @Enumerated(EnumType.STRING)
     private PostType type;
 
-    @Column(name = "is_pass", columnDefinition = "boolean" )
-    private Boolean isPass;
+    @Enumerated(EnumType.STRING)
+    private ApplyType applyType;
 
-    @Column(name = "is_open", columnDefinition = "boolean" )
-    private Boolean is_open;
-
-    @Column(name = "is_decision", columnDefinition = "boolean" )
-    private Boolean isDecision;
+    @Column(name = "stackTypeList")
+    private List<StackType> stackTypeList = new ArrayList<>();
 
     @Builder
-    public Apply(Long applyId, Member member,Post post, String application,String recruit_part,String recruit_role,PostType type, Boolean isPass,Boolean is_open,Boolean isDecision){
+    public Apply(Long applyId, Member member,Post post,List<StackType> stackTypeList, String application,String recruit_part,PostType type, ApplyType applyType){
+        this.applyId=applyId;
+        this.member=member;
+        this.post=post;
+        this.stackTypeList=stackTypeList;
+        this.application=application;
+        this.recruit_part=recruit_part;
+        this.type=type;
+        this.applyType=applyType;
+    }
+
+    @Builder
+    public Apply(Long applyId, Member member,Post post,String application,String recruit_part,PostType type, ApplyType applyType){
         this.applyId=applyId;
         this.member=member;
         this.post=post;
         this.application=application;
         this.recruit_part=recruit_part;
-        this.recruit_role=recruit_role;
         this.type=type;
-        this.isPass=isPass;
-        this.is_open=is_open;
-        this.isDecision=isDecision;
+        this.applyType=applyType;
     }
 }

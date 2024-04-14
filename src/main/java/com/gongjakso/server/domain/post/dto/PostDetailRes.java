@@ -130,7 +130,7 @@ public record PostDetailRes(
                 description = "공고 스크랩 수, 스크랩 수가 높을수록 인기순 우선순위",
                 defaultValue = "0"
         )
-        Long scrapCount,
+        Long scrapCount
 
         @Schema(
                 description = "조회수 반환 관리",
