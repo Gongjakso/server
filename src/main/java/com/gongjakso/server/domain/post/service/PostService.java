@@ -70,6 +70,10 @@ public class PostService {
             throw new ApplicationException(NOT_FOUND_POST_EXCEPTION);
         }
         int current_person = (int) applyRepository.countApplyWithStackNameUsingFetchJoinByPost(post);
+
+        post.setPostView(post.getPostView() + 1);
+        this.postRepository.save(post);
+
         Hibernate.initialize(post.getStackNames());
         Hibernate.initialize(post.getCategories());
         return PostDetailRes.of(post, current_person);
