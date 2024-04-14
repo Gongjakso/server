@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface PostRepository extends JpaRepository<Post, Long> {
+    Post findByPostId(Long postId);
     Post findWithStackNameAndCategoryUsingFetchJoinByPostId(Long postId);
 
     Optional<Post> findByPostIdAndDeletedAtIsNull(Long postId);
@@ -131,6 +132,4 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     List<Post> findAllByMemberAndStatusAndDeletedAtIsNull(Member member, PostStatus status);
 
     List<Post> findAllByPostIdInAndStatusAndDeletedAtIsNull(List<Long> postId, PostStatus status);
-
-    Post findByPostId(Long postId);
 }

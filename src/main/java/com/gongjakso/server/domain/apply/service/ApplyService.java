@@ -26,11 +26,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.gongjakso.server.domain.post.enumerate.PostStatus.RECRUITING;
-import static com.gongjakso.server.global.exception.ErrorCode.NOT_FOUND_POST_EXCEPTION;
 
 @Service
 @Transactional
@@ -42,7 +40,7 @@ public class ApplyService {
     private final StackNameRepository stackNameRepository;
 
     public void save(Member member, Long post_id, ApplyReq req) {
-        Post post = postRepository.findById(post_id).orElseThrow(() -> new ApplicationException(NOT_FOUND_POST_EXCEPTION));
+        Post post = postRepository.findById(post_id).orElseThrow(() -> new ApplicationException(ErrorCode.NOT_FOUND_POST_EXCEPTION));
         //Check reapply
         if (applyRepository.existsApplyByMemberAndPost(member, post)) {
             throw new ApplicationException(ErrorCode.ALREADY_APPLY_EXCEPTION);
@@ -60,9 +58,9 @@ public class ApplyService {
 
     public ApplyRes findApply(Member member,Long post_id) {
         //Get Post
-        Post post = postRepository.findById(post_id).orElseThrow(() -> new ApplicationException(NOT_FOUND_POST_EXCEPTION));
+        Post post = postRepository.findById(post_id).orElseThrow(() -> new ApplicationException(ErrorCode.NOT_FOUND_POST_EXCEPTION));
         if (post == null) {
-            throw new ApplicationException(NOT_FOUND_POST_EXCEPTION);
+            throw new ApplicationException(ErrorCode.NOT_FOUND_POST_EXCEPTION);
         }
         if(post.getMember()!=member){
             throw new ApplicationException(ErrorCode.UNAUTHORIZED_EXCEPTION);
@@ -93,7 +91,7 @@ public class ApplyService {
 
     public ApplicationRes findApplication(Member member, Long apply_id, Long post_id) {
         Apply apply = applyRepository.findById(apply_id).orElseThrow(() -> new ApplicationException(ErrorCode.NOT_FOUND_APPLY_EXCEPTION));
-        Post post = postRepository.findById(post_id).orElseThrow(() -> new ApplicationException(NOT_FOUND_POST_EXCEPTION));
+        Post post = postRepository.findById(post_id).orElseThrow(() -> new ApplicationException(ErrorCode.NOT_FOUND_POST_EXCEPTION));
 
         //Check leader
         if (post.getMember() != member) {
@@ -140,7 +138,7 @@ public class ApplyService {
     }
 
     public ApplyPageRes applyListPage(Member member,long post_id, int page, int size) {
-        Post post = postRepository.findById(post_id).orElseThrow(() -> new ApplicationException(NOT_FOUND_POST_EXCEPTION));
+        Post post = postRepository.findById(post_id).orElseThrow(() -> new ApplicationException(ErrorCode.NOT_FOUND_POST_EXCEPTION));
         if (post.getMember() != member) {
             throw new ApplicationException(ErrorCode.UNAUTHORIZED_EXCEPTION);
         }
@@ -205,7 +203,7 @@ public class ApplyService {
     }
 
     public void updatePostState(Member member,Long post_id, PostStatus postStatus) {
-        Post post = postRepository.findById(post_id).orElseThrow(() -> new ApplicationException(NOT_FOUND_POST_EXCEPTION));
+        Post post = postRepository.findById(post_id).orElseThrow(() -> new ApplicationException(ErrorCode.NOT_FOUND_POST_EXCEPTION));
         if (post.getMember() != member) {
             throw new ApplicationException(ErrorCode.UNAUTHORIZED_EXCEPTION);
         }
@@ -218,7 +216,7 @@ public class ApplyService {
     }
 
     public void updatePostPeriod(Member member,Long post_id, PeriodReq req) {
-        Post post = postRepository.findById(post_id).orElseThrow(() -> new ApplicationException(NOT_FOUND_POST_EXCEPTION));
+        Post post = postRepository.findById(post_id).orElseThrow(() -> new ApplicationException(ErrorCode.NOT_FOUND_POST_EXCEPTION));
         if (post.getMember() != member) {
             throw new ApplicationException(ErrorCode.UNAUTHORIZED_EXCEPTION);
         }
@@ -252,29 +250,11 @@ public class ApplyService {
                 .collect(Collectors.toList());
     }
 
-    public Long getApplicantApplyId(Long memberId, Long postId) {
-        Post post = postRepository.findWithStackNameAndCategoryUsingFetchJoinByPostId(postId);
-
-        if (post == null) {
-            throw new ApplicationException(NOT_FOUND_POST_EXCEPTION);
-        }
-
-        List<Apply> applyList = applyRepository.findAllByPost(post);
-
-        // 지원자 목록에 해당 멤버가 포함되어 있는지 확인하고 해당하는 apply의 id를 반환
-        Optional<Apply> applicantApply = applyList.stream()
-                .filter(apply -> memberId.equals(apply.getMember().getMemberId()))
-                .findFirst();
-
-        return applicantApply.map(Apply::getApplyId)
-                .orElse(null);
-    }
-
     public ApplicationRes getMyApplication(Member member, Long postId){
         Post post = postRepository.findWithStackNameAndCategoryUsingFetchJoinByPostId(postId);
 
         if (post == null) {
-            throw new ApplicationException(NOT_FOUND_POST_EXCEPTION);
+            throw new ApplicationException(ErrorCode.NOT_FOUND_POST_EXCEPTION);
         }else{
             Long applyId = applyRepository.findApplyIdByMemberAndPost(member, post);
             return findApplication(member, applyId, postId);
