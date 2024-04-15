@@ -5,6 +5,7 @@ import lombok.Builder;
 
 @Builder
 public record MemberReq(@NotNull String name,
+                        String phone,
                         String status,
                         String major,
                         String job) {
