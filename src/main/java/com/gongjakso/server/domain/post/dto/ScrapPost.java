@@ -17,9 +17,9 @@ public record ScrapPost(
         String title,
 
         @Schema(
-                description = "공모전/프로젝트 활동 마감 날짜 관리"
+                description = "공모전/프로젝트 공고 마감 날짜 관리"
         )
-        LocalDateTime endDate,
+        LocalDateTime finishDate,
 
         @Schema(
                 description = "공고 타입을 0(contest), 1(project)으로 관리"
@@ -27,6 +27,6 @@ public record ScrapPost(
         Boolean postType
 ) {
     public static ScrapPost of(Post post){
-        return new ScrapPost(post.getPostId(),post.getTitle(),post.getEndDate(),post.isPostType());
+        return new ScrapPost(post.getPostId(),post.getTitle(),post.getFinishDate(),post.isPostType());
     }
 }
