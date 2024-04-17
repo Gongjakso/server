@@ -9,5 +9,5 @@ import java.util.List;
 
 public interface StackNameRepository extends JpaRepository<StackName, Long> {
     List<StackName> findStackNameByPost(Post post);
-    StackName findStackNameByPostAndStackNameType(Post post, StackNameType stackNameType);
+    StackName findStackNameByPostAndStackNameType(Post post, String stackNameType);
 }

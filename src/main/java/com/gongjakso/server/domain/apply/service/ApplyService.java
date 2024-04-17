@@ -2,14 +2,17 @@ package com.gongjakso.server.domain.apply.service;
 
 import com.gongjakso.server.domain.apply.dto.*;
 import com.gongjakso.server.domain.apply.entity.Apply;
+import com.gongjakso.server.domain.apply.entity.ApplyStack;
 import com.gongjakso.server.domain.apply.enumerate.ApplyType;
 import com.gongjakso.server.domain.apply.repository.ApplyRepository;
+import com.gongjakso.server.domain.apply.repository.ApplyStackRepository;
 import com.gongjakso.server.domain.member.entity.Member;
 import com.gongjakso.server.domain.post.entity.Category;
 import com.gongjakso.server.domain.post.entity.Post;
 import com.gongjakso.server.domain.post.entity.StackName;
 import com.gongjakso.server.domain.post.enumerate.CategoryType;
 import com.gongjakso.server.domain.post.enumerate.PostStatus;
+import com.gongjakso.server.domain.post.enumerate.StackNameType;
 import com.gongjakso.server.domain.post.repository.CategoryRepository;
 import com.gongjakso.server.domain.post.repository.PostRepository;
 import com.gongjakso.server.domain.post.repository.StackNameRepository;
@@ -27,9 +30,12 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Optional;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
+import static com.gongjakso.server.domain.post.enumerate.PostStatus.EXTENSION;
 import static com.gongjakso.server.domain.post.enumerate.PostStatus.RECRUITING;
+import static com.gongjakso.server.global.exception.ErrorCode.INVALID_VALUE_EXCEPTION;
 import static com.gongjakso.server.global.exception.ErrorCode.NOT_FOUND_POST_EXCEPTION;
 
 @Service
@@ -40,27 +46,42 @@ public class ApplyService {
     private final PostRepository postRepository;
     private final CategoryRepository categoryRepository;
     private final StackNameRepository stackNameRepository;
+    private final ApplyStackRepository applyStackRepository;
 
     public void save(Member member, Long post_id, ApplyReq req) {
-        Post post = postRepository.findById(post_id).orElseThrow(() -> new ApplicationException(ErrorCode.NOT_FOUND_POST_EXCEPTION));
+        Post post = postRepository.findWithStackNameAndCategoryUsingFetchJoinByPostId(post_id);
+        if(post==null){
+            throw new ApplicationException(ErrorCode.NOT_FOUND_POST_EXCEPTION);
+        }
         //Check reapply
         if (applyRepository.existsApplyByMemberAndPost(member, post)) {
             throw new ApplicationException(ErrorCode.ALREADY_APPLY_EXCEPTION);
         }
         //Check Post Date
-        if (post.getFinishDate().isBefore(LocalDateTime.now())) {
+        if ((!(post.getStatus() == RECRUITING))&&(!(post.getStatus() == EXTENSION))) {
             throw new ApplicationException(ErrorCode.NOT_APPLY_EXCEPTION);
         }
 
 
         Apply apply = req.toEntity(member, post);
         applyRepository.save(apply);
-
+        if(post.isPostType()){
+            System.out.println("project");
+            for(String stackNameType : req.stack()){
+                //StackNameType인지 판단
+                if (!StackNameType.isValid(stackNameType)){
+                    throw new ApplicationException(INVALID_VALUE_EXCEPTION);
+                }
+                StackName stackName = stackNameRepository.findStackNameByPostAndStackNameType(post,stackNameType);
+                ApplyStack applyStack = ApplyStack.builder().apply(apply).stackName(stackName).build();
+                applyStackRepository.save(applyStack);
+            }
+        }
     }
 
     public ApplyRes findApply(Member member,Long post_id) {
         //Get Post
-        Post post = postRepository.findById(post_id).orElseThrow(() -> new ApplicationException(ErrorCode.NOT_FOUND_POST_EXCEPTION));
+        Post post = postRepository.findWithStackNameAndCategoryUsingFetchJoinByPostId(post_id);
         if (post == null) {
             throw new ApplicationException(ErrorCode.NOT_FOUND_POST_EXCEPTION);
         }
@@ -71,12 +92,15 @@ public class ApplyService {
         //Change List Type
         List<String> categoryList = changeCategoryType(post);
 
-        int current_person = (int) applyRepository.countApplyByPost(post);
+        int current_person = (int) applyRepository.countApplyWithStackNameUsingFetchJoinByPost(post);
         return ApplyRes.of(post, current_person, categoryList);
     }
 
     public CategoryRes findPostCategory(Long post_id) {
-        Post post = postRepository.findByPostId(post_id);
+        Post post = postRepository.findWithStackNameAndCategoryUsingFetchJoinByPostId(post_id);
+        if(post==null){
+            throw new ApplicationException(ErrorCode.NOT_FOUND_POST_EXCEPTION);
+        }
 
         //Change List Type
         List<String> categoryList = changeCategoryType(post);
@@ -93,24 +117,33 @@ public class ApplyService {
 
     public ApplicationRes findApplication(Member member, Long apply_id, Long post_id) {
         Apply apply = applyRepository.findById(apply_id).orElseThrow(() -> new ApplicationException(ErrorCode.NOT_FOUND_APPLY_EXCEPTION));
-        Post post = postRepository.findById(post_id).orElseThrow(() -> new ApplicationException(ErrorCode.NOT_FOUND_POST_EXCEPTION));
+        Post post = postRepository.findWithStackNameAndCategoryUsingFetchJoinByPostId(post_id);
+        if(post==null){
+            throw new ApplicationException(ErrorCode.NOT_FOUND_POST_EXCEPTION);
+        }
 
         //Check leader
-        if (post.getMember() != member) {
+        if (!Objects.equals(post.getMember().getMemberId(), member.getMemberId())) {
             throw new ApplicationException(ErrorCode.UNAUTHORIZED_EXCEPTION);
         }
 
         //Change List Type
         List<String> categoryList = changeCategoryType(post);
         List<String> stackNameList;
+        List<String> applyStackList = null;
         if(post.isPostType()){
             stackNameList = changeStackNameType(post);
             System.out.println("change stack name");
+            List<ApplyStack> applyStacks = applyStackRepository.findAllByApply(apply);
+            applyStackList = new ArrayList<>();
+            for(ApplyStack applyStack : applyStacks){
+                applyStackList.add(applyStack.getStackName().getStackNameType());
+            }
         }else {
             stackNameList= null;
         }
 
-        return ApplicationRes.of(apply, categoryList, stackNameList);
+        return ApplicationRes.of(apply, categoryList, stackNameList,applyStackList);
 
 
     }
@@ -140,7 +173,10 @@ public class ApplyService {
     }
 
     public ApplyPageRes applyListPage(Member member,long post_id, int page, int size) {
-        Post post = postRepository.findById(post_id).orElseThrow(() -> new ApplicationException(ErrorCode.NOT_FOUND_POST_EXCEPTION));
+        Post post = postRepository.findWithStackNameAndCategoryUsingFetchJoinByPostId(post_id);
+        if(post==null){
+            throw new ApplicationException(ErrorCode.NOT_FOUND_POST_EXCEPTION);
+        }
         if (post.getMember() != member) {
             throw new ApplicationException(ErrorCode.UNAUTHORIZED_EXCEPTION);
         }
@@ -205,12 +241,15 @@ public class ApplyService {
     }
 
     public void updatePostState(Member member,Long post_id, PostStatus postStatus) {
-        Post post = postRepository.findById(post_id).orElseThrow(() -> new ApplicationException(ErrorCode.NOT_FOUND_POST_EXCEPTION));
+        Post post = postRepository.findWithStackNameAndCategoryUsingFetchJoinByPostId(post_id);
+        if(post==null){
+            throw new ApplicationException(ErrorCode.NOT_FOUND_POST_EXCEPTION);
+        }
         if (post.getMember() != member) {
             throw new ApplicationException(ErrorCode.UNAUTHORIZED_EXCEPTION);
         }
         //CHECK POST STATUS
-        if (!(post.getStatus() == RECRUITING)) {
+        if ((!(post.getStatus() == RECRUITING))&&(!(post.getStatus() == EXTENSION))) {
             throw new ApplicationException(ErrorCode.NOT_RECRUITING_EXCEPION);
         }
 
@@ -218,15 +257,18 @@ public class ApplyService {
     }
 
     public void updatePostPeriod(Member member,Long post_id, PeriodReq req) {
-        Post post = postRepository.findById(post_id).orElseThrow(() -> new ApplicationException(ErrorCode.NOT_FOUND_POST_EXCEPTION));
+        Post post = postRepository.findWithStackNameAndCategoryUsingFetchJoinByPostId(post_id);
+        if(post==null){
+            throw new ApplicationException(ErrorCode.NOT_FOUND_POST_EXCEPTION);
+        }
         if (post.getMember() != member) {
             throw new ApplicationException(ErrorCode.UNAUTHORIZED_EXCEPTION);
         }
         //Check Post Status
-        if (!(post.getStatus() == RECRUITING)) {
+        if ((!(post.getStatus() == RECRUITING))&&(!(post.getStatus() == EXTENSION))) {
             throw new ApplicationException(ErrorCode.NOT_RECRUITING_EXCEPION);
         }
-
+        post.setStatus(EXTENSION);
         post.setFinishDate(req.finishDate());
     }
 
@@ -240,7 +282,8 @@ public class ApplyService {
 
         // Response
         return applyList.stream()
-                .filter(apply -> apply.getPost().getStatus() == PostStatus.RECRUITING)
+                .filter(apply -> apply.getPost().getStatus() == PostStatus.RECRUITING ||
+                        apply.getPost().getStatus() == PostStatus.EXTENSION)
                 .map(apply -> {
                     Post post = apply.getPost();
                     List<String> categoryList = post.getCategories().stream()
