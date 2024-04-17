@@ -251,13 +251,23 @@ public class ApplyService {
     }
 
     public ApplicationRes getMyApplication(Member member, Long postId){
-        Post post = postRepository.findWithStackNameAndCategoryUsingFetchJoinByPostId(postId);
-
+        Post post = postRepository.findByPostId(postId);
         if (post == null) {
             throw new ApplicationException(ErrorCode.NOT_FOUND_POST_EXCEPTION);
         }else{
-            Long applyId = applyRepository.findApplyIdByMemberAndPost(member, post);
-            return findApplication(member, applyId, postId);
+            Apply apply = applyRepository.findApplyByMemberAndPost(member, post);
+            if(apply == null){
+                throw new ApplicationException(ErrorCode.NOT_FOUND_APPLY_EXCEPTION);
+            }else {
+                List<String> categoryList = changeCategoryType(post);
+                List<String> stackNameList;
+                if(post.isPostType()){
+                    stackNameList = changeStackNameType(post);
+                }else {
+                    stackNameList= null;
+                }
+                return ApplicationRes.of(apply, categoryList, stackNameList);
+            }
         }
     }
 }

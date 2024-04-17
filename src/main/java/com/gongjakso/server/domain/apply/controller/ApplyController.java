@@ -109,7 +109,6 @@ public class ApplyController {
     @Operation(summary = "지원서 열람 API", description = "해당 공고에 대한 사용자의 지원서 정보 반환")
     @GetMapping("/my/{post_id}")
     public ApplicationResponse<ApplicationRes> getMyApplication(@AuthenticationPrincipal PrincipalDetails principalDetails, @PathVariable("post_id") Long postId){
-        applyService.getMyApplication(principalDetails.getMember(), postId);
-        return ApplicationResponse.ok();
+        return ApplicationResponse.ok(applyService.getMyApplication(principalDetails.getMember(), postId));
     }
 }
