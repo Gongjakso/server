@@ -87,6 +87,9 @@ public class Post extends BaseTimeEntity {
     @Column(name="scrap_count", nullable = false, columnDefinition = "bigint")
     private long scrapCount;
 
+    @Column(name="post_view", nullable = false, columnDefinition = "bigint default 0")
+    private Long postView;
+
     public long getDaysRemaining(){
         return finishDate.isBefore(LocalDateTime.now()) ? -1 : ChronoUnit.DAYS.between(LocalDateTime.now(), finishDate);
     }
