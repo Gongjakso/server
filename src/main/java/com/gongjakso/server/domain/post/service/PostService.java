@@ -12,6 +12,7 @@ import com.gongjakso.server.domain.post.enumerate.StackNameType;
 import com.gongjakso.server.domain.post.repository.PostRepository;
 import com.gongjakso.server.domain.post.repository.PostScrapRepository;
 import com.gongjakso.server.global.exception.ApplicationException;
+import com.gongjakso.server.global.security.PrincipalDetails;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.Hibernate;
 import org.springframework.data.domain.Page;
@@ -23,6 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.gongjakso.server.domain.post.enumerate.PostStatus.RECRUITING;
@@ -64,7 +66,7 @@ public class PostService {
     }
 
     @Transactional
-    public PostDetailRes read(Long id) {
+    public Optional<?> read(PrincipalDetails principalDetails, Long id, String role) {
         Post post = postRepository.findWithStackNameAndCategoryUsingFetchJoinByPostId(id);
         if (post == null) {
             throw new ApplicationException(NOT_FOUND_POST_EXCEPTION);
@@ -75,8 +77,16 @@ public class PostService {
 
         Hibernate.initialize(post.getStackNames());
         Hibernate.initialize(post.getCategories());
-        return PostDetailRes.of(post, current_person);
+
+        if(principalDetails == null) {
+            return Optional.of(PostDetailRes.of(post, current_person, role, null));
+        }else if(("GENERAL".equals(role) ||  "LEADER".equals(role) || "APPLICANT".equals(role)) && principalDetails != null){
+            return Optional.of(PostDetailRes.of(post, current_person, role, principalDetails.getMember().getMemberId()));
+        } else {
+            throw new ApplicationException(NOT_FOUND_POST_EXCEPTION);
+        }
     }
+
 
     @Transactional
     public PostRes modify(Member member, Long id, PostModifyReq req) {
@@ -320,17 +330,17 @@ public class PostService {
         Post post = postRepository.findByPostIdAndDeletedAtIsNull(postId).orElseThrow(() -> new ApplicationException(ALREADY_DELETE_EXCEPTION));
 
         // Business Logic
-        String status = "GENERAL";
+        String role = "GENERAL";
         if(post.getMember().getMemberId().equals(member.getMemberId())){
-            status = "LEADER";
+            role = "LEADER";
         }
         else {
             if(applyRepository.existsApplyByMemberAndPost(member, post)) {
-             status = "APPLICANT";
+             role = "APPLICANT";
             }
         }
 
         // Return
-        return GetPostRelation.of(status);
+        return GetPostRelation.of(role);
     }
 }

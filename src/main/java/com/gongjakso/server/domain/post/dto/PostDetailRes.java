@@ -133,13 +133,22 @@ public record PostDetailRes(
         Long scrapCount,
 
         @Schema(
+                description = "사용자가 일반접근자|지원자|팀장인지 구분"
+        )
+        String role,
+
+        @Schema(
+                description = "접근한 사용자의 memberId"
+        )
+        Long currentId,
+        @Schema(
                 description = "조회수 반환 관리",
                 defaultValue = "0"
         )
         Long postView
 ) {
 
-    public static PostDetailRes of(Post post, int currentPerson) {
+    public static PostDetailRes of(Post post, int currentPerson, String role, Long currentId) {
         return PostDetailRes.builder()
                 .postId(post.getPostId())
                 .memberId(post.getMember().getMemberId())
@@ -163,6 +172,8 @@ public record PostDetailRes(
                 .postType(post.isPostType())
                 .createdAt(post.getCreatedAt())
                 .scrapCount(post.getScrapCount())
+                .role(role)
+                .currentId(currentId)
                 .postView(post.getPostView())
                 .build();
     }

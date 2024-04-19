@@ -1,9 +1,7 @@
 package com.gongjakso.server.domain.post.entity;
 
 import com.gongjakso.server.domain.member.entity.Member;
-import com.gongjakso.server.domain.post.dto.PostDetailRes;
 import com.gongjakso.server.domain.post.dto.PostModifyReq;
-import com.gongjakso.server.domain.post.dto.PostReq;
 import com.gongjakso.server.domain.post.enumerate.MeetingMethod;
 import com.gongjakso.server.domain.post.enumerate.PostStatus;
 import com.gongjakso.server.global.common.BaseTimeEntity;

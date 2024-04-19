@@ -1,5 +1,6 @@
 package com.gongjakso.server.domain.post.controller;
 
+import com.gongjakso.server.domain.apply.service.ApplyService;
 import com.gongjakso.server.domain.post.dto.*;
 import com.gongjakso.server.domain.post.service.PostService;
 import com.gongjakso.server.global.common.ApplicationResponse;
@@ -22,16 +23,18 @@ import java.util.List;
 public class PostController {
 
     private final PostService postService;
+    private final ApplyService applyService;
+
     @Operation(summary = "공모전/프로젝트 공고 생성 API", description = "팀빌딩 페이지에서 정보 입력 후 공고 생성")
     @PostMapping("")
     public ApplicationResponse<PostRes> create(@AuthenticationPrincipal PrincipalDetails principalDetails, @RequestBody PostReq req) {
         return ApplicationResponse.ok(postService.create(principalDetails.getMember(), req));
     }
 
-    @Operation(summary = "공모전/프로젝트 공고 상세 조회 API", description = "공모전/프로젝트 공고 상세 조회")
-    @GetMapping("/{id}")
-    public ApplicationResponse<PostDetailRes> read(@PathVariable("id") Long id) {
-        return ApplicationResponse.ok(postService.read(id));
+    @Operation(summary = "사용자 별 상세 조회 API", description = "사용자별로 공고 상세 조회 다르게 반환")
+    @GetMapping("/read")
+    public ApplicationResponse<?> read(@AuthenticationPrincipal PrincipalDetails principalDetails, @RequestParam(value = "id", required = true) Long postId, @RequestParam(value = "role", required = false) String role ) {
+        return ApplicationResponse.ok(postService.read(principalDetails, postId, role));
     }
 
     @Operation(summary = "공모전/프로젝트 공고 수정 API", description = "팀빌딩 페이지에서 정보 입력 후 공고 수정")

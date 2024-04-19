@@ -1,8 +1,5 @@
 package com.gongjakso.server.domain.post.service;
 
-import static org.junit.jupiter.api.Assertions.*;
-
-import com.gongjakso.server.domain.member.entity.Member;
 import com.gongjakso.server.domain.post.entity.Post;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
