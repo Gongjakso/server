@@ -71,8 +71,7 @@ public class PostService {
         }
         int current_person = (int) applyRepository.countApplyWithStackNameUsingFetchJoinByPost(post);
 
-        post.setPostView(post.getPostView() + 1);
-        this.postRepository.save(post);
+        post.updatePostView(post.getPostView());
 
         Hibernate.initialize(post.getStackNames());
         Hibernate.initialize(post.getCategories());
