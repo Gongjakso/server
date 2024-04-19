@@ -5,5 +5,6 @@ public enum PostStatus {
     CANCEL,
     CLOSE,
     ACTIVE,
-    COMPLETE
+    COMPLETE,
+    EXTENSION
 }

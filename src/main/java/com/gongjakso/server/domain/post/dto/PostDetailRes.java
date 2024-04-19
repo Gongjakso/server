@@ -140,7 +140,12 @@ public record PostDetailRes(
         @Schema(
                 description = "접근한 사용자의 memberId"
         )
-        Long currentId
+        Long currentId,
+        @Schema(
+                description = "조회수 반환 관리",
+                defaultValue = "0"
+        )
+        Long postView
 ) {
 
     public static PostDetailRes of(Post post, int currentPerson, String role, Long currentId) {
@@ -169,6 +174,7 @@ public record PostDetailRes(
                 .scrapCount(post.getScrapCount())
                 .role(role)
                 .currentId(currentId)
+                .postView(post.getPostView())
                 .build();
     }
 }
