@@ -1,7 +1,9 @@
 package com.gongjakso.server.domain.post.entity;
 
 import com.gongjakso.server.domain.member.entity.Member;
+import com.gongjakso.server.domain.post.dto.PostDetailRes;
 import com.gongjakso.server.domain.post.dto.PostModifyReq;
+import com.gongjakso.server.domain.post.dto.PostReq;
 import com.gongjakso.server.domain.post.enumerate.MeetingMethod;
 import com.gongjakso.server.domain.post.enumerate.PostStatus;
 import com.gongjakso.server.global.common.BaseTimeEntity;
@@ -135,5 +137,9 @@ public class Post extends BaseTimeEntity {
         this.questionLink = req.questionLink();
         this.postType = req.postType();
         this.daysRemaining = finishDate.isBefore(LocalDateTime.now()) ? -1 : ChronoUnit.DAYS.between(LocalDateTime.now(), finishDate);
+    }
+
+    public void updatePostView(Long postView) {
+        this.postView = postView + 1;
     }
 }
