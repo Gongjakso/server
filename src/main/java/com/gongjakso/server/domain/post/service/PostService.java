@@ -137,6 +137,7 @@ public class PostService {
         } else{ //스크랩순
             posts = postRepository.findAllByPostTypeFalseAndDeletedAtIsNullAndFinishDateAfterAndStatusOrderByScrapCountDescCreatedAtDesc(LocalDateTime.now(), RECRUITING, pageable);
         }
+        posts.forEach(post -> post.getCategories().size());
         return posts.map(post -> GetContestRes.of(post));
     }
 
@@ -153,6 +154,7 @@ public class PostService {
         } else{
             posts = postRepository.findAllByTitleContainsAndPostTypeFalseAndDeletedAtIsNullAndFinishDateAfterAndStatusOrderByScrapCountDescCreatedAtDesc(searchWord.toLowerCase(), LocalDateTime.now(), RECRUITING, pageable);
         }
+        posts.forEach(post -> post.getCategories().size());
         return posts.map(post -> GetContestRes.of(post));
     }
 
@@ -177,6 +179,7 @@ public class PostService {
             }else{
                 posts = postRepository.findAllPostsJoinedWithCategoriesByTitleContainsAndPostTypeFalseAndDeletedAtIsNullAndFinishDateAfterAndStatusAndMeetingCityContainsAndMeetingTownContainsAndCategoriesCategoryTypeContainsOrderByScrapCountDescCreatedAtDesc(searchWord.toLowerCase(), LocalDateTime.now(), RECRUITING, meetingCity, meetingTown, category.toString(), pageable);
             }
+            posts.forEach(post -> post.getCategories().size());
             return posts.map(post -> GetContestRes.of(post));
         } else{
             Page<Post> posts;
@@ -185,6 +188,7 @@ public class PostService {
             }else{
                 posts = postRepository.findAllByTitleContainsAndPostTypeFalseAndDeletedAtIsNullAndFinishDateAfterAndStatusAndMeetingCityContainsAndMeetingTownContainsOrderByScrapCountDescCreatedAtDesc(searchWord.toLowerCase(), LocalDateTime.now(), RECRUITING, meetingCity, meetingTown, pageable);
             }
+            posts.forEach(post -> post.getCategories().size());
             return posts.map(post -> GetContestRes.of(post));
         }
     }
