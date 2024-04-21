@@ -22,6 +22,7 @@ import java.util.List;
 public class PostController {
 
     private final PostService postService;
+
     @Operation(summary = "공모전/프로젝트 공고 생성 API", description = "팀빌딩 페이지에서 정보 입력 후 공고 생성")
     @PostMapping("")
     public ApplicationResponse<PostRes> create(@AuthenticationPrincipal PrincipalDetails principalDetails, @RequestBody PostReq req) {
