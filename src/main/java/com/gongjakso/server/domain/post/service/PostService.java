@@ -14,6 +14,7 @@ import com.gongjakso.server.domain.post.repository.PostScrapRepository;
 import com.gongjakso.server.global.exception.ApplicationException;
 import com.gongjakso.server.global.security.PrincipalDetails;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Hibernate;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -30,16 +31,18 @@ import java.util.stream.Collectors;
 import static com.gongjakso.server.domain.post.enumerate.PostStatus.RECRUITING;
 import static com.gongjakso.server.global.exception.ErrorCode.*;
 
-
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class PostService {
+
     private final PostRepository postRepository;
     private final PostScrapRepository postScrapRepository;
     private final ApplyRepository applyRepository;
 
     @Transactional
     public PostRes create(Member member, PostReq req) {
+        // Validation - 공고/프로젝트별 1개의 모집 공고만 활성화되어 있는지 유효성 검사
         if (!req.postType() && postRepository.countByMemberAndPostTypeFalseAndDeletedAtIsNullAndFinishDateAfterAndStatus(member, LocalDateTime.now(), RECRUITING) > 0) { //공모전 공고 모집 개수 제한
             throw new ApplicationException(NOT_POST_EXCEPTION);
         }
@@ -47,6 +50,8 @@ public class PostService {
             throw new ApplicationException(NOT_POST_EXCEPTION);
         }
 
+        // Business Logic
+        // TODO: new 방식으로 서비스에서 생성하는 것이 아닌, DTO 내의 메소드를 활용하도록 변경하는 것은 어떤지 고려할 필요 존재
         Post entity = new Post(req.title(), member, req.contents(), req.contestLink(), req.startDate(), req.endDate(),
                 req.finishDate(), req.maxPerson(), req.meetingMethod(), req.meetingCity(), req.meetingTown(), req.questionMethod(),
                 req.questionLink(), req.postType(), new ArrayList<>(), new ArrayList<>());
@@ -60,9 +65,10 @@ public class PostService {
                 .map(categoryReq -> new Category(entity, categoryReq.getCategoryType().toString(), categoryReq.getSize()))
                 .toList();
         entity.getCategories().addAll(categories);
+        Post savePost = postRepository.save(entity);
 
-        postRepository.save(entity);
-        return PostRes.of(entity);
+        // Response
+        return PostRes.of(savePost);
     }
 
     @Transactional
@@ -90,11 +96,14 @@ public class PostService {
 
     @Transactional
     public PostRes modify(Member member, Long id, PostModifyReq req) {
+        // Validation - 공고 존재 여부 및 공고 게시자 여부 확인
         Post entity = postRepository.findByPostIdAndDeletedAtIsNull(id)
                 .orElseThrow(() -> new ApplicationException(NOT_FOUND_POST_EXCEPTION));
         if(!member.getMemberId().equals(entity.getMember().getMemberId())){
             throw new ApplicationException(UNAUTHORIZED_EXCEPTION);
         }
+
+        // Business Logic
         entity.modify(req);
 
         entity.getStackNames().clear();
@@ -109,6 +118,7 @@ public class PostService {
                 .toList();
         entity.getCategories().addAll(categories);
 
+        // Response
         return PostRes.of(entity);
     }
 
@@ -137,6 +147,7 @@ public class PostService {
         } else{ //스크랩순
             posts = postRepository.findAllByPostTypeFalseAndDeletedAtIsNullAndFinishDateAfterAndStatusOrderByScrapCountDescCreatedAtDesc(LocalDateTime.now(), RECRUITING, pageable);
         }
+
         posts.forEach(post -> post.getCategories().size());
         return posts.map(post -> GetContestRes.of(post));
     }
@@ -154,6 +165,7 @@ public class PostService {
         } else{
             posts = postRepository.findAllByTitleContainsAndPostTypeFalseAndDeletedAtIsNullAndFinishDateAfterAndStatusOrderByScrapCountDescCreatedAtDesc(searchWord.toLowerCase(), LocalDateTime.now(), RECRUITING, pageable);
         }
+
         posts.forEach(post -> post.getCategories().size());
         return posts.map(post -> GetContestRes.of(post));
     }
@@ -257,7 +269,7 @@ public class PostService {
                 posts = postRepository.findAllByTitleContainsAndPostTypeTrueAndDeletedAtIsNullAndFinishDateAfterAndStatusAndMeetingCityContainsAndMeetingTownContainsOrderByScrapCountDescCreatedAtDesc(searchWord.toLowerCase(), LocalDateTime.now(), RECRUITING, meetingCity,meetingTown, pageable);
             }
             posts.forEach(post -> post.getCategories().size());
-            return posts.map(post -> GetProjectRes.of(post));
+            return posts.map(GetProjectRes::of);
         }
     }
 
@@ -282,7 +294,7 @@ public class PostService {
                     .build();
             post.setScrapCount(post.getScrapCount() + 1);
         } else { // 스크랩 한 적 있는 경우
-            if (postScrap.getScrapStatus() == true) { //스크랩한 상태면 취소
+            if (postScrap.getScrapStatus()) { //스크랩한 상태면 취소
                 postScrap.setScrapStatus(false);
                 if (post.getScrapCount() > 0) post.setScrapCount(post.getScrapCount() - 1);
                 else throw new ApplicationException(INVALID_VALUE_EXCEPTION);
@@ -315,18 +327,16 @@ public class PostService {
         // Business Logic
         List<Post> postList = postRepository.findAllByMemberAndStatusAndDeletedAtIsNull(member, RECRUITING);
 
-        List<MyPageRes> myPageResList = postList.stream()
-                .map(post -> {
-                        List<String> categoryList = post.getCategories().stream()
-                                .map(category -> category.getCategoryType().toString())
-                                .toList();
-
-                        return MyPageRes.of(post, member, categoryList);
-                    })
-                .collect(Collectors.toList());
-
         // Return
-        return myPageResList;
+        return postList.stream()
+                .map(post -> {
+                    List<String> categoryList = post.getCategories().stream()
+                            .map(category -> category.getCategoryType().toString())
+                            .toList();
+
+                    return MyPageRes.of(post, member, categoryList);
+                })
+                .collect(Collectors.toList());
     }
 
     public GetPostRelation checkPostRelation(Member member, Long postId) {
