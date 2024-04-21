@@ -12,6 +12,7 @@ import com.gongjakso.server.domain.post.enumerate.StackNameType;
 import com.gongjakso.server.domain.post.repository.PostRepository;
 import com.gongjakso.server.domain.post.repository.PostScrapRepository;
 import com.gongjakso.server.global.exception.ApplicationException;
+import com.gongjakso.server.global.security.PrincipalDetails;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Hibernate;
@@ -24,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.gongjakso.server.domain.post.enumerate.PostStatus.RECRUITING;
@@ -31,7 +33,6 @@ import static com.gongjakso.server.global.exception.ErrorCode.*;
 
 @Slf4j
 @Service
-@Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class PostService {
 
@@ -71,16 +72,27 @@ public class PostService {
     }
 
     @Transactional
-    public PostDetailRes read(Long id) {
+    public Optional<?> read(PrincipalDetails principalDetails, Long id, String role) {
         Post post = postRepository.findWithStackNameAndCategoryUsingFetchJoinByPostId(id);
         if (post == null) {
             throw new ApplicationException(NOT_FOUND_POST_EXCEPTION);
         }
         int current_person = (int) applyRepository.countApplyWithStackNameUsingFetchJoinByPost(post);
+
+        post.updatePostView(post.getPostView());
+
         Hibernate.initialize(post.getStackNames());
         Hibernate.initialize(post.getCategories());
-        return PostDetailRes.of(post, current_person);
+
+        if(principalDetails == null) {
+            return Optional.of(PostDetailRes.of(post, current_person, role, null));
+        }else if(("GENERAL".equals(role) ||  "LEADER".equals(role) || "APPLICANT".equals(role)) && principalDetails != null){
+            return Optional.of(PostDetailRes.of(post, current_person, role, principalDetails.getMember().getMemberId()));
+        } else {
+            throw new ApplicationException(NOT_FOUND_POST_EXCEPTION);
+        }
     }
+
 
     @Transactional
     public PostRes modify(Member member, Long id, PostModifyReq req) {
@@ -135,7 +147,9 @@ public class PostService {
         } else{ //스크랩순
             posts = postRepository.findAllByPostTypeFalseAndDeletedAtIsNullAndFinishDateAfterAndStatusOrderByScrapCountDescCreatedAtDesc(LocalDateTime.now(), RECRUITING, pageable);
         }
-        return posts.map(GetContestRes::of);
+
+        posts.forEach(post -> post.getCategories().size());
+        return posts.map(post -> GetContestRes.of(post));
     }
 
     /*
@@ -151,7 +165,9 @@ public class PostService {
         } else{
             posts = postRepository.findAllByTitleContainsAndPostTypeFalseAndDeletedAtIsNullAndFinishDateAfterAndStatusOrderByScrapCountDescCreatedAtDesc(searchWord.toLowerCase(), LocalDateTime.now(), RECRUITING, pageable);
         }
-        return posts.map(GetContestRes::of);
+
+        posts.forEach(post -> post.getCategories().size());
+        return posts.map(post -> GetContestRes.of(post));
     }
 
     /*
@@ -175,6 +191,7 @@ public class PostService {
             }else{
                 posts = postRepository.findAllPostsJoinedWithCategoriesByTitleContainsAndPostTypeFalseAndDeletedAtIsNullAndFinishDateAfterAndStatusAndMeetingCityContainsAndMeetingTownContainsAndCategoriesCategoryTypeContainsOrderByScrapCountDescCreatedAtDesc(searchWord.toLowerCase(), LocalDateTime.now(), RECRUITING, meetingCity, meetingTown, category.toString(), pageable);
             }
+            posts.forEach(post -> post.getCategories().size());
             return posts.map(post -> GetContestRes.of(post));
         } else{
             Page<Post> posts;
@@ -183,6 +200,7 @@ public class PostService {
             }else{
                 posts = postRepository.findAllByTitleContainsAndPostTypeFalseAndDeletedAtIsNullAndFinishDateAfterAndStatusAndMeetingCityContainsAndMeetingTownContainsOrderByScrapCountDescCreatedAtDesc(searchWord.toLowerCase(), LocalDateTime.now(), RECRUITING, meetingCity, meetingTown, pageable);
             }
+            posts.forEach(post -> post.getCategories().size());
             return posts.map(post -> GetContestRes.of(post));
         }
     }
@@ -326,17 +344,17 @@ public class PostService {
         Post post = postRepository.findByPostIdAndDeletedAtIsNull(postId).orElseThrow(() -> new ApplicationException(ALREADY_DELETE_EXCEPTION));
 
         // Business Logic
-        String status = "GENERAL";
+        String role = "GENERAL";
         if(post.getMember().getMemberId().equals(member.getMemberId())){
-            status = "LEADER";
+            role = "LEADER";
         }
         else {
             if(applyRepository.existsApplyByMemberAndPost(member, post)) {
-             status = "APPLICANT";
+             role = "APPLICANT";
             }
         }
 
         // Return
-        return GetPostRelation.of(status);
+        return GetPostRelation.of(role);
     }
 }

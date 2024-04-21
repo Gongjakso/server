@@ -33,6 +33,9 @@ public class Member extends BaseTimeEntity {
     @Column(name = "name", nullable = false, columnDefinition = "varchar(50)")
     private String name;
 
+    @Column(name = "phone", columnDefinition = "varchar(15)")
+    private String phone;
+
     @Column(name = "profile_url", columnDefinition = "text")
     private String profileUrl;
 
@@ -55,17 +58,18 @@ public class Member extends BaseTimeEntity {
 
     public void update(MemberReq memberReq) {
         this.name = memberReq.name();
+        this.phone = memberReq.phone();
         this.status = memberReq.status();
         this.major = memberReq.major();
         this.job = memberReq.job();
     }
 
     @Builder
-    public Member(Long memberId, String email, String password, String name, String profileUrl, String memberType, String loginType, String status, String major, String job) {
-        this.memberId = memberId;
+    public Member(String email, String password, String name, String phone, String profileUrl, String memberType, String loginType, String status, String major, String job) {
         this.email = email;
         this.password = password;
         this.name = name;
+        this.phone = phone;
         this.profileUrl = profileUrl;
         this.memberType = MemberType.valueOf(memberType);
         this.loginType = LoginType.valueOf(loginType);

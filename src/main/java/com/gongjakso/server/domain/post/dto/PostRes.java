@@ -120,8 +120,9 @@ public record PostRes(
         @Schema(
                 description = "공고 논리적 삭제 관리"
         )
-        LocalDateTime deletedAt){
-    public static PostRes of(Post post){
+        LocalDateTime deletedAt)
+{
+    public static PostRes of(Post post) {
         return PostRes.builder()
                 .postId(post.getPostId())
                 .memberId(post.getMember().getMemberId())
@@ -145,7 +146,6 @@ public record PostRes(
                 .modifiedAt(post.getModifiedAt())
                 .deletedAt(post.getDeletedAt())
                 .build();
-
     }
 
     public boolean isPostType() {

@@ -1,7 +1,6 @@
 package com.gongjakso.server.domain.apply.entity;
 
 import com.gongjakso.server.domain.post.entity.StackName;
-import com.gongjakso.server.global.common.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.*;
 

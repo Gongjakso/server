@@ -1,5 +1,4 @@
 package com.gongjakso.server.domain.post.entity;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -11,14 +10,14 @@ import lombok.NoArgsConstructor;
 @Entity
 @Table(name = "stack_name")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class StackName {
+public class StackName{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "stack_name_id", nullable = false, columnDefinition = "bigint")
     private Long stackNameId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "post_id", nullable = false, columnDefinition = "bigint")
     @JsonIgnore
     private Post post;
