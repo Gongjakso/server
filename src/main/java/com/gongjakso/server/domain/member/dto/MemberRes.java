@@ -13,6 +13,7 @@ public record MemberRes(
         @NotNull Long memberId,
         @NotNull String email,
         @NotNull String name,
+        String phone,
         String profileUrl,
         MemberType memberType,
         LoginType loginType,
@@ -26,6 +27,7 @@ public record MemberRes(
                 .memberId(member.getMemberId())
                 .email(member.getEmail())
                 .name(member.getName())
+                .phone(member.getPhone())
                 .profileUrl(member.getProfileUrl())
                 .memberType(member.getMemberType())
                 .loginType(member.getLoginType())
