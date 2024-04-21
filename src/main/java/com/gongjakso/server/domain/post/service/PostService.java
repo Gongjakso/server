@@ -308,6 +308,7 @@ public class PostService {
         return new PostScrapRes(postScrap.getPost().getPostId(), postScrap.getMember().getMemberId(), postScrap.getScrapStatus());
     }
 
+    @Transactional
     public PostScrapRes scrapGet(Member member, Long postId){
         Post post = postRepository.findByPostIdAndDeletedAtIsNull(postId)
                 .orElseThrow(() -> new ApplicationException(NOT_FOUND_POST_EXCEPTION));
@@ -321,6 +322,7 @@ public class PostService {
         return new PostScrapRes(postScrap.getPost().getPostId(), postScrap.getMember().getMemberId(), postScrap.getScrapStatus());
     }
 
+    @Transactional
     public List<MyPageRes> getMyPostList(Member member) {
         // Validation
 
@@ -339,6 +341,7 @@ public class PostService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional
     public GetPostRelation checkPostRelation(Member member, Long postId) {
         // Validation
         Post post = postRepository.findByPostIdAndDeletedAtIsNull(postId).orElseThrow(() -> new ApplicationException(ALREADY_DELETE_EXCEPTION));
