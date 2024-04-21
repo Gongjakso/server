@@ -120,7 +120,7 @@ public class Post extends BaseTimeEntity {
         this.title = req.title();
         this.contents = req.contents();
         this.contestLink = req.contestLink();
-        this.status = req.status();
+        this.status = (this.finishDate.isEqual(req.finishDate())) ? req.status() : PostStatus.EXTENSION;
         this.startDate = req.startDate();
         this.endDate = req.endDate();
         this.finishDate = req.finishDate();
