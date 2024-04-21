@@ -117,6 +117,7 @@ public class Post extends BaseTimeEntity {
         this.daysRemaining = finishDate.isBefore(LocalDateTime.now()) ? -1 : ChronoUnit.DAYS.between(LocalDateTime.now(), finishDate);
         this.stackNames = stackNames;
         this.categories = categories;
+        this.postView = 0L;
     }
 
     public void modify(PostModifyReq req) {
