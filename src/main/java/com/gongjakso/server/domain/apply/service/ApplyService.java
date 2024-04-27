@@ -206,7 +206,6 @@ public class ApplyService {
         return ParticipationPageRes.of(participationLists, pageNo, size, totalPages, last);
     }
 
-    @Transactional
     private String decisionState(Apply apply) {
         if (apply.getApplyType().equals(ApplyType.OPEN_APPLY)) {
             return "열람 완료";
