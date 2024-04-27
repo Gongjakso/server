@@ -37,7 +37,7 @@ import static com.gongjakso.server.global.exception.ErrorCode.INVALID_VALUE_EXCE
 
 
 @Service
-@Transactional
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class ApplyService {
     private final ApplyRepository applyRepository;
@@ -46,6 +46,7 @@ public class ApplyService {
     private final StackNameRepository stackNameRepository;
     private final ApplyStackRepository applyStackRepository;
 
+    @Transactional
     public void save(Member member, Long post_id, ApplyReq req) {
         Post post = postRepository.findWithStackNameAndCategoryUsingFetchJoinByPostId(post_id);
         if(post==null){
@@ -146,6 +147,7 @@ public class ApplyService {
 
     }
 
+    @Transactional
     public List<String> changeCategoryType(Post post){
         List<Category> categoryList = categoryRepository.findCategoryByPost(post);
         if (categoryList == null) {
@@ -160,6 +162,7 @@ public class ApplyService {
         return stringTypelist;
     }
 
+    @Transactional
     public List<String> changeStackNameType(Post post){
         List<StackName> stackNameList = stackNameRepository.findStackNameByPost(post);
         List<String> stringTypelist = new ArrayList<>();
@@ -203,6 +206,7 @@ public class ApplyService {
         return ParticipationPageRes.of(participationLists, pageNo, size, totalPages, last);
     }
 
+    @Transactional
     private String decisionState(Apply apply) {
         if (apply.getApplyType().equals(ApplyType.OPEN_APPLY)) {
             return "열람 완료";
@@ -214,6 +218,7 @@ public class ApplyService {
         return "미열람";
     }
 
+    @Transactional
     public void updateState(Member member,Long apply_id, ApplyType applyType) {
         Apply apply = applyRepository.findById(apply_id).orElseThrow(() -> new ApplicationException(ErrorCode.NOT_FOUND_APPLY_EXCEPTION));
         //Check ApplyType
@@ -238,6 +243,7 @@ public class ApplyService {
 
     }
 
+    @Transactional
     public void updatePostState(Member member,Long post_id, PostStatus postStatus) {
         Post post = postRepository.findWithStackNameAndCategoryUsingFetchJoinByPostId(post_id);
         if(post==null){
@@ -254,6 +260,7 @@ public class ApplyService {
         post.setStatus(postStatus);
     }
 
+    @Transactional
     public void updatePostPeriod(Member member,Long post_id, PeriodReq req) {
         Post post = postRepository.findWithStackNameAndCategoryUsingFetchJoinByPostId(post_id);
         if(post==null){
