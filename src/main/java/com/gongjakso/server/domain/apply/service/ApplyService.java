@@ -18,6 +18,7 @@ import com.gongjakso.server.domain.post.repository.PostRepository;
 import com.gongjakso.server.domain.post.repository.StackNameRepository;
 import com.gongjakso.server.global.exception.ApplicationException;
 import com.gongjakso.server.global.exception.ErrorCode;
+import com.gongjakso.server.global.util.email.EmailClient;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -40,11 +41,13 @@ import static com.gongjakso.server.global.exception.ErrorCode.INVALID_VALUE_EXCE
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class ApplyService {
+
     private final ApplyRepository applyRepository;
     private final PostRepository postRepository;
     private final CategoryRepository categoryRepository;
     private final StackNameRepository stackNameRepository;
     private final ApplyStackRepository applyStackRepository;
+    private final EmailClient emailClient;
 
     @Transactional
     public void save(Member member, Long post_id, ApplyReq req) {
@@ -143,8 +146,6 @@ public class ApplyService {
         }
 
         return ApplicationRes.of(apply, categoryList, stackNameList,applyStackList);
-
-
     }
 
     @Transactional
@@ -327,5 +328,23 @@ public class ApplyService {
                 return ApplicationRes.of(apply, categoryList, stackNameList,applyStackList);
             }
         }
+    }
+
+    @Transactional
+    public PatchApplyRes cancelApply(Member member, Long applyId) {
+        // Validation: 논리적 삭제 데이터이거나 신청자 본인이 아닌 경우에 대한 유효성 검증
+        Apply apply = applyRepository.findApplyByApplyIdAndDeletedAtIsNull(applyId).orElseThrow(() -> new ApplicationException(ErrorCode.ALREADY_DELETE_EXCEPTION));
+        if (!apply.getMember().getMemberId().equals(member.getMemberId())) {
+            throw new ApplicationException(ErrorCode.UNAUTHORIZED_EXCEPTION);
+        }
+
+        // Business Logic: isCanceled 칼럼을 TRUE로 변경하고, 공고 게시자에세 이메일을 전송한다.
+        apply.updateIsCanceled(Boolean.TRUE);
+        Apply saveApply = applyRepository.save(apply);
+        Post post = postRepository.findByPostIdAndDeletedAtIsNull(apply.getPost().getPostId()).orElseThrow(() -> new ApplicationException(ErrorCode.NOT_FOUND_POST_EXCEPTION));
+        emailClient.sendOneEmail(post.getMember().getEmail());
+
+        // Response
+        return PatchApplyRes.of(saveApply, member);
     }
 }
