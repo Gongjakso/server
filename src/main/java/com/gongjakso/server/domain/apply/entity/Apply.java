@@ -39,14 +39,21 @@ public class Apply extends BaseTimeEntity {
     @Enumerated(EnumType.STRING)
     private ApplyType applyType;
 
+    @Column(name = "is_canceled", nullable = false)
+    private Boolean isCanceled;
+
+    public void updateIsCanceled(Boolean isCanceled) {
+        this.isCanceled = isCanceled;
+    }
+
     @Builder
-    public Apply(Long applyId, Member member,Post post,String application,String recruit_part,PostType type, ApplyType applyType){
-        this.applyId=applyId;
+    public Apply(Member member,Post post,String application,String recruit_part,PostType type, ApplyType applyType){
         this.member=member;
         this.post=post;
         this.application=application;
         this.recruit_part=recruit_part;
         this.type=type;
         this.applyType=applyType;
+        this.isCanceled= Boolean.FALSE;
     }
 }
