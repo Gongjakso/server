@@ -219,7 +219,7 @@ public class ApplyService {
     public void updateState(Member member,Long apply_id, ApplyType applyType) {
         Apply apply = applyRepository.findById(apply_id).orElseThrow(() -> new ApplicationException(ErrorCode.NOT_FOUND_APPLY_EXCEPTION));
         //Check ApplyType
-        if (apply.getApplyType().equals(ApplyType.NONE) || apply.getApplyType().equals(ApplyType.OPEN_APPLY)) {
+        if (apply.getApplyType().equals(ApplyType.NOT_PASS) || apply.getApplyType().equals(ApplyType.PASS)) {
             throw new ApplicationException(ErrorCode.ALREADY_DECISION_EXCEPION);
         }
 
@@ -237,8 +237,6 @@ public class ApplyService {
                 category.setSize(category.getSize() - 1);
             }
         }
-
-
     }
 
     public void updatePostState(Member member,Long post_id, PostStatus postStatus) {
