@@ -87,6 +87,9 @@ public class Post extends BaseTimeEntity {
     @Column(name="scrap_count", nullable = false, columnDefinition = "bigint")
     private long scrapCount;
 
+    @Column(name="post_view", nullable = false, columnDefinition = "bigint default 0")
+    private Long postView;
+
     public long getDaysRemaining(){
         return finishDate.isBefore(LocalDateTime.now()) ? -1 : ChronoUnit.DAYS.between(LocalDateTime.now(), finishDate);
     }
@@ -114,13 +117,14 @@ public class Post extends BaseTimeEntity {
         this.daysRemaining = finishDate.isBefore(LocalDateTime.now()) ? -1 : ChronoUnit.DAYS.between(LocalDateTime.now(), finishDate);
         this.stackNames = stackNames;
         this.categories = categories;
+        this.postView = 0L;
     }
 
     public void modify(PostModifyReq req) {
         this.title = req.title();
         this.contents = req.contents();
         this.contestLink = req.contestLink();
-        this.status = req.status();
+        this.status = (this.finishDate.isEqual(req.finishDate())) ? req.status() : PostStatus.EXTENSION;
         this.startDate = req.startDate();
         this.endDate = req.endDate();
         this.finishDate = req.finishDate();
@@ -132,5 +136,9 @@ public class Post extends BaseTimeEntity {
         this.questionLink = req.questionLink();
         this.postType = req.postType();
         this.daysRemaining = finishDate.isBefore(LocalDateTime.now()) ? -1 : ChronoUnit.DAYS.between(LocalDateTime.now(), finishDate);
+    }
+
+    public void updatePostView(Long postView) {
+        this.postView = postView + 1;
     }
 }

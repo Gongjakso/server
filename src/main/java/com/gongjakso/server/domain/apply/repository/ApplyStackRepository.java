@@ -2,7 +2,6 @@ package com.gongjakso.server.domain.apply.repository;
 
 import com.gongjakso.server.domain.apply.entity.Apply;
 import com.gongjakso.server.domain.apply.entity.ApplyStack;
-import com.gongjakso.server.domain.post.entity.StackName;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

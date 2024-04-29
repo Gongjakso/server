@@ -26,9 +26,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Optional;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -36,7 +34,7 @@ import java.util.stream.Collectors;
 import static com.gongjakso.server.domain.post.enumerate.PostStatus.EXTENSION;
 import static com.gongjakso.server.domain.post.enumerate.PostStatus.RECRUITING;
 import static com.gongjakso.server.global.exception.ErrorCode.INVALID_VALUE_EXCEPTION;
-import static com.gongjakso.server.global.exception.ErrorCode.NOT_FOUND_POST_EXCEPTION;
+
 
 @Service
 @Transactional
@@ -300,32 +298,33 @@ public class ApplyService {
                 .collect(Collectors.toList());
     }
 
-    public Long getApplicantApplyId(Long memberId, Long postId) {
-        Post post = postRepository.findWithStackNameAndCategoryUsingFetchJoinByPostId(postId);
-
-        if (post == null) {
-            throw new ApplicationException(NOT_FOUND_POST_EXCEPTION);
-        }
-
-        List<Apply> applyList = applyRepository.findAllByPost(post);
-
-        // 지원자 목록에 해당 멤버가 포함되어 있는지 확인하고 해당하는 apply의 id를 반환
-        Optional<Apply> applicantApply = applyList.stream()
-                .filter(apply -> memberId.equals(apply.getMember().getMemberId()))
-                .findFirst();
-
-        return applicantApply.map(Apply::getApplyId)
-                .orElse(null);
-    }
-
     public ApplicationRes getMyApplication(Member member, Long postId){
-        Post post = postRepository.findWithStackNameAndCategoryUsingFetchJoinByPostId(postId);
-
+        Post post = postRepository.findByPostId(postId);
         if (post == null) {
             throw new ApplicationException(ErrorCode.NOT_FOUND_POST_EXCEPTION);
         }else{
-            Long applyId = applyRepository.findApplyIdByMemberAndPost(member, post);
-            return findApplication(member, applyId, postId);
+            Apply apply = applyRepository.findApplyByMemberAndPost(member, post);
+            if(apply == null){
+                throw new ApplicationException(ErrorCode.NOT_FOUND_APPLY_EXCEPTION);
+            }else {
+                //Change List Type
+                List<String> categoryList = changeCategoryType(post);
+                List<String> stackNameList;
+                List<String> applyStackList = null;
+                if(post.isPostType()){
+                    stackNameList = changeStackNameType(post);
+                    System.out.println("change stack name");
+                    List<ApplyStack> applyStacks = applyStackRepository.findAllByApply(apply);
+                    applyStackList = new ArrayList<>();
+                    for(ApplyStack applyStack : applyStacks){
+                        applyStackList.add(applyStack.getStackName().getStackNameType());
+                    }
+                }else {
+                    stackNameList= null;
+                }
+
+                return ApplicationRes.of(apply, categoryList, stackNameList,applyStackList);
+            }
         }
     }
 }
