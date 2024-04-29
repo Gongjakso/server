@@ -1,5 +1,6 @@
 package com.gongjakso.server.domain.post.service;
 
+import com.gongjakso.server.domain.apply.enumerate.ApplyType;
 import com.gongjakso.server.domain.apply.repository.ApplyRepository;
 import com.gongjakso.server.domain.member.entity.Member;
 import com.gongjakso.server.domain.post.dto.*;
@@ -77,7 +78,7 @@ public class PostService {
         if (post == null) {
             throw new ApplicationException(NOT_FOUND_POST_EXCEPTION);
         }
-        int current_person = (int) applyRepository.countApplyWithStackNameUsingFetchJoinByPost(post);
+        int current_person = (int) applyRepository.countApplyWithStackNameUsingFetchJoinByPostAndApplyType(post, ApplyType.PASS);
 
         post.updatePostView(post.getPostView());
 
