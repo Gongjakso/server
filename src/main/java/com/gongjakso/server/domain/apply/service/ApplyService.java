@@ -91,7 +91,7 @@ public class ApplyService {
         //Change List Type
         List<String> categoryList = changeCategoryType(post);
 
-        int current_person = (int) applyRepository.countApplyWithStackNameUsingFetchJoinByPost(post);
+        int current_person = (int) applyRepository.countApplyWithStackNameUsingFetchJoinByPostAndApplyType(post,ApplyType.PASS);
         return ApplyRes.of(post, current_person, categoryList);
     }
 
