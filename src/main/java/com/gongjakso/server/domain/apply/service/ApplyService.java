@@ -85,7 +85,8 @@ public class ApplyService {
         if (post == null) {
             throw new ApplicationException(ErrorCode.NOT_FOUND_POST_EXCEPTION);
         }
-        if(post.getMember()!=member){
+        //Check leader
+        if (!Objects.equals(post.getMember().getMemberId(), member.getMemberId())) {
             throw new ApplicationException(ErrorCode.UNAUTHORIZED_EXCEPTION);
         }
 
@@ -177,7 +178,8 @@ public class ApplyService {
         if(post==null){
             throw new ApplicationException(ErrorCode.NOT_FOUND_POST_EXCEPTION);
         }
-        if (post.getMember() != member) {
+        //Check leader
+        if (!Objects.equals(post.getMember().getMemberId(), member.getMemberId())) {
             throw new ApplicationException(ErrorCode.UNAUTHORIZED_EXCEPTION);
         }
 
@@ -226,7 +228,8 @@ public class ApplyService {
         apply.setApplyType(applyType);
         if (applyType.equals(ApplyType.PASS)) {
             Post post = apply.getPost();
-            if(post.getMember()!=member){
+            //Check leader
+            if (!Objects.equals(post.getMember().getMemberId(), member.getMemberId())) {
                 throw new ApplicationException(ErrorCode.UNAUTHORIZED_EXCEPTION);
             }
             Category category = categoryRepository.findCategoryByPostAndCategoryType(post, CategoryType.valueOf(apply.getRecruit_part()));
@@ -245,7 +248,8 @@ public class ApplyService {
         if(post==null){
             throw new ApplicationException(ErrorCode.NOT_FOUND_POST_EXCEPTION);
         }
-        if (post.getMember() != member) {
+        //Check leader
+        if (!Objects.equals(post.getMember().getMemberId(), member.getMemberId())) {
             throw new ApplicationException(ErrorCode.UNAUTHORIZED_EXCEPTION);
         }
         //CHECK POST STATUS
@@ -261,7 +265,8 @@ public class ApplyService {
         if(post==null){
             throw new ApplicationException(ErrorCode.NOT_FOUND_POST_EXCEPTION);
         }
-        if (post.getMember() != member) {
+        //Check leader
+        if (!Objects.equals(post.getMember().getMemberId(), member.getMemberId())) {
             throw new ApplicationException(ErrorCode.UNAUTHORIZED_EXCEPTION);
         }
         //Check Post Status
