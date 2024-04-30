@@ -18,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Hibernate;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -366,5 +367,34 @@ public class PostService {
 
         // Return
         return GetPostRelation.of(role);
+    }
+
+    @Transactional
+    public Page<GetProjectRes> getMyScrapProject(Member member, Pageable page){
+        Pageable pageable = PageRequest.of(page.getPageNumber(), page.getPageSize());
+
+        Page<PostScrap> scrapPageList = postScrapRepository.findAllByMemberAndScrapStatusTrue(member, pageable);
+
+        List<GetProjectRes> filteredProjects = scrapPageList.stream()
+            .filter(scrap -> {
+                Post post = scrap.getPost();
+                
+                //유효한 post만 남기기
+                return post != null &&
+                        post.getStatus() == RECRUITING &&  // 현재 모집 중
+                        post.isPostType() == true &&       // 프로젝트 타입
+                        post.getDeletedAt() == null &&     // 삭제X
+                        post.getFinishDate().isAfter(LocalDateTime.now()); // 모집중
+            })
+            .map(scrap -> {
+                Post post = scrap.getPost();
+                post.getCategories().size();
+                post.getStackNames().size();
+                return GetProjectRes.of(post);
+            })
+            .collect(Collectors.toList()); // 리스트로 수집
+
+                // 필터링된 리스트를 페이지로 반환
+                return new PageImpl<>(filteredProjects, pageable, scrapPageList.getTotalElements());
     }
 }
