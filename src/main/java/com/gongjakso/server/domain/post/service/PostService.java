@@ -223,6 +223,7 @@ public class PostService {
             posts = postRepository.findAllByTitleContainsAndPostTypeTrueAndDeletedAtIsNullAndFinishDateAfterAndStatusOrderByScrapCountDescCreatedAtDesc(searchWord.toLowerCase(), LocalDateTime.now(), RECRUITING, pageable);
         }
         posts.forEach(post -> post.getCategories().size());
+        posts.forEach(post -> post.getStackNames().size());
         return posts.map(post -> GetProjectRes.of(post));
     }
 
@@ -237,6 +238,9 @@ public class PostService {
         if(meetingTown.equals("전체")){
             meetingTown = "";
         }
+        if(meetingCity.equals("전체")){
+            meetingCity = "";
+        }
         if(!stackName.isBlank()) {
             if (!StackNameType.isValid(stackName)){
                 throw new ApplicationException(INVALID_VALUE_EXCEPTION);
@@ -248,6 +252,7 @@ public class PostService {
                 posts = postRepository.findAllPostsJoinedWithStackNamesByTitleContainsAndPostTypeTrueAndDeletedAtIsNullAndFinishDateAfterAndStatusAndMeetingCityContainsAndMeetingTownContainsAndStackNamesStackNameTypeContainsOrderByScrapCountDescCreatedAtDesc(searchWord.toLowerCase(), LocalDateTime.now(), RECRUITING, meetingCity,meetingTown, stackName.toString(), pageable);
             }
             posts.forEach(post -> post.getCategories().size());
+            posts.forEach(post -> post.getStackNames().size());
             return posts.map(post -> GetProjectRes.of(post));
         } else{
             Page<Post> posts;
@@ -257,6 +262,7 @@ public class PostService {
                 posts = postRepository.findAllByTitleContainsAndPostTypeTrueAndDeletedAtIsNullAndFinishDateAfterAndStatusAndMeetingCityContainsAndMeetingTownContainsOrderByScrapCountDescCreatedAtDesc(searchWord.toLowerCase(), LocalDateTime.now(), RECRUITING, meetingCity,meetingTown, pageable);
             }
             posts.forEach(post -> post.getCategories().size());
+            posts.forEach(post -> post.getStackNames().size());
             return posts.map(post -> GetProjectRes.of(post));
         }
     }
