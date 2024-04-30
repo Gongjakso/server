@@ -13,6 +13,7 @@ public record ApplicationRes(
         ApplyType applyType,
         String member_name,
         String major,
+        String phone,
         String application,
         String recruit_part,
         List<String> category,
@@ -24,6 +25,6 @@ public record ApplicationRes(
 
 ) {
     public static ApplicationRes of(Apply apply, List<String> category,List<String> stackName,List<String> applyStack){
-        return new ApplicationRes(apply.getApplyType(),apply.getMember().getName(), apply.getMember().getMajor(),apply.getApplication(), apply.getRecruit_part(), category, stackName,applyStack);
+        return new ApplicationRes(apply.getApplyType(),apply.getMember().getName(), apply.getMember().getMajor(),apply.getMember().getPhone(),apply.getApplication(), apply.getRecruit_part(), category, stackName,applyStack);
     }
 }
