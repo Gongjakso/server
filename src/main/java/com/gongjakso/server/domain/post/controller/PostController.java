@@ -111,11 +111,15 @@ public class PostController {
         return ApplicationResponse.ok(postService.checkPostRelation(principalDetails.getMember(), postId));
     }
 
-    @Operation(summary = "내가 스크랩한 프로젝트 공고 조회 API", description = "스크랩한 공고 페이지로 반환")
+    @Operation(summary = "내가 스크랩한 프로젝트 공고 조회 API", description = "스크랩한 프로젝트 공고 페이지로 반환")
     @GetMapping("/project/myScrap")
     public ApplicationResponse<Page<GetProjectRes>> MyScrapProjectList(@PageableDefault(size = 6) Pageable pageable,@AuthenticationPrincipal PrincipalDetails principalDetails){
         return ApplicationResponse.ok(postService.getMyScrapProject(principalDetails.getMember(), pageable));
     }
 
-
+    @Operation(summary = "내가 스크랩한 공모전 공고 조회 API", description = "스크랩한 공모전 공고 페이지로 반환")
+    @GetMapping("/contest/myScrap")
+    public ApplicationResponse<Page<GetContestRes>> MyScrapContestList(@PageableDefault(size = 6) Pageable pageable,@AuthenticationPrincipal PrincipalDetails principalDetails){
+        return ApplicationResponse.ok(postService.getMyScrapContest(principalDetails.getMember(), pageable));
+    }
 }
