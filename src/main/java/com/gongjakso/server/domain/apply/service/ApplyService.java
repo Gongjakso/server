@@ -81,14 +81,14 @@ public class ApplyService {
     public ApplyRes findApply(Member member,Long postId) {
         //Get Post
         Post post = postRepository.findWithStackNameAndCategoryUsingFetchJoinByPostId(postId).orElseThrow(() -> new ApplicationException(ErrorCode.NOT_FOUND_POST_EXCEPTION));
-        if(post.getMember()!=member){
+        if (!Objects.equals(post.getMember().getMemberId(), member.getMemberId())) {
             throw new ApplicationException(ErrorCode.UNAUTHORIZED_EXCEPTION);
         }
 
         //Change List Type
         List<String> categoryList = changeCategoryType(post);
 
-        int current_person = (int) applyRepository.countApplyWithStackNameUsingFetchJoinByPost(post);
+        int current_person = (int) applyRepository.countApplyWithStackNameUsingFetchJoinByPostAndApplyType(post,ApplyType.PASS);
         return ApplyRes.of(post, current_person, categoryList);
     }
 
@@ -207,14 +207,15 @@ public class ApplyService {
     public void updateState(Member member,Long apply_id, ApplyType applyType) {
         Apply apply = applyRepository.findById(apply_id).orElseThrow(() -> new ApplicationException(ErrorCode.NOT_FOUND_APPLY_EXCEPTION));
         //Check ApplyType
-        if (apply.getApplyType().equals(ApplyType.NONE) || apply.getApplyType().equals(ApplyType.OPEN_APPLY)) {
+        if (apply.getApplyType().equals(ApplyType.NOT_PASS) || apply.getApplyType().equals(ApplyType.PASS)) {
             throw new ApplicationException(ErrorCode.ALREADY_DECISION_EXCEPION);
         }
 
         apply.setApplyType(applyType);
         if (applyType.equals(ApplyType.PASS)) {
             Post post = apply.getPost();
-            if(post.getMember()!=member){
+            //Check leader
+            if (!Objects.equals(post.getMember().getMemberId(), member.getMemberId())) {
                 throw new ApplicationException(ErrorCode.UNAUTHORIZED_EXCEPTION);
             }
             Category category = categoryRepository.findCategoryByPostAndCategoryType(post, CategoryType.valueOf(apply.getRecruit_part()));
@@ -224,14 +225,13 @@ public class ApplyService {
                 category.setSize(category.getSize() - 1);
             }
         }
-
-
     }
 
     @Transactional
     public void updatePostState(Member member,Long postId, PostStatus postStatus) {
         Post post = postRepository.findWithStackNameAndCategoryUsingFetchJoinByPostId(postId).orElseThrow(() -> new ApplicationException(ErrorCode.NOT_FOUND_POST_EXCEPTION));
-        if (post.getMember() != member) {
+        //Check leader
+        if (!Objects.equals(post.getMember().getMemberId(), member.getMemberId())) {
             throw new ApplicationException(ErrorCode.UNAUTHORIZED_EXCEPTION);
         }
         //CHECK POST STATUS
@@ -245,7 +245,7 @@ public class ApplyService {
     @Transactional
     public void updatePostPeriod(Member member,Long postId, PeriodReq req) {
         Post post = postRepository.findWithStackNameAndCategoryUsingFetchJoinByPostId(postId).orElseThrow(() -> new ApplicationException(ErrorCode.NOT_FOUND_POST_EXCEPTION));
-        if (post.getMember() != member) {
+        if (!Objects.equals(post.getMember().getMemberId(), member.getMemberId())) {
             throw new ApplicationException(ErrorCode.UNAUTHORIZED_EXCEPTION);
         }
         //Check Post Status

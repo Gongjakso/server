@@ -44,8 +44,8 @@ public class SecurityConfig {
         http.cors(Customizer.withDefaults())
             .csrf(AbstractHttpConfigurer::disable);
 
-        // Session 미사용
-        http.sessionManagement((session) -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+        http.sessionManagement((session) -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));// Session 미사용
+
 
         // httpBasic, httpFormLogin 비활성화
         http.httpBasic(AbstractHttpConfigurer::disable)

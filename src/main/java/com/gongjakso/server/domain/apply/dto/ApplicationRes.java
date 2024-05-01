@@ -12,7 +12,9 @@ import java.util.List;
 public record ApplicationRes(
         Long applyId,
         ApplyType applyType,
+        String member_name,
         String major,
+        String phone,
         String application,
         String recruit_part,
         List<String> category,
