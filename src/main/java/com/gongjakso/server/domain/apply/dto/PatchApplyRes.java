@@ -1,5 +1,6 @@
 package com.gongjakso.server.domain.apply.dto;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.gongjakso.server.domain.apply.entity.Apply;
 import com.gongjakso.server.domain.apply.enumerate.ApplyType;
 import com.gongjakso.server.domain.apply.enumerate.PostType;
@@ -7,6 +8,7 @@ import com.gongjakso.server.domain.member.entity.Member;
 import lombok.Builder;
 
 @Builder
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public record PatchApplyRes(
         Long applyId,
         Long memberId,
@@ -28,6 +30,7 @@ public record PatchApplyRes(
                 .application(apply.getApplication())
                 .applyType(apply.getApplyType())
                 .recruitPart(apply.getRecruit_part())
+                .isCanceled(apply.getIsCanceled())
                 .build();
     }
 }
