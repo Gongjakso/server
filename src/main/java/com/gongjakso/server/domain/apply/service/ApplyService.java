@@ -133,7 +133,7 @@ public class ApplyService {
             stackNameList= null;
         }
 
-        return ApplicationRes.of(apply, categoryList, stackNameList,applyStackList);
+        return ApplicationRes.of(apply, categoryList, stackNameList, applyStackList);
     }
 
     @Transactional

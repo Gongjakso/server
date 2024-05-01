@@ -12,11 +12,11 @@ import java.util.List;
 public record ApplicationRes(
         Long applyId,
         ApplyType applyType,
-        String member_name,
+        String memberName,
         String major,
         String phone,
         String application,
-        String recruit_part,
+        String recruitPart,
         List<String> category,
         @JsonInclude(JsonInclude.Include.NON_NULL)
         List<String> postStack,
@@ -25,7 +25,18 @@ public record ApplicationRes(
         List<String> applyStack
 
 ) {
-    public static ApplicationRes of(Apply apply, List<String> category,List<String> stackName,List<String> applyStack){
-        return new ApplicationRes(apply.getApplyId(), apply.getApplyType(),apply.getMember().getMajor(),apply.getApplication(), apply.getRecruit_part(), category, stackName,applyStack);
+    public static ApplicationRes of(Apply apply, List<String> category, List<String> stackName, List<String> applyStack) {
+        return ApplicationRes.builder()
+                .applyId(apply.getApplyId())
+                .applyType(apply.getApplyType())
+                .memberName(apply.getMember().getName())
+                .major(apply.getMember().getMajor())
+                .phone(apply.getMember().getPhone())
+                .application(apply.getApplication())
+                .recruitPart(apply.getRecruit_part())
+                .category(category)
+                .postStack(stackName)
+                .applyStack(applyStack)
+                .build();
     }
 }
