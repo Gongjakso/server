@@ -113,7 +113,7 @@ public class ApplyController {
     }
 
     @Operation(summary = "지원 취소 API", description = "해당 공고에 대한 지원을 취소한다.")
-    @PatchMapping("/{apply_id}/cancel")
+    @PatchMapping("/cancel/{apply_id}")
     public ApplicationResponse<PatchApplyRes> cancelApply(@AuthenticationPrincipal PrincipalDetails principalDetails, @PathVariable("apply_id") Long applyId){
         return ApplicationResponse.ok(applyService.cancelApply(principalDetails.getMember(), applyId));
     }

@@ -10,6 +10,7 @@ import java.util.List;
 
 @Builder
 public record ApplicationRes(
+        Long applyId,
         ApplyType applyType,
         String major,
         String application,
@@ -23,6 +24,6 @@ public record ApplicationRes(
 
 ) {
     public static ApplicationRes of(Apply apply, List<String> category,List<String> stackName,List<String> applyStack){
-        return new ApplicationRes(apply.getApplyType(),apply.getMember().getMajor(),apply.getApplication(), apply.getRecruit_part(), category, stackName,applyStack);
+        return new ApplicationRes(apply.getApplyId(), apply.getApplyType(),apply.getMember().getMajor(),apply.getApplication(), apply.getRecruit_part(), category, stackName,applyStack);
     }
 }

@@ -27,6 +27,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -174,12 +175,12 @@ public class ApplyService {
         return stringTypelist;
     }
 
-    public ApplyPageRes applyListPage(Member member,long post_id, int page, int size) {
+    public ApplyPageRes applyListPage(Member member, long post_id, int page, int size) {
         Post post = postRepository.findWithStackNameAndCategoryUsingFetchJoinByPostId(post_id);
-        if(post==null){
+        if(post == null){
             throw new ApplicationException(ErrorCode.NOT_FOUND_POST_EXCEPTION);
         }
-        if (post.getMember() != member) {
+        if(!post.getMember().getMemberId().equals(member.getMemberId())) {
             throw new ApplicationException(ErrorCode.UNAUTHORIZED_EXCEPTION);
         }
 
@@ -332,16 +333,19 @@ public class ApplyService {
 
     @Transactional
     public PatchApplyRes cancelApply(Member member, Long applyId) {
-        // Validation: 논리적 삭제 데이터이거나 신청자 본인이 아닌 경우에 대한 유효성 검증
+        // Validation: 논리적 삭제 데이터이거나 신청자 본인이 아닌 경우에 대한 유효성 검증 + 공고의 모집 기한 확인
         Apply apply = applyRepository.findApplyByApplyIdAndDeletedAtIsNull(applyId).orElseThrow(() -> new ApplicationException(ErrorCode.ALREADY_DELETE_EXCEPTION));
         if (!apply.getMember().getMemberId().equals(member.getMemberId())) {
             throw new ApplicationException(ErrorCode.UNAUTHORIZED_EXCEPTION);
         }
-
+        Post post = postRepository.findByPostIdAndDeletedAtIsNull(apply.getPost().getPostId()).orElseThrow(() -> new ApplicationException(ErrorCode.NOT_FOUND_POST_EXCEPTION));
+        if(post.getFinishDate().isBefore(LocalDateTime.now())) {
+            throw new ApplicationException(ErrorCode.ALREADY_FINISH_EXCEPTION);
+        }
         // Business Logic: isCanceled 칼럼을 TRUE로 변경하고, 공고 게시자에세 이메일을 전송한다.
         apply.updateIsCanceled(Boolean.TRUE);
         Apply saveApply = applyRepository.save(apply);
-        Post post = postRepository.findByPostIdAndDeletedAtIsNull(apply.getPost().getPostId()).orElseThrow(() -> new ApplicationException(ErrorCode.NOT_FOUND_POST_EXCEPTION));
+        // TODO: 이메일 발송 로직을 실시간성이 아닌 일괄배치 또는 비동기로 변환 필요 (성능 문제)
         emailClient.sendOneEmail(post.getMember().getEmail());
 
         // Response
