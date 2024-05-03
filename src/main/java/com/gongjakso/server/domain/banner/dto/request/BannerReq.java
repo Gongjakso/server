@@ -6,7 +6,9 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
+import lombok.Builder;
 
+@Builder
 public record BannerReq(
     @Schema(
             description = "배너 게시 위치를 (MAIN | PROJECT | CONTEST)의 ENUM으로 관리",

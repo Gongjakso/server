@@ -29,4 +29,14 @@ public class MemberUtilTest {
                 .job("변경된 내 미래 꿈")
                 .build();
     }
+
+    public static Member buildAdmin() {
+        return Member.builder()
+                .email("gongjakso@google.com")
+                .name("공작소")
+                .phone("010-1010-1010")
+                .memberType(MemberType.ADMIN.toString())
+                .loginType(LoginType.KAKAO.toString())
+                .build();
+    }
 }
