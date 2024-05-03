@@ -44,8 +44,8 @@ public class SecurityConfig {
         http.cors(Customizer.withDefaults())
             .csrf(AbstractHttpConfigurer::disable);
 
-        // Session 미사용
-        http.sessionManagement((session) -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+        http.sessionManagement((session) -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));// Session 미사용
+
 
         // httpBasic, httpFormLogin 비활성화
         http.httpBasic(AbstractHttpConfigurer::disable)
@@ -88,7 +88,7 @@ public class SecurityConfig {
         // 인증정보 주고받도록 허용
         config.setAllowCredentials(true);
         // 허용할 주소
-        config.setAllowedOrigins(List.of("http://localhost:3000"));
+        config.setAllowedOriginPatterns(List.of("*"));
         // 허용할 HTTP Method
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
         // 허용할 헤더 정보

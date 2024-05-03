@@ -1,7 +1,5 @@
 package com.gongjakso.server.domain.post.entity;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.gongjakso.server.global.common.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -12,7 +10,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @Table(name = "stack_name")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class StackName extends BaseTimeEntity {
+public class StackName{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

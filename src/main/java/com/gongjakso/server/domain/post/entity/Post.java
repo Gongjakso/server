@@ -1,7 +1,7 @@
 package com.gongjakso.server.domain.post.entity;
 
 import com.gongjakso.server.domain.member.entity.Member;
-import com.gongjakso.server.domain.post.dto.PostReq;
+import com.gongjakso.server.domain.post.dto.PostModifyReq;
 import com.gongjakso.server.domain.post.enumerate.MeetingMethod;
 import com.gongjakso.server.domain.post.enumerate.PostStatus;
 import com.gongjakso.server.global.common.BaseTimeEntity;
@@ -53,18 +53,21 @@ public class Post extends BaseTimeEntity {
     @Column(name = "max_person", nullable = false, columnDefinition = "bigint")
     private Long maxPerson;
 
-    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<StackName> stackNames = new ArrayList<>();
 
-    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Category> categories = new ArrayList<>();
 
     @Column(name = "meeting_method", columnDefinition = "varchar(10)")
     @Enumerated(EnumType.STRING)
     private MeetingMethod meetingMethod;
 
-    @Column(name = "meeting_area", columnDefinition = "varchar(100)")
-    private String meetingArea;
+    @Column(name = "meeting_city", columnDefinition = "varchar(100)")
+    private String meetingCity;
+
+    @Column(name = "meeting_town", columnDefinition = "varchar(100)")
+    private String meetingTown;
 
     @Column(name = "constest_link", columnDefinition = "varchar(100)")
     private String contestLink;
@@ -84,6 +87,9 @@ public class Post extends BaseTimeEntity {
     @Column(name="scrap_count", nullable = false, columnDefinition = "bigint")
     private long scrapCount;
 
+    @Column(name="post_view", nullable = false, columnDefinition = "bigint default 0")
+    private Long postView;
+
     public long getDaysRemaining(){
         return finishDate.isBefore(LocalDateTime.now()) ? -1 : ChronoUnit.DAYS.between(LocalDateTime.now(), finishDate);
     }
@@ -91,7 +97,7 @@ public class Post extends BaseTimeEntity {
     @Builder
     public Post(String title, Member member, String contents, String contestLink, LocalDateTime startDate,
                 LocalDateTime endDate, LocalDateTime finishDate, Long maxPerson, MeetingMethod meetingMethod,
-                String meetingArea, boolean questionMethod, String questionLink, boolean postType,
+                String meetingCity, String meetingTown, boolean questionMethod, String questionLink, boolean postType,
                 List<StackName> stackNames, List<Category> categories) {
         this.title = title;
         this.member = member;
@@ -103,45 +109,36 @@ public class Post extends BaseTimeEntity {
         this.endDate = endDate;
         this.maxPerson = maxPerson;
         this.meetingMethod = meetingMethod;
-        this.meetingArea = meetingArea;
+        this.meetingCity = meetingCity;
+        this.meetingTown = meetingTown;
         this.questionMethod = questionMethod;
         this.questionLink = questionLink;
         this.postType = postType;
         this.daysRemaining = finishDate.isBefore(LocalDateTime.now()) ? -1 : ChronoUnit.DAYS.between(LocalDateTime.now(), finishDate);
         this.stackNames = stackNames;
         this.categories = categories;
+        this.postView = 0L;
     }
 
-    public void read(PostReq req) {
-        this.title = req.getTitle();
-        this.contents = req.getContents();
-        this.status = req.getStatus();
-        this.startDate = req.getStartDate();
-        this.endDate = req.getEndDate();
-        this.maxPerson = req.getMaxPerson();
-        this.meetingMethod = req.getMeetingMethod();
-        this.meetingArea = req.getMeetingArea();
-        this.questionMethod = req.isQuestionMethod();
-        this.questionLink = req.getQuestionLink();
-        this.isProject = req.isProject();
-    }
-
-    public void modify(PostReq req) {
-        this.title = req.getTitle();
-        this.contents = req.getContents();
-        this.contestLink = req.getContestLink();
-        this.status = req.getStatus();
-        this.startDate = req.getStartDate();
-        this.endDate = req.getEndDate();
-        this.finishDate = req.getFinishDate();
-        this.maxPerson = req.getMaxPerson();
-        this.meetingMethod = req.getMeetingMethod();
-        this.meetingArea = req.getMeetingArea();
-        this.questionMethod = req.isQuestionMethod();
-        this.questionLink = req.getQuestionLink();
-        this.postType = req.isPostType();
+    public void modify(PostModifyReq req) {
+        this.title = req.title();
+        this.contents = req.contents();
+        this.contestLink = req.contestLink();
+        this.status = (this.finishDate.isEqual(req.finishDate())) ? req.status() : PostStatus.EXTENSION;
+        this.startDate = req.startDate();
+        this.endDate = req.endDate();
+        this.finishDate = req.finishDate();
+        this.maxPerson = req.maxPerson();
+        this.meetingMethod = req.meetingMethod();
+        this.meetingCity = req.meetingCity();
+        this.meetingTown = req.meetingTown();
+        this.questionMethod = req.questionMethod();
+        this.questionLink = req.questionLink();
+        this.postType = req.postType();
         this.daysRemaining = finishDate.isBefore(LocalDateTime.now()) ? -1 : ChronoUnit.DAYS.between(LocalDateTime.now(), finishDate);
-        this.stackNames = req.getStackNames();
-        this.categories = req.getCategories();
+    }
+
+    public void updatePostView(Long postView) {
+        this.postView = postView + 1;
     }
 }

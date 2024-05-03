@@ -1,5 +1,6 @@
 package com.gongjakso.server.domain.post.controller;
 
+import com.gongjakso.server.domain.apply.service.ApplyService;
 import com.gongjakso.server.domain.post.dto.*;
 import com.gongjakso.server.domain.post.service.PostService;
 import com.gongjakso.server.global.common.ApplicationResponse;
@@ -22,21 +23,23 @@ import java.util.List;
 public class PostController {
 
     private final PostService postService;
+    private final ApplyService applyService;
+
     @Operation(summary = "공모전/프로젝트 공고 생성 API", description = "팀빌딩 페이지에서 정보 입력 후 공고 생성")
     @PostMapping("")
     public ApplicationResponse<PostRes> create(@AuthenticationPrincipal PrincipalDetails principalDetails, @RequestBody PostReq req) {
         return ApplicationResponse.ok(postService.create(principalDetails.getMember(), req));
     }
 
-    @Operation(summary = "공모전/프로젝트 공고 상세 조회 API", description = "공모전/프로젝트 공고 상세 조회")
-    @GetMapping("/{id}")
-    public ApplicationResponse<PostDetailRes> read(@AuthenticationPrincipal PrincipalDetails principalDetails, @PathVariable("id") Long id) {
-        return ApplicationResponse.ok(postService.read(principalDetails.getMember(), id));
+    @Operation(summary = "사용자 별 상세 조회 API", description = "사용자별로 공고 상세 조회 다르게 반환")
+    @GetMapping("/read")
+    public ApplicationResponse<?> read(@AuthenticationPrincipal PrincipalDetails principalDetails, @RequestParam(value = "id", required = true) Long postId, @RequestParam(value = "role", required = false) String role ) {
+        return ApplicationResponse.ok(postService.read(principalDetails, postId, role));
     }
 
     @Operation(summary = "공모전/프로젝트 공고 수정 API", description = "팀빌딩 페이지에서 정보 입력 후 공고 수정")
     @PutMapping("/{id}")
-    public ApplicationResponse<PostRes> modify(@AuthenticationPrincipal PrincipalDetails principalDetails, @PathVariable("id") Long id, @RequestBody PostReq req) {
+    public ApplicationResponse<PostRes> modify(@AuthenticationPrincipal PrincipalDetails principalDetails, @PathVariable("id") Long id, @RequestBody PostModifyReq req) {
         return ApplicationResponse.ok(postService.modify(principalDetails.getMember(), id, req));
     }
 
@@ -51,16 +54,17 @@ public class PostController {
     public ApplicationResponse<Page<GetContestRes>> contestList(@PageableDefault(size = 6) Pageable pageable,
                                                          @RequestParam(value = "searchWord", required = false) String searchWord,
                                                          @RequestParam(value = "category", required = false) String category,
-                                                         @RequestParam(value = "meetingArea", required = false) String meetingArea,
+                                                         @RequestParam(value = "meetingCity", required = false) String meetingCity,
+                                                         @RequestParam(value = "meetingTown", required = false) String meetingTown,
                                                          @RequestParam(value = "sort", required = false) String sort) {
-        if(category.isBlank() && meetingArea.isBlank()){
+        if(category.isBlank() && meetingCity.isBlank()){
             if(searchWord.isBlank()){
                 return ApplicationResponse.ok(postService.getContests(sort, pageable));
             }else {
                 return ApplicationResponse.ok(postService.getContestsBySearchWord(sort, searchWord, pageable));
             }
         }else {
-            return ApplicationResponse.ok(postService.getContestsByMeetingAreaAndCategoryAndSearchWord(sort, meetingArea, category, searchWord, pageable));
+            return ApplicationResponse.ok(postService.getContestsByMeetingAreaAndCategoryAndSearchWord(sort, meetingCity, meetingTown, category, searchWord, pageable));
         }
     }
 
@@ -69,16 +73,17 @@ public class PostController {
     public ApplicationResponse<Page<GetProjectRes>> projectList(@PageableDefault(size = 6) Pageable pageable,
                                                          @RequestParam(value = "searchWord", required = false) String searchWord,
                                                          @RequestParam(value = "stackName", required = false) String stackName,
-                                                         @RequestParam(value = "meetingArea", required = false) String meetingArea,
+                                                                @RequestParam(value = "meetingCity", required = false) String meetingCity,
+                                                                @RequestParam(value = "meetingTown", required = false) String meetingTown,
                                                          @RequestParam(value = "sort", required = false) String sort) {
-        if(stackName.isBlank() && meetingArea.isBlank()){
+        if(stackName.isBlank() && meetingCity.isBlank()){
             if(searchWord.isBlank()){
                 return ApplicationResponse.ok(postService.getProjects(sort, pageable));
             }else {
                 return ApplicationResponse.ok(postService.getProjectsBySearchWord(sort, searchWord, pageable));
             }
         }else {
-            return ApplicationResponse.ok(postService.getProjectsByMeetingAreaAndStackNameAndSearchWord(sort, meetingArea, stackName, searchWord, pageable));
+            return ApplicationResponse.ok(postService.getProjectsByMeetingAreaAndStackNameAndSearchWord(sort, meetingCity, meetingTown, stackName, searchWord, pageable));
         }
     }
 
@@ -98,5 +103,23 @@ public class PostController {
     @GetMapping("/my")
     public ApplicationResponse<List<MyPageRes>> getMyPostList(@AuthenticationPrincipal PrincipalDetails principalDetails) {
         return ApplicationResponse.ok(postService.getMyPostList(principalDetails.getMember()));
+    }
+
+    @Operation(summary = "공고와 관련된 유저인지를 확인하는 API", description = "팀장이거나, 신청자인 경우를 확인해서 결과로 반환")
+    @GetMapping("/check/{post_id}")
+    public ApplicationResponse<GetPostRelation> checkPostRelation(@AuthenticationPrincipal PrincipalDetails principalDetails, @PathVariable("post_id") Long postId) {
+        return ApplicationResponse.ok(postService.checkPostRelation(principalDetails.getMember(), postId));
+    }
+
+    @Operation(summary = "내가 스크랩한 프로젝트 공고 조회 API", description = "스크랩한 프로젝트 공고 페이지로 반환")
+    @GetMapping("/project/myScrap")
+    public ApplicationResponse<Page<GetProjectRes>> MyScrapProjectList(@PageableDefault(size = 6) Pageable pageable,@AuthenticationPrincipal PrincipalDetails principalDetails){
+        return ApplicationResponse.ok(postService.getMyScrapProject(principalDetails.getMember(), pageable));
+    }
+
+    @Operation(summary = "내가 스크랩한 공모전 공고 조회 API", description = "스크랩한 공모전 공고 페이지로 반환")
+    @GetMapping("/contest/myScrap")
+    public ApplicationResponse<Page<GetContestRes>> MyScrapContestList(@PageableDefault(size = 6) Pageable pageable,@AuthenticationPrincipal PrincipalDetails principalDetails){
+        return ApplicationResponse.ok(postService.getMyScrapContest(principalDetails.getMember(), pageable));
     }
 }
