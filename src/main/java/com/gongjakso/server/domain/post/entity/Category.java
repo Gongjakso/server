@@ -1,26 +1,25 @@
 package com.gongjakso.server.domain.post.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.gongjakso.server.domain.post.enumerate.CategoryType;
-import com.gongjakso.server.global.common.BaseTimeEntity;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Getter
+@Setter
 @Entity
 @Table(name = "category")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Category extends BaseTimeEntity {
+public class Category {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "category_id", nullable = false, columnDefinition = "bigint")
     private Long categoryId;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "post_id", nullable = false, columnDefinition = "bigint")
+    @JsonIgnore
     private Post post;
 
     @Column(name = "category_type", nullable = false, columnDefinition = "varchar(100)")

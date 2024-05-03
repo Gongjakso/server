@@ -1,18 +1,22 @@
 package com.gongjakso.server.domain.apply.dto;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.gongjakso.server.domain.post.entity.Post;
 
 import java.time.LocalDateTime;
 import java.util.List;
-
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
 public record ApplyRes(
+        String title,
         LocalDateTime startDate,
         LocalDateTime endDate,
-        Long max_person,
+        Long total_person,
         int current_person,
-        List<ApplyList> apply_list
+        Long max_person,
+        Boolean postType,
+        List<String> category
 ) {
-    public static ApplyRes of(Post post, int current_person,List<ApplyList> apply_list){
-        return new ApplyRes(post.getStartDate(),post.getEndDate(),post.getMaxPerson(),current_person,apply_list);
+    public static ApplyRes of(Post post, int current_person, List<String> category){
+        return new ApplyRes(post.getTitle(),post.getStartDate(),post.getEndDate(),(post.getMaxPerson()+1),current_person,post.getMaxPerson(),post.isPostType(), category);
     }
 }
