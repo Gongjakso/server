@@ -253,7 +253,7 @@ public class ApplyService {
             throw new ApplicationException(ErrorCode.NOT_RECRUITING_EXCEPION);
         }
         post.setStatus(EXTENSION);
-        post.setFinishDate(req.finishDate());
+        post.setFinishDate(req.finishDate().atStartOfDay());
     }
 
 
