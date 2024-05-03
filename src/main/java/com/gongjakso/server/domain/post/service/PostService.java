@@ -16,7 +16,6 @@ import com.gongjakso.server.global.exception.ApplicationException;
 import com.gongjakso.server.global.security.PrincipalDetails;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.hibernate.Hibernate;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -83,8 +82,8 @@ public class PostService {
 
         post.updatePostView(post.getPostView());
 
-        Hibernate.initialize(post.getStackNames());
-        Hibernate.initialize(post.getCategories());
+        post.getCategories().size();
+        post.getStackNames().size();
 
         if(principalDetails == null) {
             return Optional.of(PostDetailRes.of(post, current_person, role, null));
