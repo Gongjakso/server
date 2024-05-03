@@ -13,6 +13,7 @@ import com.gongjakso.server.domain.post.enumerate.StackNameType;
 import com.gongjakso.server.domain.post.repository.PostRepository;
 import com.gongjakso.server.domain.post.repository.PostScrapRepository;
 import com.gongjakso.server.global.exception.ApplicationException;
+import com.gongjakso.server.global.exception.ErrorCode;
 import com.gongjakso.server.global.security.PrincipalDetails;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -74,13 +75,10 @@ public class PostService {
     }
 
     @Transactional
-    public Optional<?> read(PrincipalDetails principalDetails, Long id, String role) {
-        Post post = postRepository.findWithStackNameAndCategoryUsingFetchJoinByPostId(id);
-        if (post == null) {
-            throw new ApplicationException(NOT_FOUND_POST_EXCEPTION);
-        }
-        int current_person = (int) applyRepository.countApplyWithStackNameUsingFetchJoinByPostAndApplyType(post, ApplyType.PASS);
-
+    public Optional<?> read(PrincipalDetails principalDetails, Long postId, String role) {
+        Post post = postRepository.findWithStackNameAndCategoryUsingFetchJoinByPostId(postId).orElseThrow(() -> new ApplicationException(ErrorCode.NOT_FOUND_POST_EXCEPTION));
+        int current_person = (int) applyRepository.countApplyWithStackNameUsingFetchJoinByPost(post);
+      
         post.updatePostView(post.getPostView());
 
         Hibernate.initialize(post.getStackNames());

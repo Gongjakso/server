@@ -44,7 +44,9 @@ public enum ErrorCode {
     //5000: Post Error
     NOT_POST_EXCEPTION(HttpStatus.BAD_REQUEST,5000,"공고를 더 이상 생성할 수 없습니다"),
     POST_VALUE_EXCEPTION(HttpStatus.BAD_REQUEST,5001,"올바르지 않은 요청 값입니다."),
-    NOT_FOUNT_SCRAP_EXCEPTION(HttpStatus.NOT_FOUND,5002,"스크랩 정보가 존재하지 않습니다.");
+    NOT_FOUNT_SCRAP_EXCEPTION(HttpStatus.NOT_FOUND,5002,"스크랩 정보가 존재하지 않습니다."),
+    ALREADY_FINISH_EXCEPTION(HttpStatus.BAD_REQUEST, 5003, "이미 모집 기간이 마감된 공고입니다.");
+
     private final HttpStatus httpStatus;
     private final Integer code;
     private final String message;
