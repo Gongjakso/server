@@ -1,6 +1,5 @@
 package com.gongjakso.server.domain.post.service;
 
-import com.gongjakso.server.domain.apply.enumerate.ApplyType;
 import com.gongjakso.server.domain.apply.repository.ApplyRepository;
 import com.gongjakso.server.domain.member.entity.Member;
 import com.gongjakso.server.domain.post.dto.*;
@@ -17,7 +16,6 @@ import com.gongjakso.server.global.exception.ErrorCode;
 import com.gongjakso.server.global.security.PrincipalDetails;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.hibernate.Hibernate;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -81,8 +79,8 @@ public class PostService {
       
         post.updatePostView(post.getPostView());
 
-        Hibernate.initialize(post.getStackNames());
-        Hibernate.initialize(post.getCategories());
+        post.getCategories().size();
+        post.getStackNames().size();
 
         if(principalDetails == null) {
             return Optional.of(PostDetailRes.of(post, current_person, role, null));
@@ -142,10 +140,10 @@ public class PostService {
     public Page<GetContestRes> getContests(String sort, Pageable page) throws ApplicationException {
         Pageable pageable = PageRequest.of(page.getPageNumber(), page.getPageSize());
         Page<Post> posts;
-        if(sort.equals("createdAt,desc")){ //최신순
-            posts = postRepository.findAllByPostTypeFalseAndDeletedAtIsNullAndFinishDateAfterAndStatusOrderByCreatedAtDesc(LocalDateTime.now(), RECRUITING, pageable);
+        if(sort.equals("createdAt")){ //최신순
+            posts = postRepository.findAllByPostTypeFalseAndDeletedAtIsNullAndFinishDateAfterAndStatusOrderByPostIdDesc(LocalDateTime.now(), RECRUITING, pageable);
         } else{ //스크랩순
-            posts = postRepository.findAllByPostTypeFalseAndDeletedAtIsNullAndFinishDateAfterAndStatusOrderByScrapCountDescCreatedAtDesc(LocalDateTime.now(), RECRUITING, pageable);
+            posts = postRepository.findAllByPostTypeFalseAndDeletedAtIsNullAndFinishDateAfterAndStatusOrderByScrapCountDescPostIdDesc(LocalDateTime.now(), RECRUITING, pageable);
         }
 
         posts.forEach(post -> post.getCategories().size());
@@ -161,10 +159,10 @@ public class PostService {
         Pageable pageable = PageRequest.of(page.getPageNumber(), page.getPageSize());
         searchWord = searchWord.replaceAll(" ", ""); // 검색어에서 공백 제거
         Page<Post> posts;
-        if (sort.equals("createdAt,desc")) {
-            posts = postRepository.findAllByTitleContainsAndPostTypeFalseAndDeletedAtIsNullAndFinishDateAfterAndStatusOrderByCreatedAtDesc(searchWord.toLowerCase(), LocalDateTime.now(), RECRUITING, pageable);
+        if (sort.equals("createdAt")) {
+            posts = postRepository.findAllByTitleContainsAndPostTypeFalseAndDeletedAtIsNullAndFinishDateAfterAndStatusOrderByPostIdDesc(searchWord.toLowerCase(), LocalDateTime.now(), RECRUITING, pageable);
         } else{
-            posts = postRepository.findAllByTitleContainsAndPostTypeFalseAndDeletedAtIsNullAndFinishDateAfterAndStatusOrderByScrapCountDescCreatedAtDesc(searchWord.toLowerCase(), LocalDateTime.now(), RECRUITING, pageable);
+            posts = postRepository.findAllByTitleContainsAndPostTypeFalseAndDeletedAtIsNullAndFinishDateAfterAndStatusOrderByScrapCountDescPostIdDesc(searchWord.toLowerCase(), LocalDateTime.now(), RECRUITING, pageable);
         }
 
         posts.forEach(post -> post.getCategories().size());
@@ -188,20 +186,20 @@ public class PostService {
                 throw new ApplicationException(INVALID_VALUE_EXCEPTION);
             }
             Page<Post> posts;
-            if (sort.equals("createdAt,desc")) {
-                posts = postRepository.findAllPostsJoinedWithCategoriesByTitleContainsAndPostTypeFalseAndDeletedAtIsNullAndFinishDateAfterAndStatusAndMeetingCityContainsAndMeetingTownContainsAndCategoriesCategoryTypeContainsOrderByCreatedAtDesc(searchWord.toLowerCase(), LocalDateTime.now(), RECRUITING, meetingCity, meetingTown, category.toString(), pageable);
+            if (sort.equals("createdAt")) {
+                posts = postRepository.findAllPostsJoinedWithCategoriesByTitleContainsAndPostTypeFalseAndDeletedAtIsNullAndFinishDateAfterAndStatusAndMeetingCityContainsAndMeetingTownContainsAndCategoriesCategoryTypeContainsOrderByPostIdDesc(searchWord.toLowerCase(), LocalDateTime.now(), RECRUITING, meetingCity, meetingTown, category.toString(), pageable);
             }else{
-                posts = postRepository.findAllPostsJoinedWithCategoriesByTitleContainsAndPostTypeFalseAndDeletedAtIsNullAndFinishDateAfterAndStatusAndMeetingCityContainsAndMeetingTownContainsAndCategoriesCategoryTypeContainsOrderByScrapCountDescCreatedAtDesc(searchWord.toLowerCase(), LocalDateTime.now(), RECRUITING, meetingCity, meetingTown, category.toString(), pageable);
+                posts = postRepository.findAllPostsJoinedWithCategoriesByTitleContainsAndPostTypeFalseAndDeletedAtIsNullAndFinishDateAfterAndStatusAndMeetingCityContainsAndMeetingTownContainsAndCategoriesCategoryTypeContainsOrderByScrapCountDescPostIdDesc(searchWord.toLowerCase(), LocalDateTime.now(), RECRUITING, meetingCity, meetingTown, category.toString(), pageable);
             }
             posts.forEach(post -> post.getCategories().size());
             posts.forEach(post -> post.getStackNames().size());
             return posts.map(post -> GetContestRes.of(post));
         } else{
             Page<Post> posts;
-            if (sort.equals("createdAt,desc")) {
-                posts = postRepository.findAllByTitleContainsAndPostTypeFalseAndDeletedAtIsNullAndFinishDateAfterAndStatusAndMeetingCityContainsAndMeetingTownContainsOrderByCreatedAtDesc(searchWord.toLowerCase(), LocalDateTime.now(), RECRUITING, meetingCity, meetingTown, pageable);
+            if (sort.equals("createdAt")) {
+                posts = postRepository.findAllByTitleContainsAndPostTypeFalseAndDeletedAtIsNullAndFinishDateAfterAndStatusAndMeetingCityContainsAndMeetingTownContainsOrderByPostIdDesc(searchWord.toLowerCase(), LocalDateTime.now(), RECRUITING, meetingCity, meetingTown, pageable);
             }else{
-                posts = postRepository.findAllByTitleContainsAndPostTypeFalseAndDeletedAtIsNullAndFinishDateAfterAndStatusAndMeetingCityContainsAndMeetingTownContainsOrderByScrapCountDescCreatedAtDesc(searchWord.toLowerCase(), LocalDateTime.now(), RECRUITING, meetingCity, meetingTown, pageable);
+                posts = postRepository.findAllByTitleContainsAndPostTypeFalseAndDeletedAtIsNullAndFinishDateAfterAndStatusAndMeetingCityContainsAndMeetingTownContainsOrderByScrapCountDescPostIdDesc(searchWord.toLowerCase(), LocalDateTime.now(), RECRUITING, meetingCity, meetingTown, pageable);
             }
             posts.forEach(post -> post.getCategories().size());
             posts.forEach(post -> post.getStackNames().size());
@@ -216,10 +214,10 @@ public class PostService {
     public Page<GetProjectRes> getProjects(String sort, Pageable page) throws ApplicationException {
         Pageable pageable = PageRequest.of(page.getPageNumber(), page.getPageSize());
         Page<Post> posts;
-        if(sort.equals("createdAt,desc")){ //최신순
-            posts = postRepository.findAllByPostTypeTrueAndDeletedAtIsNullAndFinishDateAfterAndStatusOrderByCreatedAtDesc(LocalDateTime.now(), RECRUITING, pageable);
+        if(sort.equals("createdAt")){ //최신순
+            posts = postRepository.findAllByPostTypeTrueAndDeletedAtIsNullAndFinishDateAfterAndStatusOrderByPostIdDesc(LocalDateTime.now(), RECRUITING, pageable);
         } else{ //스크랩순
-            posts = postRepository.findAllByPostTypeTrueAndDeletedAtIsNullAndFinishDateAfterAndStatusOrderByScrapCountDescCreatedAtDesc(LocalDateTime.now(), RECRUITING, pageable);
+            posts = postRepository.findAllByPostTypeTrueAndDeletedAtIsNullAndFinishDateAfterAndStatusOrderByScrapCountDescPostIdDesc(LocalDateTime.now(), RECRUITING, pageable);
         }
         posts.forEach(post -> post.getCategories().size());
         posts.forEach(post -> post.getStackNames().size());
@@ -234,10 +232,10 @@ public class PostService {
         Pageable pageable = PageRequest.of(page.getPageNumber(), page.getPageSize());
         searchWord = searchWord.replaceAll(" ", ""); // 검색어에서 공백 제거
         Page<Post> posts;
-        if (sort.equals("createdAt,desc")) {
-            posts = postRepository.findAllByTitleContainsAndPostTypeTrueAndDeletedAtIsNullAndFinishDateAfterAndStatusOrderByCreatedAtDesc(searchWord.toLowerCase(), LocalDateTime.now(), RECRUITING, pageable);
+        if (sort.equals("createdAt")) {
+            posts = postRepository.findAllByTitleContainsAndPostTypeTrueAndDeletedAtIsNullAndFinishDateAfterAndStatusOrderByPostIdDesc(searchWord.toLowerCase(), LocalDateTime.now(), RECRUITING, pageable);
         } else{
-            posts = postRepository.findAllByTitleContainsAndPostTypeTrueAndDeletedAtIsNullAndFinishDateAfterAndStatusOrderByScrapCountDescCreatedAtDesc(searchWord.toLowerCase(), LocalDateTime.now(), RECRUITING, pageable);
+            posts = postRepository.findAllByTitleContainsAndPostTypeTrueAndDeletedAtIsNullAndFinishDateAfterAndStatusOrderByScrapCountDescPostIdDesc(searchWord.toLowerCase(), LocalDateTime.now(), RECRUITING, pageable);
         }
         posts.forEach(post -> post.getCategories().size());
         posts.forEach(post -> post.getStackNames().size());
@@ -263,20 +261,20 @@ public class PostService {
                 throw new ApplicationException(INVALID_VALUE_EXCEPTION);
             }
             Page<Post> posts;
-            if (sort.equals("createdAt,desc")) {
-                posts = postRepository.findAllPostsJoinedWithStackNamesByTitleContainsAndPostTypeTrueAndDeletedAtIsNullAndFinishDateAfterAndStatusAndMeetingCityContainsAndMeetingTownContainsAndStackNamesStackNameTypeContainsOrderByCreatedAtDesc(searchWord.toLowerCase(), LocalDateTime.now(), RECRUITING, meetingCity,meetingTown, stackName.toString(), pageable);
+            if (sort.equals("createdAt")) {
+                posts = postRepository.findAllPostsJoinedWithStackNamesByTitleContainsAndPostTypeTrueAndDeletedAtIsNullAndFinishDateAfterAndStatusAndMeetingCityContainsAndMeetingTownContainsAndStackNamesStackNameTypeContainsOrderByPostIdDesc(searchWord.toLowerCase(), LocalDateTime.now(), RECRUITING, meetingCity,meetingTown, stackName.toString(), pageable);
             }else{
-                posts = postRepository.findAllPostsJoinedWithStackNamesByTitleContainsAndPostTypeTrueAndDeletedAtIsNullAndFinishDateAfterAndStatusAndMeetingCityContainsAndMeetingTownContainsAndStackNamesStackNameTypeContainsOrderByScrapCountDescCreatedAtDesc(searchWord.toLowerCase(), LocalDateTime.now(), RECRUITING, meetingCity,meetingTown, stackName.toString(), pageable);
+                posts = postRepository.findAllPostsJoinedWithStackNamesByTitleContainsAndPostTypeTrueAndDeletedAtIsNullAndFinishDateAfterAndStatusAndMeetingCityContainsAndMeetingTownContainsAndStackNamesStackNameTypeContainsOrderByScrapCountDescPostIdDesc(searchWord.toLowerCase(), LocalDateTime.now(), RECRUITING, meetingCity,meetingTown, stackName.toString(), pageable);
             }
             posts.forEach(post -> post.getCategories().size());
             posts.forEach(post -> post.getStackNames().size());
             return posts.map(post -> GetProjectRes.of(post));
         } else{
             Page<Post> posts;
-            if (sort.equals("createdAt,desc")) {
-                posts = postRepository.findAllByTitleContainsAndPostTypeTrueAndDeletedAtIsNullAndFinishDateAfterAndStatusAndMeetingCityContainsAndMeetingTownContainsOrderByCreatedAtDesc(searchWord.toLowerCase(), LocalDateTime.now(), RECRUITING, meetingCity,meetingTown, pageable);
+            if (sort.equals("createdAt")) {
+                posts = postRepository.findAllByTitleContainsAndPostTypeTrueAndDeletedAtIsNullAndFinishDateAfterAndStatusAndMeetingCityContainsAndMeetingTownContainsOrderByPostIdDesc(searchWord.toLowerCase(), LocalDateTime.now(), RECRUITING, meetingCity,meetingTown, pageable);
             }else{
-                posts = postRepository.findAllByTitleContainsAndPostTypeTrueAndDeletedAtIsNullAndFinishDateAfterAndStatusAndMeetingCityContainsAndMeetingTownContainsOrderByScrapCountDescCreatedAtDesc(searchWord.toLowerCase(), LocalDateTime.now(), RECRUITING, meetingCity,meetingTown, pageable);
+                posts = postRepository.findAllByTitleContainsAndPostTypeTrueAndDeletedAtIsNullAndFinishDateAfterAndStatusAndMeetingCityContainsAndMeetingTownContainsOrderByScrapCountDescPostIdDesc(searchWord.toLowerCase(), LocalDateTime.now(), RECRUITING, meetingCity,meetingTown, pageable);
             }
             posts.forEach(post -> post.getCategories().size());
             posts.forEach(post -> post.getStackNames().size());
@@ -376,36 +374,34 @@ public class PostService {
     public Page<GetProjectRes> getMyScrapProject(Member member, Pageable page){
         Pageable pageable = PageRequest.of(page.getPageNumber(), page.getPageSize());
 
-        Page<PostScrap> scrapPageList = postScrapRepository.findAllByMemberAndScrapStatusTrue(member, pageable);
+        Page<PostScrap> scrapPageList = postScrapRepository.findAllByMemberAndScrapStatusTrueOrderByPostScrapIdDesc(member, pageable);
 
         List<GetProjectRes> filteredProjects = scrapPageList.stream()
-            .filter(scrap -> {
-                Post post = scrap.getPost();
-                
-                //유효한 post만 남기기
-                return post != null &&
-                        post.getStatus() == RECRUITING &&  // 현재 모집 중
-                        post.isPostType() == true &&       // 프로젝트 타입
-                        post.getDeletedAt() == null &&     // 삭제X
-                        post.getFinishDate().isAfter(LocalDateTime.now()); // 모집중
-            })
-            .map(scrap -> {
-                Post post = scrap.getPost();
-                post.getCategories().size();
-                post.getStackNames().size();
-                return GetProjectRes.of(post);
-            })
-            .collect(Collectors.toList()); // 리스트로 수집
+                .filter(scrap -> {
+                    Post post = scrap.getPost();
 
-            // 필터링된 리스트를 페이지로 반환
-            return new PageImpl<>(filteredProjects, pageable, scrapPageList.getTotalElements());
+                    //유효한 post만 남기기
+                    return post != null &&
+                            post.isPostType() == true &&
+                            post.getDeletedAt() == null;
+                })
+                .map(scrap -> {
+                    Post post = scrap.getPost();
+                    post.getCategories().size();
+                    post.getStackNames().size();
+                    return GetProjectRes.of(post);
+                })
+                .collect(Collectors.toList()); // 리스트로 수집
+
+        // 필터링된 리스트를 페이지로 반환
+        return new PageImpl<>(filteredProjects, pageable, scrapPageList.getTotalElements());
     }
 
     @Transactional
     public Page<GetContestRes> getMyScrapContest(Member member, Pageable page){
         Pageable pageable = PageRequest.of(page.getPageNumber(), page.getPageSize());
 
-        Page<PostScrap> scrapPageList = postScrapRepository.findAllByMemberAndScrapStatusTrue(member, pageable);
+        Page<PostScrap> scrapPageList = postScrapRepository.findAllByMemberAndScrapStatusTrueOrderByPostScrapIdDesc(member, pageable);
 
         List<GetContestRes> filteredContests = scrapPageList.stream()
                 .filter(scrap -> {
@@ -413,10 +409,8 @@ public class PostService {
 
                     //유효한 post만 남기기
                     return post != null &&
-                            post.getStatus() == RECRUITING &&  // 현재 모집 중
-                            post.isPostType() == false &&       // 공모전 타입
-                            post.getDeletedAt() == null &&     // 삭제X
-                            post.getFinishDate().isAfter(LocalDateTime.now()); // 모집중
+                            post.isPostType() == false &&
+                            post.getDeletedAt() == null;
                 })
                 .map(scrap -> {
                     Post post = scrap.getPost();
