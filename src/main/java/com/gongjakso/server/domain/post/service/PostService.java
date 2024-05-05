@@ -374,36 +374,34 @@ public class PostService {
     public Page<GetProjectRes> getMyScrapProject(Member member, Pageable page){
         Pageable pageable = PageRequest.of(page.getPageNumber(), page.getPageSize());
 
-        Page<PostScrap> scrapPageList = postScrapRepository.findAllByMemberAndScrapStatusTrue(member, pageable);
+        Page<PostScrap> scrapPageList = postScrapRepository.findAllByMemberAndScrapStatusTrueOrderByPostScrapIdDesc(member, pageable);
 
         List<GetProjectRes> filteredProjects = scrapPageList.stream()
-            .filter(scrap -> {
-                Post post = scrap.getPost();
-                
-                //유효한 post만 남기기
-                return post != null &&
-                        post.getStatus() == RECRUITING &&  // 현재 모집 중
-                        post.isPostType() == true &&       // 프로젝트 타입
-                        post.getDeletedAt() == null &&     // 삭제X
-                        post.getFinishDate().isAfter(LocalDateTime.now()); // 모집중
-            })
-            .map(scrap -> {
-                Post post = scrap.getPost();
-                post.getCategories().size();
-                post.getStackNames().size();
-                return GetProjectRes.of(post);
-            })
-            .collect(Collectors.toList()); // 리스트로 수집
+                .filter(scrap -> {
+                    Post post = scrap.getPost();
 
-            // 필터링된 리스트를 페이지로 반환
-            return new PageImpl<>(filteredProjects, pageable, scrapPageList.getTotalElements());
+                    //유효한 post만 남기기
+                    return post != null &&
+                            post.isPostType() == true &&
+                            post.getDeletedAt() == null;
+                })
+                .map(scrap -> {
+                    Post post = scrap.getPost();
+                    post.getCategories().size();
+                    post.getStackNames().size();
+                    return GetProjectRes.of(post);
+                })
+                .collect(Collectors.toList()); // 리스트로 수집
+
+        // 필터링된 리스트를 페이지로 반환
+        return new PageImpl<>(filteredProjects, pageable, scrapPageList.getTotalElements());
     }
 
     @Transactional
     public Page<GetContestRes> getMyScrapContest(Member member, Pageable page){
         Pageable pageable = PageRequest.of(page.getPageNumber(), page.getPageSize());
 
-        Page<PostScrap> scrapPageList = postScrapRepository.findAllByMemberAndScrapStatusTrue(member, pageable);
+        Page<PostScrap> scrapPageList = postScrapRepository.findAllByMemberAndScrapStatusTrueOrderByPostScrapIdDesc(member, pageable);
 
         List<GetContestRes> filteredContests = scrapPageList.stream()
                 .filter(scrap -> {
@@ -411,10 +409,8 @@ public class PostService {
 
                     //유효한 post만 남기기
                     return post != null &&
-                            post.getStatus() == RECRUITING &&  // 현재 모집 중
-                            post.isPostType() == false &&       // 공모전 타입
-                            post.getDeletedAt() == null &&     // 삭제X
-                            post.getFinishDate().isAfter(LocalDateTime.now()); // 모집중
+                            post.isPostType() == false &&
+                            post.getDeletedAt() == null;
                 })
                 .map(scrap -> {
                     Post post = scrap.getPost();
