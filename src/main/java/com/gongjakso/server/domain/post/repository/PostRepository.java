@@ -14,7 +14,8 @@ import java.util.Optional;
 
 public interface PostRepository extends JpaRepository<Post, Long> {
     Post findByPostId(Long postId);
-    Post findWithStackNameAndCategoryUsingFetchJoinByPostId(Long postId);
+
+    Optional<Post> findWithStackNameAndCategoryUsingFetchJoinByPostId(Long postId);
 
     Optional<Post> findByPostIdAndDeletedAtIsNull(Long postId);
     List<Post> findAllByFinishDateBetweenAndPostIdIn(LocalDateTime finishDate, LocalDateTime finishDate2, List<Long> postIdList);
@@ -130,6 +131,4 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     (@Param("searchWord") String searchWord, @Param("currentTimestamp") LocalDateTime currentTimestamp, @Param("status") PostStatus status, @Param("meetingCity") String meetingCity, @Param("meetingTown") String meetingTown, @Param("stackNameType") String stackNameType,Pageable pageable);
 
     List<Post> findAllByMemberAndStatusAndDeletedAtIsNull(Member member, PostStatus status);
-
-    List<Post> findAllByPostIdInAndStatusAndDeletedAtIsNull(List<Long> postId, PostStatus status);
 }
