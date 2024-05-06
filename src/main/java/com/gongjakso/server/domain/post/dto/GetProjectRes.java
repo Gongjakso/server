@@ -2,6 +2,7 @@ package com.gongjakso.server.domain.post.dto;
 
 import com.gongjakso.server.domain.post.entity.Category;
 import com.gongjakso.server.domain.post.entity.Post;
+import com.gongjakso.server.domain.post.entity.StackName;
 import com.gongjakso.server.domain.post.enumerate.PostStatus;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
@@ -60,6 +61,11 @@ public record GetProjectRes (
         List<Category> categories,
 
         @Schema(
+                description = "사용 기술스택을 (REACT | TYPESCRIPT | JAVASCRIPT | NEXTJS | NODEJS | JAVA | SPRING | KOTLIN | SWIFT | FLUTTER | FIGMA | ETC)의 ENUM으로 관리하는 테이블"
+        )
+        List<StackName> stackNames,
+
+        @Schema(
                 description = "공고 스크랩 수, 스크랩 수가 높을수록 인기순 우선순위",
                 defaultValue = "0"
         )
@@ -74,6 +80,7 @@ public record GetProjectRes (
             .endDate(post.getEndDate())
             .daysRemaining(post.getFinishDate().isBefore(LocalDateTime.now()) ? -1 : ChronoUnit.DAYS.between(LocalDateTime.now(), post.getFinishDate()))
             .categories(post.getCategories())
+            .stackNames(post.getStackNames())
             .scrapCount(post.getScrapCount())
             .build();
 }
