@@ -1,5 +1,6 @@
 package com.gongjakso.server.domain.apply.entity;
 
+import com.gongjakso.server.domain.apply.enumerate.ApplyType;
 import com.gongjakso.server.domain.apply.enumerate.PostType;
 import com.gongjakso.server.domain.member.entity.Member;
 import com.gongjakso.server.domain.post.entity.Post;
@@ -32,32 +33,27 @@ public class Apply extends BaseTimeEntity {
     @Column(name = "recruit_part",nullable = false,columnDefinition = "varchar(50)")
     private String recruit_part;
 
-    @Column(name = "recruit_role",columnDefinition = "varchar(50)")
-    private String recruit_role;
-
     @Enumerated(EnumType.STRING)
     private PostType type;
 
-    @Column(name = "is_pass", columnDefinition = "boolean" )
-    private Boolean is_pass;
+    @Enumerated(EnumType.STRING)
+    private ApplyType applyType;
 
-    @Column(name = "is_open", columnDefinition = "boolean" )
-    private Boolean is_open;
+    @Column(name = "is_canceled", nullable = false)
+    private Boolean isCanceled;
 
-    @Column(name = "is_decision", columnDefinition = "boolean" )
-    private Boolean is_decision;
+    public void updateIsCanceled(Boolean isCanceled) {
+        this.isCanceled = isCanceled;
+    }
 
     @Builder
-    public Apply(Long applyId, Member member,Post post, String application,String recruit_part,String recruit_role,PostType type, Boolean is_pass,Boolean is_open,Boolean is_decision){
-        this.applyId=applyId;
+    public Apply(Member member,Post post,String application,String recruit_part,PostType type, ApplyType applyType){
         this.member=member;
         this.post=post;
         this.application=application;
         this.recruit_part=recruit_part;
-        this.recruit_role=recruit_role;
         this.type=type;
-        this.is_pass=is_pass;
-        this.is_open=is_open;
-        this.is_decision=is_decision;
+        this.applyType=applyType;
+        this.isCanceled= Boolean.FALSE;
     }
 }

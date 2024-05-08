@@ -44,8 +44,8 @@ public class SecurityConfig {
         http.cors(Customizer.withDefaults())
             .csrf(AbstractHttpConfigurer::disable);
 
-        // Session 미사용
-        http.sessionManagement((session) -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+        http.sessionManagement((session) -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));// Session 미사용
+
 
         // httpBasic, httpFormLogin 비활성화
         http.httpBasic(AbstractHttpConfigurer::disable)
@@ -66,6 +66,7 @@ public class SecurityConfig {
                 authorize.requestMatchers( "/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
                         // 로그인 로직 접속 허용
                         .requestMatchers("/api/v1/auth/**").permitAll()
+                        .requestMatchers("api/v1/member/**").authenticated()
                         // 메인 페이지, 공고 페이지 등에 한해 인증 정보 없이 접근 가능 (추후 추가)
                         // 이외의 모든 요청은 인증 정보 필요
                         .anyRequest().permitAll());
@@ -87,7 +88,7 @@ public class SecurityConfig {
         // 인증정보 주고받도록 허용
         config.setAllowCredentials(true);
         // 허용할 주소
-        config.setAllowedOrigins(List.of("http://localhost:3000"));
+        config.setAllowedOriginPatterns(List.of("*"));
         // 허용할 HTTP Method
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
         // 허용할 헤더 정보

@@ -1,12 +1,15 @@
 package com.gongjakso.server.domain.apply.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.RequiredArgsConstructor;
+import com.fasterxml.jackson.annotation.JsonInclude;
 
 import java.util.List;
-
 public record CategoryRes(
-        List<String> category
+        List<String> category,
+        @JsonInclude(JsonInclude.Include.NON_NULL)
+        List<String> stack
 ) {
+    public static CategoryRes of(List<String> category,
+                                 List<String> stack){
+        return new CategoryRes(category,stack);
+    }
 }
