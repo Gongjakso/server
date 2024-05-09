@@ -18,7 +18,7 @@ class PostServiceTest {
 
     @Test
     void create() {
-        
+
     }
 
     @Test
