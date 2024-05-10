@@ -157,7 +157,6 @@ public class PostService {
     @Transactional
     public Page<GetContestRes> getContestsBySearchWord(String sort, String searchWord, Pageable page) throws ApplicationException {
         Pageable pageable = PageRequest.of(page.getPageNumber(), page.getPageSize());
-        searchWord = searchWord.replaceAll(" ", ""); // 검색어에서 공백 제거
         Page<Post> posts;
         if (sort.equals("createdAt")) {
             posts = postRepository.findAllByTitleContainsAndPostTypeFalseAndDeletedAtIsNullAndFinishDateAfterAndStatusOrderByPostIdDesc(searchWord.toLowerCase(), LocalDateTime.now(), RECRUITING, pageable);
@@ -177,7 +176,6 @@ public class PostService {
     public Page<GetContestRes> getContestsByMeetingAreaAndCategoryAndSearchWord(
             String sort, String meetingCity, String meetingTown, String category, String searchWord, Pageable page) throws ApplicationException {
         Pageable pageable = PageRequest.of(page.getPageNumber(), page.getPageSize());
-        searchWord = searchWord.replaceAll(" ", "");
         if(meetingTown.equals("전체")){
             meetingTown = "";
         }
@@ -230,7 +228,6 @@ public class PostService {
     @Transactional
     public Page<GetProjectRes> getProjectsBySearchWord(String sort, String searchWord, Pageable page) throws ApplicationException {
         Pageable pageable = PageRequest.of(page.getPageNumber(), page.getPageSize());
-        searchWord = searchWord.replaceAll(" ", ""); // 검색어에서 공백 제거
         Page<Post> posts;
         if (sort.equals("createdAt")) {
             posts = postRepository.findAllByTitleContainsAndPostTypeTrueAndDeletedAtIsNullAndFinishDateAfterAndStatusOrderByPostIdDesc(searchWord.toLowerCase(), LocalDateTime.now(), RECRUITING, pageable);
@@ -249,7 +246,6 @@ public class PostService {
     public Page<GetProjectRes> getProjectsByMeetingAreaAndStackNameAndSearchWord(
             String sort, String meetingCity, String meetingTown, String stackName, String searchWord, Pageable page) throws ApplicationException {
         Pageable pageable = PageRequest.of(page.getPageNumber(), page.getPageSize());
-        searchWord = searchWord.replaceAll(" ", "");
         if(meetingTown.equals("전체")){
             meetingTown = "";
         }
