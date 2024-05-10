@@ -120,6 +120,7 @@ public class Post extends BaseTimeEntity {
         this.postView = 0L;
     }
 
+    @Builder
     public void modify(PostModifyReq req) {
         this.title = req.title();
         this.contents = req.contents();
@@ -140,5 +141,32 @@ public class Post extends BaseTimeEntity {
 
     public void updatePostView(Long postView) {
         this.postView = postView + 1;
+    }
+
+    @Builder
+    public Post(Long id, String title, Member member, String contents, String contestLink, LocalDateTime startDate,
+                LocalDateTime endDate, LocalDateTime finishDate, Long maxPerson, MeetingMethod meetingMethod,
+                String meetingCity, String meetingTown, boolean questionMethod, String questionLink, boolean postType,
+                List<StackName> stackNames, List<Category> categories) {
+        this.postId = id;
+        this.title = title;
+        this.member = member;
+        this.contents = contents;
+        this.contestLink = contestLink;
+        this.status = PostStatus.RECRUITING;
+        this.startDate = startDate;
+        this.finishDate = finishDate;
+        this.endDate = endDate;
+        this.maxPerson = maxPerson;
+        this.meetingMethod = meetingMethod;
+        this.meetingCity = meetingCity;
+        this.meetingTown = meetingTown;
+        this.questionMethod = questionMethod;
+        this.questionLink = questionLink;
+        this.postType = postType;
+        this.daysRemaining = finishDate.isBefore(LocalDateTime.now()) ? -1 : ChronoUnit.DAYS.between(LocalDateTime.now(), finishDate);
+        this.stackNames = stackNames;
+        this.categories = categories;
+        this.postView = 0L;
     }
 }

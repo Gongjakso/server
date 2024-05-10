@@ -3,6 +3,7 @@ package com.gongjakso.server.domain.post.util;
 import com.gongjakso.server.domain.member.entity.Member;
 import com.gongjakso.server.domain.member.util.MemberUtilTest;
 import com.gongjakso.server.domain.post.entity.Post;
+import com.gongjakso.server.domain.post.entity.PostScrap;
 import com.gongjakso.server.domain.post.enumerate.MeetingMethod;
 
 import java.time.LocalDateTime;
@@ -11,57 +12,66 @@ import java.util.Arrays;
 import java.util.List;
 
 public class PostUtilTest {
-    public  static Post builderPost(){
+    public  static Post builderPost(Long id){
         Member member = MemberUtilTest.buildMember();
-
-        return Post.builder()
-                .title("Title1")
-                .member(member)
-                .contents("Content1")
-                .contestLink("Link1")
-                .startDate(LocalDateTime.now())
-                .endDate(LocalDateTime.now().plusDays(10))
-                .finishDate(LocalDateTime.now().plusDays(16))
-                .maxPerson(8L)
-                .meetingMethod(MeetingMethod.ONLINE)
-                .meetingCity("서울시")
-                .meetingTown("마포구")
-                .questionMethod(true)
-                .questionLink(".com")
-                .postType(false)
-                .categories(new ArrayList<>())
-                .stackNames(new ArrayList<>())
-                .build();
+        return new Post(
+                1L,
+                "Title1",
+                member,
+                "Content1",
+                "Link1",
+                LocalDateTime.now(),
+                LocalDateTime.now().plusDays(10),
+                LocalDateTime.now().plusDays(16),
+                8L,
+                MeetingMethod.ONLINE,
+                "서울시",
+                "마포구",
+                true,
+                ".com",
+                false,
+                new ArrayList<>(),
+                new ArrayList<>()
+        );
     }
 
-    public static Post builderPosts(String title, String contents, String link) {
+    public static Post builderPosts(Long id, String title, String contents, String link) {
         Member member = MemberUtilTest.buildMember();
 
-        return Post.builder()
-                .title(title)
-                .member(member)
-                .contents(contents)
-                .contestLink(link)
-                .startDate(LocalDateTime.now())
-                .endDate(LocalDateTime.now().plusDays(10))
-                .finishDate(LocalDateTime.now().plusDays(16))
-                .maxPerson(8L)
-                .meetingMethod(MeetingMethod.ONLINE)
-                .meetingCity("서울시")
-                .meetingTown("마포구")
-                .questionMethod(true)
-                .questionLink(".com")
-                .postType(false)
-                .categories(new ArrayList<>())
-                .stackNames(new ArrayList<>())
-                .build();
+        return new Post(
+                id,
+                title,
+                member,
+                contents,
+                link,
+                LocalDateTime.now(),
+                LocalDateTime.now().plusDays(10),
+                LocalDateTime.now().plusDays(16),
+                8L,
+                MeetingMethod.ONLINE,
+                "서울시",
+                "마포구",
+                true,
+                ".com",
+                false,
+                new ArrayList<>(),
+                new ArrayList<>()
+        );
     }
 
     public static List<Post> builderMultiplePosts() {
         return Arrays.asList(
-                builderPosts("Title1", "Content1", "Link1"),
-                builderPosts("Title2", "Content2", "Link2"),
-                builderPosts("Title3", "Content3", "Link3")
+                builderPosts(1L, "Title1", "Content1", "Link1"),
+                builderPosts(2L, "Title2", "Content2", "Link2"),
+                builderPosts(3L, "Title3", "Content3", "Link3")
+        );
+    }
+
+    public static PostScrap builderPostScrap(Post post, Member member, Boolean postStatus){
+        return new PostScrap(
+                post,
+                member,
+                postStatus
         );
     }
 }

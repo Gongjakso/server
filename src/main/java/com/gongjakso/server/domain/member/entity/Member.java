@@ -77,4 +77,18 @@ public class Member extends BaseTimeEntity {
         this.major = major;
         this.job = job;
     }
+
+    public Member(Long id, String email, String password, String name, String phone, String profileUrl, String memberType, String loginType, String status, String major, String job){
+        this.memberId = id;
+        this.email = email;
+        this.password = password;
+        this.name = name;
+        this.phone = phone;
+        this.profileUrl = profileUrl;
+        this.memberType = MemberType.valueOf(memberType);
+        this.loginType = LoginType.valueOf(loginType);
+        this.status = status;
+        this.major = major;
+        this.job = job;
+    }
 }
