@@ -180,10 +180,11 @@ public class ApplyService {
         return ApplyPageRes.of(applyLists, pageNo, size, totalPages, last);
     }
 
-    public ParticipationPageRes myParticipationPostListPage(int page, int size) {
+    public ParticipationPageRes myParticipationPostListPage(Member member,int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
-        Page<Apply> participationPage = applyRepository.findApplyByApplyType(ApplyType.PASS, pageable);
+        Page<Apply> participationPage = applyRepository.findApplyByApplyTypeAndMember(ApplyType.PASS,member,pageable);
         List<ParticipationList> participationLists = participationPage.getContent().stream()
+                .filter(apply -> apply.getPost().getStatus().equals(PostStatus.ACTIVE))
                 .map(apply -> ParticipationList.of(apply.getPost(), CategoryType.valueOf(apply.getRecruit_part())))
                 .collect(Collectors.toList());
         int pageNo = participationPage.getNumber();
