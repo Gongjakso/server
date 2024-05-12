@@ -181,7 +181,7 @@ public class ApplyService {
     }
 
     public ParticipationPageRes myParticipationPostListPage(Member member,int page, int size) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "post.endDate"));
         Page<Apply> participationPage = applyRepository.findApplyByApplyTypeAndMember(ApplyType.PASS,member,pageable);
         List<ParticipationList> participationLists = participationPage.getContent().stream()
                 .filter(apply -> apply.getPost().getStatus().equals(PostStatus.ACTIVE))
