@@ -78,7 +78,7 @@ public class PostService {
     }
 
     @Transactional
-    public Optional<?> read(PrincipalDetails principalDetails, Long postId, String role) {
+    public Optional<?> read(PrincipalDetails principalDetails, Long postId) {
         Post post = postRepository.findWithStackNameAndCategoryUsingFetchJoinByPostId(postId).orElseThrow(() -> new ApplicationException(ErrorCode.NOT_FOUND_POST_EXCEPTION));
         int current_person = (int) applyRepository.countApplyWithStackNameUsingFetchJoinByPostAndApplyType(post, ApplyType.PASS);
       
@@ -88,11 +88,9 @@ public class PostService {
         post.getStackNames().size();
 
         if(principalDetails == null) {
-            return Optional.of(PostDetailRes.of(post, current_person, role, null));
-        }else if(("GENERAL".equals(role) ||  "LEADER".equals(role) || "APPLICANT".equals(role)) && principalDetails != null){
-            return Optional.of(PostDetailRes.of(post, current_person, role, principalDetails.getMember().getMemberId()));
-        } else {
-            throw new ApplicationException(NOT_FOUND_POST_EXCEPTION);
+            return Optional.of(PostDetailRes.of(post, current_person,null));
+        }else{
+            return Optional.of(PostDetailRes.of(post, current_person, principalDetails.getMember().getMemberId()));
         }
     }
 
