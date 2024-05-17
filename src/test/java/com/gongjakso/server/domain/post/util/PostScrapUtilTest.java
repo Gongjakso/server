@@ -2,6 +2,7 @@ package com.gongjakso.server.domain.post.util;
 
 import com.gongjakso.server.domain.member.entity.Member;
 import com.gongjakso.server.domain.member.util.MemberUtilTest;
+import com.gongjakso.server.domain.post.dto.PostScrapRes;
 import com.gongjakso.server.domain.post.entity.Post;
 import com.gongjakso.server.domain.post.entity.PostScrap;
 
@@ -16,5 +17,13 @@ public class PostScrapUtilTest {
                 member,
                 true
         );
+    }
+
+    public static PostScrapRes ScrapPostRes(Long postId, Long memberId, boolean scrapStatus){
+        return PostScrapRes.builder()
+                .postId(postId)
+                .memberId(memberId)
+                .ScrapStatus(scrapStatus)
+                .build();
     }
 }

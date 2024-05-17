@@ -131,4 +131,32 @@ public class PaginationServiceTest {
         assertThat(canceledPostScrap.getPost().getScrapCount()).isEqualTo(0);
     }
 
+    /*
+    @Test
+    @DisplayName("공고 스크랩 조회 기능")
+    void scrapGet() {
+        // Given
+        Post post = PostUtilTest.builderPost(1L);
+        Member member = MemberUtilTest.buildMemberAndId(1L);
+        PostScrap postScrap = PostUtilTest.builderPostScrap(post, member, true);
+
+        given(postRepository.findByPostIdAndDeletedAtIsNull(any(Long.class)))
+                .willReturn(Optional.of(post));
+        given(postScrapRepository.findByPostAndMember(any(Post.class), any(Member.class)))
+                .willReturn(null)
+                .willReturn(postScrap);
+
+        // When
+        postService.scrapPost(member, post.getPostId());
+
+        // Then
+        PostScrap getPostScrap = postScrapRepository.findByPostAndMember(post, member);
+        postScrapRepository.save(getPostScrap);
+        assertThat(getPostScrap).isNotNull();
+        System.out.println("!!!!!!!!!!!!!!"+getPostScrap);
+
+        assertThat(getPostScrap.getPostScrapId()).isEqualTo(1L);
+        assertThat(getPostScrap.getScrapStatus()).isEqualTo(true);
+    }
+    */
 }
