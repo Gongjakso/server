@@ -168,7 +168,7 @@ public class ApplyService {
             throw new ApplicationException(ErrorCode.UNAUTHORIZED_EXCEPTION);
         }
 
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "created_at"));
         Page<Apply> applyPage = applyRepository.findAllByPost(post, pageable);
         List<ApplyList> applyLists = applyPage.getContent().stream()
                 .map(apply -> ApplyList.of(apply, decisionState(apply)))
@@ -181,7 +181,7 @@ public class ApplyService {
     }
 
     public ParticipationPageRes myParticipationPostListPage(Member member,int page, int size) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "created_at"));
         Page<Apply> participationPage = applyRepository.findApplyByApplyTypeAndMemberAndIsCanceledFalse(ApplyType.PASS,member,pageable);
         List<ParticipationList> participationLists = participationPage.getContent().stream()
                 .filter(apply -> apply.getPost().getStatus().equals(PostStatus.ACTIVE) || apply.getPost().getStatus().equals(PostStatus.COMPLETE))
