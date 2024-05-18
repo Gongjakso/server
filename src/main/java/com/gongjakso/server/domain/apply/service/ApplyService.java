@@ -268,7 +268,9 @@ public class ApplyService {
         // Response
         return applyList.stream()
                 .filter(apply -> apply.getPost().getStatus() == PostStatus.RECRUITING ||
-                        apply.getPost().getStatus() == PostStatus.EXTENSION)
+                        apply.getPost().getStatus() == PostStatus.EXTENSION ||
+                        apply.getPost().getStatus() == PostStatus.CANCEL ||
+                        apply.getPost().getStatus() == PostStatus.CLOSE)
                 .map(apply -> {
                     Post post = apply.getPost();
                     List<String> categoryList = post.getCategories().stream()
