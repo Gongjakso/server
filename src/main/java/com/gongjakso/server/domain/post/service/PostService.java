@@ -1,5 +1,6 @@
 package com.gongjakso.server.domain.post.service;
 
+import com.gongjakso.server.domain.apply.enumerate.ApplyType;
 import com.gongjakso.server.domain.apply.repository.ApplyRepository;
 import com.gongjakso.server.domain.member.entity.Member;
 import com.gongjakso.server.domain.post.dto.*;
@@ -32,6 +33,7 @@ import java.util.stream.Collectors;
 import static com.gongjakso.server.domain.post.enumerate.PostStatus.RECRUITING;
 import static com.gongjakso.server.global.exception.ErrorCode.*;
 
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -49,6 +51,9 @@ public class PostService {
         }
         if (req.postType()  && postRepository.countByMemberAndPostTypeTrueAndDeletedAtIsNullAndFinishDateAfterAndStatus(member, LocalDateTime.now(), RECRUITING) > 0) { //프로젝트 공고 모집 개수 제한
             throw new ApplicationException(NOT_POST_EXCEPTION);
+        }
+        if (req.maxPerson() != req.categories().stream().mapToInt(Category::getSize).sum()) {
+            throw new ApplicationException(ILLEGAL_POST_EXCEPTION);
         }
 
         // Business Logic
@@ -73,9 +78,9 @@ public class PostService {
     }
 
     @Transactional
-    public Optional<?> read(PrincipalDetails principalDetails, Long postId, String role) {
+    public Optional<?> read(PrincipalDetails principalDetails, Long postId) {
         Post post = postRepository.findWithStackNameAndCategoryUsingFetchJoinByPostId(postId).orElseThrow(() -> new ApplicationException(ErrorCode.NOT_FOUND_POST_EXCEPTION));
-        int current_person = (int) applyRepository.countApplyWithStackNameUsingFetchJoinByPost(post);
+        int current_person = (int) applyRepository.countApplyWithStackNameUsingFetchJoinByPostAndApplyType(post, ApplyType.PASS);
       
         post.updatePostView(post.getPostView());
 
@@ -83,11 +88,9 @@ public class PostService {
         post.getStackNames().size();
 
         if(principalDetails == null) {
-            return Optional.of(PostDetailRes.of(post, current_person, role, null));
-        }else if(("GENERAL".equals(role) ||  "LEADER".equals(role) || "APPLICANT".equals(role)) && principalDetails != null){
-            return Optional.of(PostDetailRes.of(post, current_person, role, principalDetails.getMember().getMemberId()));
-        } else {
-            throw new ApplicationException(NOT_FOUND_POST_EXCEPTION);
+            return Optional.of(PostDetailRes.of(post, current_person,null));
+        }else{
+            return Optional.of(PostDetailRes.of(post, current_person, principalDetails.getMember().getMemberId()));
         }
     }
 
@@ -99,6 +102,9 @@ public class PostService {
                 .orElseThrow(() -> new ApplicationException(NOT_FOUND_POST_EXCEPTION));
         if(!member.getMemberId().equals(entity.getMember().getMemberId())){
             throw new ApplicationException(UNAUTHORIZED_EXCEPTION);
+        }
+        if (req.maxPerson() != req.categories().stream().mapToInt(Category::getSize).sum()) {
+            throw new ApplicationException(ILLEGAL_POST_EXCEPTION);
         }
 
         // Business Logic
@@ -148,7 +154,7 @@ public class PostService {
 
         posts.forEach(post -> post.getCategories().size());
         posts.forEach(post -> post.getStackNames().size());
-        return posts.map(post -> GetContestRes.of(post));
+        return posts.map(GetContestRes::of);
     }
 
     /*
@@ -166,7 +172,7 @@ public class PostService {
 
         posts.forEach(post -> post.getCategories().size());
         posts.forEach(post -> post.getStackNames().size());
-        return posts.map(post -> GetContestRes.of(post));
+        return posts.map(GetContestRes::of);
     }
 
     /*
@@ -191,7 +197,7 @@ public class PostService {
             }
             posts.forEach(post -> post.getCategories().size());
             posts.forEach(post -> post.getStackNames().size());
-            return posts.map(post -> GetContestRes.of(post));
+            return posts.map(GetContestRes::of);
         } else{
             Page<Post> posts;
             if (sort.equals("createdAt")) {
@@ -201,7 +207,7 @@ public class PostService {
             }
             posts.forEach(post -> post.getCategories().size());
             posts.forEach(post -> post.getStackNames().size());
-            return posts.map(post -> GetContestRes.of(post));
+            return posts.map(GetContestRes::of);
         }
     }
 
@@ -219,7 +225,7 @@ public class PostService {
         }
         posts.forEach(post -> post.getCategories().size());
         posts.forEach(post -> post.getStackNames().size());
-        return posts.map(post -> GetProjectRes.of(post));
+        return posts.map(GetProjectRes::of);
     }
 
     /*
@@ -236,7 +242,7 @@ public class PostService {
         }
         posts.forEach(post -> post.getCategories().size());
         posts.forEach(post -> post.getStackNames().size());
-        return posts.map(post -> GetProjectRes.of(post));
+        return posts.map(GetProjectRes::of);
     }
 
     /*
@@ -264,7 +270,7 @@ public class PostService {
             }
             posts.forEach(post -> post.getCategories().size());
             posts.forEach(post -> post.getStackNames().size());
-            return posts.map(post -> GetProjectRes.of(post));
+            return posts.map(GetProjectRes::of);
         } else{
             Page<Post> posts;
             if (sort.equals("createdAt")) {
@@ -308,9 +314,9 @@ public class PostService {
                 post.setScrapCount(post.getScrapCount() + 1);
             }
         }
-        postScrapRepository.save(postScrap);
-        postRepository.save(post);
-        return new PostScrapRes(postScrap.getPost().getPostId(), postScrap.getMember().getMemberId(), postScrap.getScrapStatus());
+        PostScrap savePostScrap = postScrapRepository.save(postScrap);
+        Post savePost = postRepository.save(post);
+        return PostScrapRes.of(savePostScrap, savePost.getScrapCount());
     }
 
     @Transactional
@@ -321,10 +327,10 @@ public class PostService {
             throw new ApplicationException(UNAUTHORIZED_EXCEPTION);
         }
         if(postScrapRepository.findByPostAndMember(post, member)==null){ //post, member 정보는 존재하되, scrap한적이 없는 경우 default false값 반환
-            return new PostScrapRes(post.getPostId(), member.getMemberId(), false);
+            return new PostScrapRes(post.getPostId(), member.getMemberId(), false, post.getScrapCount());
         }
         PostScrap postScrap = postScrapRepository.findByPostAndMember(post, member);
-        return new PostScrapRes(postScrap.getPost().getPostId(), postScrap.getMember().getMemberId(), postScrap.getScrapStatus());
+        return PostScrapRes.of(postScrap, post.getScrapCount());
     }
 
     @Transactional
@@ -357,7 +363,7 @@ public class PostService {
             role = "LEADER";
         }
         else {
-            if(applyRepository.existsApplyByMemberAndPost(member, post)) {
+            if(applyRepository.existsApplyByMemberAndPostAndIsCanceledIsFalse(member, post)) {
              role = "APPLICANT";
             }
         }
@@ -378,7 +384,7 @@ public class PostService {
 
                     //유효한 post만 남기기
                     return post != null &&
-                            post.isPostType() == true &&
+                            post.isPostType() &&
                             post.getDeletedAt() == null;
                 })
                 .map(scrap -> {
@@ -405,7 +411,7 @@ public class PostService {
 
                     //유효한 post만 남기기
                     return post != null &&
-                            post.isPostType() == false &&
+                            !post.isPostType() &&
                             post.getDeletedAt() == null;
                 })
                 .map(scrap -> {
