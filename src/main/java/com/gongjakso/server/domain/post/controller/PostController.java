@@ -1,5 +1,6 @@
 package com.gongjakso.server.domain.post.controller;
 
+import com.gongjakso.server.domain.apply.service.ApplyService;
 import com.gongjakso.server.domain.post.dto.*;
 import com.gongjakso.server.domain.post.service.PostService;
 import com.gongjakso.server.global.common.ApplicationResponse;

@@ -182,9 +182,9 @@ public class ApplyService {
 
     public ParticipationPageRes myParticipationPostListPage(Member member,int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
-        Page<Apply> participationPage = applyRepository.findApplyByApplyTypeAndMember(ApplyType.PASS,member,pageable);
+        Page<Apply> participationPage = applyRepository.findApplyByApplyTypeAndMemberAndIsCanceledFalse(ApplyType.PASS,member,pageable);
         List<ParticipationList> participationLists = participationPage.getContent().stream()
-                .filter(apply -> apply.getPost().getStatus().equals(PostStatus.ACTIVE))
+                .filter(apply -> apply.getPost().getStatus().equals(PostStatus.ACTIVE) || apply.getPost().getStatus().equals(PostStatus.COMPLETE))
                 .map(apply -> ParticipationList.of(apply.getPost(), CategoryType.valueOf(apply.getRecruit_part())))
                 .collect(Collectors.toList());
         int pageNo = participationPage.getNumber();
@@ -262,7 +262,7 @@ public class ApplyService {
         // Validation
 
         // Business Logic
-        List<Apply> applyList = applyRepository.findAllByMemberAndDeletedAtIsNull(member);
+        List<Apply> applyList = applyRepository.findAllByMemberAndDeletedAtIsNullOrderByCreatedAtDesc(member);
 
 
         // Response
