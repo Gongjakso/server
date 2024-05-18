@@ -184,7 +184,7 @@ public class ApplyService {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
         Page<Apply> participationPage = applyRepository.findApplyByApplyTypeAndMember(ApplyType.PASS,member,pageable);
         List<ParticipationList> participationLists = participationPage.getContent().stream()
-                .filter(apply -> apply.getPost().getStatus().equals(PostStatus.ACTIVE))
+                .filter(apply -> apply.getPost().getStatus().equals(PostStatus.ACTIVE) || apply.getPost().getStatus().equals(PostStatus.COMPLETE))
                 .map(apply -> ParticipationList.of(apply.getPost(), CategoryType.valueOf(apply.getRecruit_part())))
                 .collect(Collectors.toList());
         int pageNo = participationPage.getNumber();
