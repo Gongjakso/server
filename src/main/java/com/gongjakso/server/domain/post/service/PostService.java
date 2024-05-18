@@ -371,7 +371,7 @@ public class PostService {
 
     @Transactional
     public Page<GetProjectRes> getMyScrapProject(Member member, Pageable page){
-        Pageable pageable = PageRequest.of(page.getPageNumber(), page.getPageSize(), Sort.by(Sort.Direction.DESC, "created_at"));
+        Pageable pageable = PageRequest.of(page.getPageNumber(), page.getPageSize(), Sort.by("createdAt").descending());
 
         Page<PostScrap> scrapPageList = postScrapRepository.findAllByMemberAndScrapStatusTrueOrderByPostScrapIdDesc(member, pageable);
 
@@ -398,7 +398,7 @@ public class PostService {
 
     @Transactional
     public Page<GetContestRes> getMyScrapContest(Member member, Pageable page){
-        Pageable pageable = PageRequest.of(page.getPageNumber(), page.getPageSize(), Sort.by(Sort.Direction.DESC, "created_at"));
+        Pageable pageable = PageRequest.of(page.getPageNumber(), page.getPageSize(), Sort.by("createdAt").descending());
 
         Page<PostScrap> scrapPageList = postScrapRepository.findAllByMemberAndScrapStatusTrueOrderByPostScrapIdDesc(member, pageable);
 
@@ -422,4 +422,9 @@ public class PostService {
         // 필터링된 리스트를 페이지로 반환
         return new PageImpl<>(filteredContests, pageable, scrapPageList.getTotalElements());
     }
+
+//    @Transactional
+//    public ? completePost() {
+//
+//    }
 }
