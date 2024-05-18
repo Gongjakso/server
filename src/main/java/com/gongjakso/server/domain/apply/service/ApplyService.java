@@ -220,7 +220,7 @@ public class ApplyService {
                 throw new ApplicationException(ErrorCode.UNAUTHORIZED_EXCEPTION);
             }
             Category category = categoryRepository.findCategoryByPostAndCategoryType(post, CategoryType.valueOf(apply.getRecruit_part()));
-            if (category.getSize() - 1 <= 0) {
+            if (category.getSize() <= 0) {
                 throw new ApplicationException(ErrorCode.OVER_APPLY_EXCEPTION);
             } else {
                 category.setSize(category.getSize() - 1);
