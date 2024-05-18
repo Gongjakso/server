@@ -55,7 +55,7 @@ public class ApplyService {
         // Validation
         Post post = postRepository.findWithStackNameAndCategoryUsingFetchJoinByPostId(postId).orElseThrow(() -> new ApplicationException(ErrorCode.NOT_FOUND_POST_EXCEPTION));
         //Check reapply
-        if (applyRepository.existsApplyByMemberAndPost(member, post)) {
+        if (applyRepository.existsApplyByMemberAndPostAndIsCanceledIsFalse(member, post)) {
             throw new ApplicationException(ErrorCode.ALREADY_APPLY_EXCEPTION);
         }
         //Check Post Date
@@ -325,7 +325,7 @@ public class ApplyService {
         apply.updateIsCanceled(Boolean.TRUE);
         Apply saveApply = applyRepository.save(apply);
         // TODO: 이메일 발송 로직을 실시간성이 아닌 일괄배치 또는 비동기로 변환 필요 (성능 문제)
-        emailClient.sendOneEmail(post.getMember().getEmail());
+        // emailClient.sendOneEmail(post.getMember().getEmail());
 
         // Response
         return PatchApplyRes.of(saveApply, member);

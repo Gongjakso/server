@@ -85,7 +85,7 @@ public class PostService {
 
         if(principalDetails == null) {
             return Optional.of(PostDetailRes.of(post, current_person, role, null));
-        }else if(("GENERAL".equals(role) ||  "LEADER".equals(role) || "APPLICANT".equals(role)) && principalDetails != null){
+        }else if("GENERAL".equals(role) || "LEADER".equals(role) || "APPLICANT".equals(role)){
             return Optional.of(PostDetailRes.of(post, current_person, role, principalDetails.getMember().getMemberId()));
         } else {
             throw new ApplicationException(NOT_FOUND_POST_EXCEPTION);
@@ -149,7 +149,7 @@ public class PostService {
 
         posts.forEach(post -> post.getCategories().size());
         posts.forEach(post -> post.getStackNames().size());
-        return posts.map(post -> GetContestRes.of(post));
+        return posts.map(GetContestRes::of);
     }
 
     /*
@@ -167,7 +167,7 @@ public class PostService {
 
         posts.forEach(post -> post.getCategories().size());
         posts.forEach(post -> post.getStackNames().size());
-        return posts.map(post -> GetContestRes.of(post));
+        return posts.map(GetContestRes::of);
     }
 
     /*
@@ -192,7 +192,7 @@ public class PostService {
             }
             posts.forEach(post -> post.getCategories().size());
             posts.forEach(post -> post.getStackNames().size());
-            return posts.map(post -> GetContestRes.of(post));
+            return posts.map(GetContestRes::of);
         } else{
             Page<Post> posts;
             if (sort.equals("createdAt")) {
@@ -202,7 +202,7 @@ public class PostService {
             }
             posts.forEach(post -> post.getCategories().size());
             posts.forEach(post -> post.getStackNames().size());
-            return posts.map(post -> GetContestRes.of(post));
+            return posts.map(GetContestRes::of);
         }
     }
 
@@ -220,7 +220,7 @@ public class PostService {
         }
         posts.forEach(post -> post.getCategories().size());
         posts.forEach(post -> post.getStackNames().size());
-        return posts.map(post -> GetProjectRes.of(post));
+        return posts.map(GetProjectRes::of);
     }
 
     /*
@@ -237,7 +237,7 @@ public class PostService {
         }
         posts.forEach(post -> post.getCategories().size());
         posts.forEach(post -> post.getStackNames().size());
-        return posts.map(post -> GetProjectRes.of(post));
+        return posts.map(GetProjectRes::of);
     }
 
     /*
@@ -265,7 +265,7 @@ public class PostService {
             }
             posts.forEach(post -> post.getCategories().size());
             posts.forEach(post -> post.getStackNames().size());
-            return posts.map(post -> GetProjectRes.of(post));
+            return posts.map(GetProjectRes::of);
         } else{
             Page<Post> posts;
             if (sort.equals("createdAt")) {
@@ -358,7 +358,7 @@ public class PostService {
             role = "LEADER";
         }
         else {
-            if(applyRepository.existsApplyByMemberAndPost(member, post)) {
+            if(applyRepository.existsApplyByMemberAndPostAndIsCanceledIsFalse(member, post)) {
              role = "APPLICANT";
             }
         }
@@ -379,7 +379,7 @@ public class PostService {
 
                     //유효한 post만 남기기
                     return post != null &&
-                            post.isPostType() == true &&
+                            post.isPostType() &&
                             post.getDeletedAt() == null;
                 })
                 .map(scrap -> {
@@ -406,7 +406,7 @@ public class PostService {
 
                     //유효한 post만 남기기
                     return post != null &&
-                            post.isPostType() == false &&
+                            !post.isPostType() &&
                             post.getDeletedAt() == null;
                 })
                 .map(scrap -> {
