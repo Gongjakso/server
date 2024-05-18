@@ -395,8 +395,11 @@ public class PostService {
                 })
                 .collect(Collectors.toList()); // 리스트로 수집
 
-        // 필터링된 리스트를 페이지로 반환
-        return new PageImpl<>(filteredProjects, pageable, scrapPageList.getTotalElements());
+        if (filteredProjects.isEmpty()) {
+            return Page.empty(pageable);
+        } else {
+            return new PageImpl<>(filteredProjects, pageable, filteredProjects.size());
+        }
     }
 
     @Transactional
@@ -404,7 +407,6 @@ public class PostService {
         Pageable pageable = PageRequest.of(page.getPageNumber(), page.getPageSize());
 
         Page<PostScrap> scrapPageList = postScrapRepository.findAllByMemberAndScrapStatusTrueOrderByPostScrapIdDesc(member, pageable);
-
         List<GetContestRes> filteredContests = scrapPageList.stream()
                 .filter(scrap -> {
                     Post post = scrap.getPost();
@@ -422,7 +424,10 @@ public class PostService {
                 })
                 .collect(Collectors.toList()); // 리스트로 수집
 
-        // 필터링된 리스트를 페이지로 반환
-        return new PageImpl<>(filteredContests, pageable, scrapPageList.getTotalElements());
+        if(filteredContests.isEmpty()){
+            return Page.empty(pageable);
+        }else{
+            return new PageImpl<>(filteredContests, pageable, filteredContests.size());
+        }
     }
 }
