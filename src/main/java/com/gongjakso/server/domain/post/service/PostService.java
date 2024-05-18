@@ -154,7 +154,7 @@ public class PostService {
 
         posts.forEach(post -> post.getCategories().size());
         posts.forEach(post -> post.getStackNames().size());
-        return posts.map(post -> GetContestRes.of(post));
+        return posts.map(GetContestRes::of);
     }
 
     /*
@@ -172,7 +172,7 @@ public class PostService {
 
         posts.forEach(post -> post.getCategories().size());
         posts.forEach(post -> post.getStackNames().size());
-        return posts.map(post -> GetContestRes.of(post));
+        return posts.map(GetContestRes::of);
     }
 
     /*
@@ -197,7 +197,7 @@ public class PostService {
             }
             posts.forEach(post -> post.getCategories().size());
             posts.forEach(post -> post.getStackNames().size());
-            return posts.map(post -> GetContestRes.of(post));
+            return posts.map(GetContestRes::of);
         } else{
             Page<Post> posts;
             if (sort.equals("createdAt")) {
@@ -207,7 +207,7 @@ public class PostService {
             }
             posts.forEach(post -> post.getCategories().size());
             posts.forEach(post -> post.getStackNames().size());
-            return posts.map(post -> GetContestRes.of(post));
+            return posts.map(GetContestRes::of);
         }
     }
 
@@ -225,7 +225,7 @@ public class PostService {
         }
         posts.forEach(post -> post.getCategories().size());
         posts.forEach(post -> post.getStackNames().size());
-        return posts.map(post -> GetProjectRes.of(post));
+        return posts.map(GetProjectRes::of);
     }
 
     /*
@@ -242,7 +242,7 @@ public class PostService {
         }
         posts.forEach(post -> post.getCategories().size());
         posts.forEach(post -> post.getStackNames().size());
-        return posts.map(post -> GetProjectRes.of(post));
+        return posts.map(GetProjectRes::of);
     }
 
     /*
@@ -270,7 +270,7 @@ public class PostService {
             }
             posts.forEach(post -> post.getCategories().size());
             posts.forEach(post -> post.getStackNames().size());
-            return posts.map(post -> GetProjectRes.of(post));
+            return posts.map(GetProjectRes::of);
         } else{
             Page<Post> posts;
             if (sort.equals("createdAt")) {
@@ -314,9 +314,9 @@ public class PostService {
                 post.setScrapCount(post.getScrapCount() + 1);
             }
         }
-        postScrapRepository.save(postScrap);
-        postRepository.save(post);
-        return new PostScrapRes(postScrap.getPost().getPostId(), postScrap.getMember().getMemberId(), postScrap.getScrapStatus());
+        PostScrap savePostScrap = postScrapRepository.save(postScrap);
+        Post savePost = postRepository.save(post);
+        return PostScrapRes.of(savePostScrap, savePost.getScrapCount());
     }
 
     @Transactional
@@ -327,10 +327,10 @@ public class PostService {
             throw new ApplicationException(UNAUTHORIZED_EXCEPTION);
         }
         if(postScrapRepository.findByPostAndMember(post, member)==null){ //post, member 정보는 존재하되, scrap한적이 없는 경우 default false값 반환
-            return new PostScrapRes(post.getPostId(), member.getMemberId(), false);
+            return new PostScrapRes(post.getPostId(), member.getMemberId(), false, post.getScrapCount());
         }
         PostScrap postScrap = postScrapRepository.findByPostAndMember(post, member);
-        return new PostScrapRes(postScrap.getPost().getPostId(), postScrap.getMember().getMemberId(), postScrap.getScrapStatus());
+        return PostScrapRes.of(postScrap, post.getScrapCount());
     }
 
     @Transactional
@@ -363,7 +363,7 @@ public class PostService {
             role = "LEADER";
         }
         else {
-            if(applyRepository.existsApplyByMemberAndPost(member, post)) {
+            if(applyRepository.existsApplyByMemberAndPostAndIsCanceledIsFalse(member, post)) {
              role = "APPLICANT";
             }
         }
@@ -384,7 +384,7 @@ public class PostService {
 
                     //유효한 post만 남기기
                     return post != null &&
-                            post.isPostType() == true &&
+                            post.isPostType() &&
                             post.getDeletedAt() == null;
                 })
                 .map(scrap -> {
@@ -411,7 +411,7 @@ public class PostService {
 
                     //유효한 post만 남기기
                     return post != null &&
-                            post.isPostType() == false &&
+                            !post.isPostType() &&
                             post.getDeletedAt() == null;
                 })
                 .map(scrap -> {

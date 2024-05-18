@@ -17,7 +17,7 @@ public interface ApplyRepository extends JpaRepository<Apply,Long> {
 
     long countApplyWithStackNameUsingFetchJoinByPostAndApplyType(Post post,ApplyType applyType);
 
-    boolean existsApplyByMemberAndPost(Member member,Post post);
+    boolean existsApplyByMemberAndPostAndIsCanceledIsFalse(Member member, Post post);
 
     Page<Apply> findAllByPost(Post post, Pageable pageable);
   
