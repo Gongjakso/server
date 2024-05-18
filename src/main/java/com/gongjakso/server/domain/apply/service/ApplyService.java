@@ -168,7 +168,7 @@ public class ApplyService {
             throw new ApplicationException(ErrorCode.UNAUTHORIZED_EXCEPTION);
         }
 
-        Pageable pageable = PageRequest.of(page, size, Sort.by("created_at").ascending());
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").ascending());
         Page<Apply> applyPage = applyRepository.findAllByPost(post, pageable);
         List<ApplyList> applyLists = applyPage.getContent().stream()
                 .map(apply -> ApplyList.of(apply, decisionState(apply)))
