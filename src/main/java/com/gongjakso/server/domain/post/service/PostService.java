@@ -141,7 +141,7 @@ public class PostService {
      */
     @Transactional
     public Page<GetContestRes> getContests(String sort, Pageable page) throws ApplicationException {
-        Pageable pageable = PageRequest.of(page.getPageNumber(), page.getPageSize(), Sort.by(Sort.Order.desc("created_at")));
+        Pageable pageable = PageRequest.of(page.getPageNumber(), page.getPageSize(), Sort.by(Sort.Direction.DESC, "created_at"));
         Page<Post> posts;
         if(sort.equals("createdAt")){ //최신순
             posts = postRepository.findAllByPostTypeFalseAndDeletedAtIsNullAndFinishDateAfterAndStatusOrderByPostIdDesc(LocalDateTime.now(), RECRUITING, pageable);
@@ -159,7 +159,7 @@ public class PostService {
     */
     @Transactional
     public Page<GetContestRes> getContestsBySearchWord(String sort, String searchWord, Pageable page) throws ApplicationException {
-        Pageable pageable = PageRequest.of(page.getPageNumber(), page.getPageSize(), Sort.by(Sort.Order.desc("created_at")));
+        Pageable pageable = PageRequest.of(page.getPageNumber(), page.getPageSize(), Sort.by(Sort.Direction.DESC, "created_at"));
         Page<Post> posts;
         if (sort.equals("createdAt")) {
             posts = postRepository.findAllByTitleContainsAndPostTypeFalseAndDeletedAtIsNullAndFinishDateAfterAndStatusOrderByPostIdDesc(searchWord.toLowerCase(), LocalDateTime.now(), RECRUITING, pageable);
@@ -178,7 +178,7 @@ public class PostService {
     @Transactional
     public Page<GetContestRes> getContestsByMeetingAreaAndCategoryAndSearchWord(
             String sort, String meetingCity, String meetingTown, String category, String searchWord, Pageable page) throws ApplicationException {
-        Pageable pageable = PageRequest.of(page.getPageNumber(), page.getPageSize(), Sort.by(Sort.Order.desc("created_at")));
+        Pageable pageable = PageRequest.of(page.getPageNumber(), page.getPageSize(), Sort.by(Sort.Direction.DESC, "created_at"));
         if(meetingTown.equals("전체")){
             meetingTown = "";
         }
@@ -213,7 +213,7 @@ public class PostService {
      */
     @Transactional
     public Page<GetProjectRes> getProjects(String sort, Pageable page) throws ApplicationException {
-        Pageable pageable = PageRequest.of(page.getPageNumber(), page.getPageSize(), Sort.by(Sort.Order.desc("created_at")));
+        Pageable pageable = PageRequest.of(page.getPageNumber(), page.getPageSize(), Sort.by(Sort.Direction.DESC, "created_at"));
         Page<Post> posts;
         if(sort.equals("createdAt")){ //최신순
             posts = postRepository.findAllByPostTypeTrueAndDeletedAtIsNullAndFinishDateAfterAndStatusOrderByPostIdDesc(LocalDateTime.now(), RECRUITING, pageable);
@@ -230,7 +230,7 @@ public class PostService {
      */
     @Transactional
     public Page<GetProjectRes> getProjectsBySearchWord(String sort, String searchWord, Pageable page) throws ApplicationException {
-        Pageable pageable = PageRequest.of(page.getPageNumber(), page.getPageSize(), Sort.by(Sort.Order.desc("created_at")));
+        Pageable pageable = PageRequest.of(page.getPageNumber(), page.getPageSize(), Sort.by(Sort.Direction.DESC, "created_at"));
         Page<Post> posts;
         if (sort.equals("createdAt")) {
             posts = postRepository.findAllByTitleContainsAndPostTypeTrueAndDeletedAtIsNullAndFinishDateAfterAndStatusOrderByPostIdDesc(searchWord.toLowerCase(), LocalDateTime.now(), RECRUITING, pageable);
@@ -248,7 +248,7 @@ public class PostService {
     @Transactional
     public Page<GetProjectRes> getProjectsByMeetingAreaAndStackNameAndSearchWord(
             String sort, String meetingCity, String meetingTown, String stackName, String searchWord, Pageable page) throws ApplicationException {
-        Pageable pageable = PageRequest.of(page.getPageNumber(), page.getPageSize(), Sort.by(Sort.Order.desc("created_at")));
+        Pageable pageable = PageRequest.of(page.getPageNumber(), page.getPageSize(), Sort.by(Sort.Direction.DESC, "created_at"));
         if(meetingTown.equals("전체")){
             meetingTown = "";
         }
@@ -371,7 +371,7 @@ public class PostService {
 
     @Transactional
     public Page<GetProjectRes> getMyScrapProject(Member member, Pageable page){
-        Pageable pageable = PageRequest.of(page.getPageNumber(), page.getPageSize(), Sort.by(Sort.Order.desc("created_at")));
+        Pageable pageable = PageRequest.of(page.getPageNumber(), page.getPageSize(), Sort.by(Sort.Direction.DESC, "created_at"));
 
         Page<PostScrap> scrapPageList = postScrapRepository.findAllByMemberAndScrapStatusTrueOrderByPostScrapIdDesc(member, pageable);
 
@@ -398,7 +398,7 @@ public class PostService {
 
     @Transactional
     public Page<GetContestRes> getMyScrapContest(Member member, Pageable page){
-        Pageable pageable = PageRequest.of(page.getPageNumber(), page.getPageSize(), Sort.by(Sort.Order.desc("created_at")));
+        Pageable pageable = PageRequest.of(page.getPageNumber(), page.getPageSize(), Sort.by(Sort.Direction.DESC, "created_at"));
 
         Page<PostScrap> scrapPageList = postScrapRepository.findAllByMemberAndScrapStatusTrueOrderByPostScrapIdDesc(member, pageable);
 
