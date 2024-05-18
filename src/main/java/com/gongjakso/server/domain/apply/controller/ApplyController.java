@@ -82,7 +82,7 @@ public class ApplyController {
     @Operation(summary = "공고 마감 API", description = "내가 모집 중인 팀 페이지에서 공고 마감 버튼 클릭시")
     @PatchMapping("/{post_id}/close")
     public ApplicationResponse<Void> updatePostStatusToClose(@AuthenticationPrincipal PrincipalDetails principalDetails, @PathVariable("post_id") Long postId){
-        applyService.updatePostState(principalDetails.getMember(),postId, PostStatus.CLOSE);
+        applyService.updatePostState(principalDetails.getMember(),postId, PostStatus.ACTIVE);
         return ApplicationResponse.ok();
     }
     //공고 취소 요청 api
