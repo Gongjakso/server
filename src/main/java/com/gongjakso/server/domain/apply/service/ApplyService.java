@@ -262,7 +262,7 @@ public class ApplyService {
         // Validation
 
         // Business Logic
-        List<Apply> applyList = applyRepository.findAllByMemberAndDeletedAtIsNull(member);
+        List<Apply> applyList = applyRepository.findAllByMemberAndDeletedAtIsNullOrderByCreatedAtDesc(member);
 
 
         // Response
