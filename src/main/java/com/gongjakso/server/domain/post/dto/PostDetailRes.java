@@ -64,6 +64,11 @@ public record PostDetailRes(
         LocalDateTime endDate,
 
         @Schema(
+                description = "공모전/프로젝트 모집 마감 날짜 관리"
+        )
+        LocalDateTime finishDate,
+
+        @Schema(
                 description = "공모전/프로젝트 모집 마감 날짜를 디데이로 관리"
         )
         Long daysRemaining,
@@ -133,11 +138,6 @@ public record PostDetailRes(
         Long scrapCount,
 
         @Schema(
-                description = "사용자가 일반접근자|지원자|팀장인지 구분"
-        )
-        String role,
-
-        @Schema(
                 description = "접근한 사용자의 memberId"
         )
         Long currentId,
@@ -148,7 +148,7 @@ public record PostDetailRes(
         Long postView
 ) {
 
-    public static PostDetailRes of(Post post, int currentPerson, String role, Long currentId) {
+    public static PostDetailRes of(Post post, int currentPerson, Long currentId) {
         return PostDetailRes.builder()
                 .postId(post.getPostId())
                 .memberId(post.getMember().getMemberId())
@@ -159,6 +159,7 @@ public record PostDetailRes(
                 .status(post.getStatus())
                 .startDate(post.getStartDate())
                 .endDate(post.getEndDate())
+                .finishDate(post.getFinishDate())
                 .daysRemaining(post.getFinishDate().isBefore(LocalDateTime.now()) ? -1 : ChronoUnit.DAYS.between(LocalDateTime.now(), post.getFinishDate()))
                 .maxPerson(post.getMaxPerson())
                 .currentPerson(currentPerson)
@@ -172,7 +173,6 @@ public record PostDetailRes(
                 .postType(post.isPostType())
                 .createdAt(post.getCreatedAt())
                 .scrapCount(post.getScrapCount())
-                .role(role)
                 .currentId(currentId)
                 .postView(post.getPostView())
                 .build();

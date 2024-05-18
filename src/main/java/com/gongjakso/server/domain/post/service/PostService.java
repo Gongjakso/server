@@ -33,6 +33,7 @@ import java.util.stream.Collectors;
 import static com.gongjakso.server.domain.post.enumerate.PostStatus.RECRUITING;
 import static com.gongjakso.server.global.exception.ErrorCode.*;
 
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -50,6 +51,9 @@ public class PostService {
         }
         if (req.postType()  && postRepository.countByMemberAndPostTypeTrueAndDeletedAtIsNullAndFinishDateAfterAndStatus(member, LocalDateTime.now(), RECRUITING) > 0) { //프로젝트 공고 모집 개수 제한
             throw new ApplicationException(NOT_POST_EXCEPTION);
+        }
+        if (req.maxPerson() != req.categories().stream().mapToInt(Category::getSize).sum()) {
+            throw new ApplicationException(ILLEGAL_POST_EXCEPTION);
         }
 
         // Business Logic
@@ -74,7 +78,7 @@ public class PostService {
     }
 
     @Transactional
-    public Optional<?> read(PrincipalDetails principalDetails, Long postId, String role) {
+    public Optional<?> read(PrincipalDetails principalDetails, Long postId) {
         Post post = postRepository.findWithStackNameAndCategoryUsingFetchJoinByPostId(postId).orElseThrow(() -> new ApplicationException(ErrorCode.NOT_FOUND_POST_EXCEPTION));
         int current_person = (int) applyRepository.countApplyWithStackNameUsingFetchJoinByPostAndApplyType(post, ApplyType.PASS);
       
@@ -84,11 +88,9 @@ public class PostService {
         post.getStackNames().size();
 
         if(principalDetails == null) {
-            return Optional.of(PostDetailRes.of(post, current_person, role, null));
-        }else if("GENERAL".equals(role) || "LEADER".equals(role) || "APPLICANT".equals(role)){
-            return Optional.of(PostDetailRes.of(post, current_person, role, principalDetails.getMember().getMemberId()));
-        } else {
-            throw new ApplicationException(NOT_FOUND_POST_EXCEPTION);
+            return Optional.of(PostDetailRes.of(post, current_person,null));
+        }else{
+            return Optional.of(PostDetailRes.of(post, current_person, principalDetails.getMember().getMemberId()));
         }
     }
 
@@ -100,6 +102,9 @@ public class PostService {
                 .orElseThrow(() -> new ApplicationException(NOT_FOUND_POST_EXCEPTION));
         if(!member.getMemberId().equals(entity.getMember().getMemberId())){
             throw new ApplicationException(UNAUTHORIZED_EXCEPTION);
+        }
+        if (req.maxPerson() != req.categories().stream().mapToInt(Category::getSize).sum()) {
+            throw new ApplicationException(ILLEGAL_POST_EXCEPTION);
         }
 
         // Business Logic
