@@ -371,7 +371,7 @@ public class PostService {
 
     @Transactional
     public Page<GetProjectRes> getMyScrapProject(Member member, Pageable page){
-        Pageable pageable = PageRequest.of(page.getPageNumber(), page.getPageSize(), Sort.by("createdAt").descending());
+        Pageable pageable = PageRequest.of(page.getPageNumber(), page.getPageSize());
 
         Page<PostScrap> scrapPageList = postScrapRepository.findAllByMemberAndScrapStatusTrueOrderByPostScrapIdDesc(member, pageable);
 
@@ -398,7 +398,7 @@ public class PostService {
 
     @Transactional
     public Page<GetContestRes> getMyScrapContest(Member member, Pageable page){
-        Pageable pageable = PageRequest.of(page.getPageNumber(), page.getPageSize(), Sort.by("createdAt").descending());
+        Pageable pageable = PageRequest.of(page.getPageNumber(), page.getPageSize());
 
         Page<PostScrap> scrapPageList = postScrapRepository.findAllByMemberAndScrapStatusTrueOrderByPostScrapIdDesc(member, pageable);
 
