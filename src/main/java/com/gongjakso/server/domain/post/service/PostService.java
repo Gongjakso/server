@@ -9,6 +9,7 @@ import com.gongjakso.server.domain.post.entity.Post;
 import com.gongjakso.server.domain.post.entity.PostScrap;
 import com.gongjakso.server.domain.post.entity.StackName;
 import com.gongjakso.server.domain.post.enumerate.CategoryType;
+import com.gongjakso.server.domain.post.enumerate.PostStatus;
 import com.gongjakso.server.domain.post.enumerate.StackNameType;
 import com.gongjakso.server.domain.post.repository.PostRepository;
 import com.gongjakso.server.domain.post.repository.PostScrapRepository;
@@ -154,7 +155,7 @@ public class PostService {
 
         posts.forEach(post -> post.getCategories().size());
         posts.forEach(post -> post.getStackNames().size());
-        return posts.map(post -> GetContestRes.of(post));
+        return posts.map(GetContestRes::of);
     }
 
     /*
@@ -172,7 +173,7 @@ public class PostService {
 
         posts.forEach(post -> post.getCategories().size());
         posts.forEach(post -> post.getStackNames().size());
-        return posts.map(post -> GetContestRes.of(post));
+        return posts.map(GetContestRes::of);
     }
 
     /*
@@ -197,7 +198,7 @@ public class PostService {
             }
             posts.forEach(post -> post.getCategories().size());
             posts.forEach(post -> post.getStackNames().size());
-            return posts.map(post -> GetContestRes.of(post));
+            return posts.map(GetContestRes::of);
         } else{
             Page<Post> posts;
             if (sort.equals("createdAt")) {
@@ -207,7 +208,7 @@ public class PostService {
             }
             posts.forEach(post -> post.getCategories().size());
             posts.forEach(post -> post.getStackNames().size());
-            return posts.map(post -> GetContestRes.of(post));
+            return posts.map(GetContestRes::of);
         }
     }
 
@@ -225,7 +226,7 @@ public class PostService {
         }
         posts.forEach(post -> post.getCategories().size());
         posts.forEach(post -> post.getStackNames().size());
-        return posts.map(post -> GetProjectRes.of(post));
+        return posts.map(GetProjectRes::of);
     }
 
     /*
@@ -242,7 +243,7 @@ public class PostService {
         }
         posts.forEach(post -> post.getCategories().size());
         posts.forEach(post -> post.getStackNames().size());
-        return posts.map(post -> GetProjectRes.of(post));
+        return posts.map(GetProjectRes::of);
     }
 
     /*
@@ -270,7 +271,7 @@ public class PostService {
             }
             posts.forEach(post -> post.getCategories().size());
             posts.forEach(post -> post.getStackNames().size());
-            return posts.map(post -> GetProjectRes.of(post));
+            return posts.map(GetProjectRes::of);
         } else{
             Page<Post> posts;
             if (sort.equals("createdAt")) {
@@ -314,9 +315,9 @@ public class PostService {
                 post.setScrapCount(post.getScrapCount() + 1);
             }
         }
-        postScrapRepository.save(postScrap);
-        postRepository.save(post);
-        return new PostScrapRes(postScrap.getPost().getPostId(), postScrap.getMember().getMemberId(), postScrap.getScrapStatus());
+        PostScrap savePostScrap = postScrapRepository.save(postScrap);
+        Post savePost = postRepository.save(post);
+        return PostScrapRes.of(savePostScrap, savePost.getScrapCount());
     }
 
     @Transactional
@@ -327,10 +328,10 @@ public class PostService {
             throw new ApplicationException(UNAUTHORIZED_EXCEPTION);
         }
         if(postScrapRepository.findByPostAndMember(post, member)==null){ //post, member 정보는 존재하되, scrap한적이 없는 경우 default false값 반환
-            return new PostScrapRes(post.getPostId(), member.getMemberId(), false);
+            return new PostScrapRes(post.getPostId(), member.getMemberId(), false, post.getScrapCount());
         }
         PostScrap postScrap = postScrapRepository.findByPostAndMember(post, member);
-        return new PostScrapRes(postScrap.getPost().getPostId(), postScrap.getMember().getMemberId(), postScrap.getScrapStatus());
+        return PostScrapRes.of(postScrap, post.getScrapCount());
     }
 
     @Transactional
@@ -338,7 +339,7 @@ public class PostService {
         // Validation
 
         // Business Logic
-        List<Post> postList = postRepository.findAllByMemberAndStatusAndDeletedAtIsNull(member, RECRUITING);
+        List<Post> postList = postRepository.findAllByMemberAndStatusAndDeletedAtIsNullOrderByCreatedAtDesc(member, RECRUITING);
 
         // Return
         return postList.stream()
@@ -363,7 +364,7 @@ public class PostService {
             role = "LEADER";
         }
         else {
-            if(applyRepository.existsApplyByMemberAndPost(member, post)) {
+            if(applyRepository.existsApplyByMemberAndPostAndIsCanceledIsFalse(member, post)) {
              role = "APPLICANT";
             }
         }
@@ -387,11 +388,8 @@ public class PostService {
                 })
                 .collect(Collectors.toList()); // 리스트로 수집
 
-        if (filteredProjects.isEmpty()) {
-            return Page.empty(pageable);
-        } else {
-            return new PageImpl<>(filteredProjects, pageable, filteredProjects.size());
-        }
+        // 필터링된 리스트를 페이지로 반환
+        return new PageImpl<>(filteredProjects, pageable, filteredProjects.size());
     }
 
     @Transactional
@@ -399,6 +397,7 @@ public class PostService {
         Pageable pageable = PageRequest.of(page.getPageNumber(), page.getPageSize());
 
         Page<PostScrap> scrapPageList = postScrapRepository.findAllByMemberAndPostPostTypeFalseAndPostDeletedAtIsNullAndScrapStatusTrueOrderByPostScrapIdDesc(member, pageable);
+
         List<GetContestRes> filteredContests = scrapPageList.stream()
                 .map(scrap -> {
                     Post post = scrap.getPost();
@@ -408,10 +407,23 @@ public class PostService {
                 })
                 .collect(Collectors.toList()); // 리스트로 수집
 
-        if(filteredContests.isEmpty()){
-            return Page.empty(pageable);
-        }else{
-            return new PageImpl<>(filteredContests, pageable, filteredContests.size());
+        // 필터링된 리스트를 페이지로 반환
+        return new PageImpl<>(filteredContests, pageable, filteredContests.size());
+    }
+
+    @Transactional
+    public PostSimpleRes completePost(Member member, Long postId) {
+        // Validation: Post 논리적 삭제 및 사용자의 권한 여부 확인
+        Post post = postRepository.findByPostIdAndDeletedAtIsNull(postId).orElseThrow(() -> new ApplicationException(NOT_FOUND_POST_EXCEPTION));
+        if(!post.getMember().getMemberId().equals(member.getMemberId())){
+            throw new ApplicationException(UNAUTHORIZED_EXCEPTION);
         }
+
+        // Business Logic
+        post.updateStatus(PostStatus.COMPLETE);
+        Post savePost = postRepository.save(post);
+
+        // Response
+        return PostSimpleRes.of(savePost);
     }
 }
