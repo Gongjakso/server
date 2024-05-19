@@ -83,7 +83,7 @@ public class PaginationControllerTest {
     @DisplayName("공고 스크랩 저장 및 취소 기능")
     void scrapPost() throws Exception {
         //given
-        Post post = PostUtilTest.builderPost(1L);
+        Post post = PostUtilTest.builderPost(1L, member);
         PostScrapRes postScrapRes = PostScrapUtilTest.ScrapPostRes(post.getPostId(), member.getMemberId(), true);
         given(postService.scrapPost(any(Member.class), anyLong())).willReturn(postScrapRes);
         String resJson = objectMapper.writeValueAsString(postScrapRes);

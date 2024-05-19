@@ -12,8 +12,7 @@ import java.util.Arrays;
 import java.util.List;
 
 public class PostUtilTest {
-    public  static Post builderPost(Long id){
-        Member member = MemberUtilTest.buildMember();
+    public  static Post builderPost(Long id, Member member){
         return new Post(
                 1L,
                 "Title1",

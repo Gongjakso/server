@@ -91,8 +91,9 @@ public class PaginationServiceTest {
     @DisplayName("공고 스크랩 기능")
     void scrapPost() {
         // Given
-        Post post = PostUtilTest.builderPost(1L);
+
         Member member = MemberUtilTest.buildMemberAndId(1L);
+        Post post = PostUtilTest.builderPost(1L, member);
         PostScrap postScrap = PostUtilTest.builderPostScrap(post, member, true);
 
         given(postRepository.findByPostIdAndDeletedAtIsNull(any(Long.class)))
