@@ -180,16 +180,21 @@ public class ApplyService {
         return ApplyPageRes.of(applyLists, pageNo, size, totalPages, last);
     }
 
-    public ParticipationPageRes myParticipationPostListPage(Member member,int page, int size) {
+    public ParticipationPageRes myParticipationPostListPage(Member member, int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
-        Page<Apply> participationPage = applyRepository.findApplyByApplyTypeAndMemberAndIsCanceledFalse(ApplyType.PASS,member,pageable);
-        List<ParticipationList> participationLists = participationPage.getContent().stream()
+        List<Apply> applyList = applyRepository.findApplyByApplyTypeAndMemberAndIsCanceledFalse(ApplyType.PASS,member);
+        List<Long> postIdList = applyList.stream()
                 .filter(apply -> apply.getPost().getStatus().equals(PostStatus.ACTIVE) || apply.getPost().getStatus().equals(PostStatus.COMPLETE))
-                .map(apply -> ParticipationList.of(apply.getPost(), CategoryType.valueOf(apply.getRecruit_part())))
+                .map(Apply::getApplyId)
+                .toList();
+        Page<Post> postPage = postRepository.findAllByPostIdInOrMember(postIdList, member, pageable);
+        List<ParticipationList> participationLists = postPage.getContent().stream()
+                .filter(post -> post.getDeletedAt() == null)
+                .map(ParticipationList::of)
                 .collect(Collectors.toList());
-        int pageNo = participationPage.getNumber();
-        int totalPages = participationPage.getTotalPages();
-        boolean last = participationPage.isLast();
+        int pageNo = postPage.getNumber();
+        int totalPages = postPage.getTotalPages();
+        boolean last = postPage.isLast();
         return ParticipationPageRes.of(participationLists, pageNo, size, totalPages, last);
     }
 
