@@ -9,6 +9,7 @@ import com.gongjakso.server.domain.post.entity.Post;
 import com.gongjakso.server.domain.post.entity.PostScrap;
 import com.gongjakso.server.domain.post.entity.StackName;
 import com.gongjakso.server.domain.post.enumerate.CategoryType;
+import com.gongjakso.server.domain.post.enumerate.PostStatus;
 import com.gongjakso.server.domain.post.enumerate.StackNameType;
 import com.gongjakso.server.domain.post.repository.PostRepository;
 import com.gongjakso.server.domain.post.repository.PostScrapRepository;
@@ -423,8 +424,19 @@ public class PostService {
         return new PageImpl<>(filteredContests, pageable, scrapPageList.getTotalElements());
     }
 
-//    @Transactional
-//    public ? completePost() {
-//
-//    }
+    @Transactional
+    public PostSimpleRes completePost(Member member, Long postId) {
+        // Validation: Post 논리적 삭제 및 사용자의 권한 여부 확인
+        Post post = postRepository.findByPostIdAndDeletedAtIsNull(postId).orElseThrow(() -> new ApplicationException(NOT_FOUND_POST_EXCEPTION));
+        if(!post.getMember().getMemberId().equals(member.getMemberId())){
+            throw new ApplicationException(UNAUTHORIZED_EXCEPTION);
+        }
+
+        // Business Logic
+        post.updateStatus(PostStatus.COMPLETE);
+        Post savePost = postRepository.save(post);
+
+        // Response
+        return PostSimpleRes.of(savePost);
+    }
 }
