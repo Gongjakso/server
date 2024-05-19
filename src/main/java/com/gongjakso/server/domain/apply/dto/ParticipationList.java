@@ -1,21 +1,28 @@
 package com.gongjakso.server.domain.apply.dto;
 
 import com.gongjakso.server.domain.post.entity.Post;
-import com.gongjakso.server.domain.post.enumerate.CategoryType;
 import com.gongjakso.server.domain.post.enumerate.PostStatus;
+import lombok.Builder;
 
 import java.time.LocalDateTime;
 
+@Builder
 public record ParticipationList(
         String title,
-        CategoryType recruit_part,
         String leaderName,
         LocalDateTime startDate,
         LocalDateTime finishDate,
         PostStatus postStatus,
         Boolean postType
 ) {
-    public static ParticipationList of(Post post,CategoryType recruit_part) {
-        return new ParticipationList(post.getTitle(), recruit_part,post.getMember().getName(),post.getStartDate(),post.getFinishDate(),post.getStatus(), post.isPostType());
+    public static ParticipationList of(Post post) {
+        return ParticipationList.builder()
+                .title(post.getTitle())
+                .leaderName(post.getMember().getName())
+                .startDate(post.getStartDate())
+                .finishDate(post.getFinishDate())
+                .postStatus(post.getStatus())
+                .postType(post.isPostType())
+                .build();
     }
 }
