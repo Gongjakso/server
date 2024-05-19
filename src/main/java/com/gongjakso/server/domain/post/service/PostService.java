@@ -376,17 +376,9 @@ public class PostService {
     public Page<GetProjectRes> getMyScrapProject(Member member, Pageable page){
         Pageable pageable = PageRequest.of(page.getPageNumber(), page.getPageSize());
 
-        Page<PostScrap> scrapPageList = postScrapRepository.findAllByMemberAndScrapStatusTrueOrderByPostScrapIdDesc(member, pageable);
+        Page<PostScrap> scrapPageList = postScrapRepository.findAllByMemberAndPostPostTypeTrueAndPostDeletedAtIsNullAndScrapStatusTrueOrderByPostScrapIdDesc(member, pageable);
 
         List<GetProjectRes> filteredProjects = scrapPageList.stream()
-                .filter(scrap -> {
-                    Post post = scrap.getPost();
-
-                    //유효한 post만 남기기
-                    return post != null &&
-                            post.isPostType() == true &&
-                            post.getDeletedAt() == null;
-                })
                 .map(scrap -> {
                     Post post = scrap.getPost();
                     post.getCategories().size();
@@ -406,16 +398,8 @@ public class PostService {
     public Page<GetContestRes> getMyScrapContest(Member member, Pageable page){
         Pageable pageable = PageRequest.of(page.getPageNumber(), page.getPageSize());
 
-        Page<PostScrap> scrapPageList = postScrapRepository.findAllByMemberAndScrapStatusTrueOrderByPostScrapIdDesc(member, pageable);
+        Page<PostScrap> scrapPageList = postScrapRepository.findAllByMemberAndPostPostTypeFalseAndPostDeletedAtIsNullAndScrapStatusTrueOrderByPostScrapIdDesc(member, pageable);
         List<GetContestRes> filteredContests = scrapPageList.stream()
-                .filter(scrap -> {
-                    Post post = scrap.getPost();
-
-                    //유효한 post만 남기기
-                    return post != null &&
-                            post.isPostType() == false &&
-                            post.getDeletedAt() == null;
-                })
                 .map(scrap -> {
                     Post post = scrap.getPost();
                     post.getCategories().size();
