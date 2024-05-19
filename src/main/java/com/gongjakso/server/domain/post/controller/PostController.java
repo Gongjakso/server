@@ -120,4 +120,10 @@ public class PostController {
     public ApplicationResponse<Page<GetContestRes>> MyScrapContestList(@PageableDefault(size = 6) Pageable pageable,@AuthenticationPrincipal PrincipalDetails principalDetails){
         return ApplicationResponse.ok(postService.getMyScrapContest(principalDetails.getMember(), pageable));
     }
+
+    @Operation(summary = "활동 종료 API", description = "팀장이 활동 중인 프로젝트 공고를 활동 종료할 때 사용하는 API로, 활동 종료된 공고의 정보가 반환")
+    @PatchMapping("/complete/{post_id}")
+    public ApplicationResponse<PostSimpleRes> completePost(@AuthenticationPrincipal PrincipalDetails principalDetails, @PathVariable("post_id") Long postId) {
+        return ApplicationResponse.ok(postService.completePost(principalDetails.getMember(), postId));
+    }
 }

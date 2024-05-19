@@ -55,7 +55,7 @@ public class ApplyService {
         // Validation
         Post post = postRepository.findWithStackNameAndCategoryUsingFetchJoinByPostId(postId).orElseThrow(() -> new ApplicationException(ErrorCode.NOT_FOUND_POST_EXCEPTION));
         //Check reapply
-        if (applyRepository.existsApplyByMemberAndPost(member, post)) {
+        if (applyRepository.existsApplyByMemberAndPostAndIsCanceledIsFalse(member, post)) {
             throw new ApplicationException(ErrorCode.ALREADY_APPLY_EXCEPTION);
         }
         //Check Post Date
@@ -168,7 +168,7 @@ public class ApplyService {
             throw new ApplicationException(ErrorCode.UNAUTHORIZED_EXCEPTION);
         }
 
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
         Page<Apply> applyPage = applyRepository.findAllByPost(post, pageable);
         List<ApplyList> applyLists = applyPage.getContent().stream()
                 .map(apply -> ApplyList.of(apply, decisionState(apply)))
@@ -180,16 +180,21 @@ public class ApplyService {
         return ApplyPageRes.of(applyLists, pageNo, size, totalPages, last);
     }
 
-    public ParticipationPageRes myParticipationPostListPage(Member member,int page, int size) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
-        Page<Apply> participationPage = applyRepository.findApplyByApplyTypeAndMember(ApplyType.PASS,member,pageable);
-        List<ParticipationList> participationLists = participationPage.getContent().stream()
-                .filter(apply -> apply.getPost().getStatus().equals(PostStatus.ACTIVE))
-                .map(apply -> ParticipationList.of(apply.getPost(), CategoryType.valueOf(apply.getRecruit_part())))
+    public ParticipationPageRes myParticipationPostListPage(Member member, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+        List<Apply> applyList = applyRepository.findApplyByApplyTypeAndMemberAndIsCanceledFalse(ApplyType.PASS,member);
+        List<Long> postIdList = applyList.stream()
+                .filter(apply -> apply.getPost().getStatus().equals(PostStatus.ACTIVE) || apply.getPost().getStatus().equals(PostStatus.COMPLETE))
+                .map(Apply::getApplyId)
+                .toList();
+        Page<Post> postPage = postRepository.findAllByPostIdInOrMember(postIdList, member, pageable);
+        List<ParticipationList> participationLists = postPage.getContent().stream()
+                .filter(post -> post.getDeletedAt() == null)
+                .map(ParticipationList::of)
                 .collect(Collectors.toList());
-        int pageNo = participationPage.getNumber();
-        int totalPages = participationPage.getTotalPages();
-        boolean last = participationPage.isLast();
+        int pageNo = postPage.getNumber();
+        int totalPages = postPage.getTotalPages();
+        boolean last = postPage.isLast();
         return ParticipationPageRes.of(participationLists, pageNo, size, totalPages, last);
     }
 
@@ -220,7 +225,7 @@ public class ApplyService {
                 throw new ApplicationException(ErrorCode.UNAUTHORIZED_EXCEPTION);
             }
             Category category = categoryRepository.findCategoryByPostAndCategoryType(post, CategoryType.valueOf(apply.getRecruit_part()));
-            if (category.getSize() - 1 <= 0) {
+            if (category.getSize() <= 0) {
                 throw new ApplicationException(ErrorCode.OVER_APPLY_EXCEPTION);
             } else {
                 category.setSize(category.getSize() - 1);
@@ -262,13 +267,15 @@ public class ApplyService {
         // Validation
 
         // Business Logic
-        List<Apply> applyList = applyRepository.findAllByMemberAndDeletedAtIsNull(member);
+        List<Apply> applyList = applyRepository.findAllByMemberAndDeletedAtIsNullOrderByCreatedAtDesc(member);
 
 
         // Response
         return applyList.stream()
                 .filter(apply -> apply.getPost().getStatus() == PostStatus.RECRUITING ||
-                        apply.getPost().getStatus() == PostStatus.EXTENSION)
+                        apply.getPost().getStatus() == PostStatus.EXTENSION ||
+                        apply.getPost().getStatus() == PostStatus.CANCEL ||
+                        apply.getPost().getStatus() == PostStatus.CLOSE)
                 .map(apply -> {
                     Post post = apply.getPost();
                     List<String> categoryList = post.getCategories().stream()
@@ -325,7 +332,7 @@ public class ApplyService {
         apply.updateIsCanceled(Boolean.TRUE);
         Apply saveApply = applyRepository.save(apply);
         // TODO: 이메일 발송 로직을 실시간성이 아닌 일괄배치 또는 비동기로 변환 필요 (성능 문제)
-        emailClient.sendOneEmail(post.getMember().getEmail());
+        // emailClient.sendOneEmail(post.getMember().getEmail());
 
         // Response
         return PatchApplyRes.of(saveApply, member);
