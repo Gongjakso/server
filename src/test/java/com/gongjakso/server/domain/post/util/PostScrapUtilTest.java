@@ -5,6 +5,9 @@ import com.gongjakso.server.domain.post.dto.PostScrapRes;
 import com.gongjakso.server.domain.post.entity.Post;
 import com.gongjakso.server.domain.post.entity.PostScrap;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 public class PostScrapUtilTest {
     public static PostScrap builderPostScrap(Post post, Member member) {
         return new PostScrap(
@@ -12,6 +15,12 @@ public class PostScrapUtilTest {
                 member,
                 true
         );
+    }
+
+    public static List<PostScrap> builderMultiplePostScraps(List<Post> posts, Member member){
+        return posts.stream()
+                .map(post -> new PostScrap(post, member, true))
+                .collect(Collectors.toList());
     }
 
 
