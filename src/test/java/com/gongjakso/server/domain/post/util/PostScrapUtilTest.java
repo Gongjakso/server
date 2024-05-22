@@ -37,7 +37,7 @@ public class PostScrapUtilTest {
         return PostScrapRes.builder()
                 .postId(postId)
                 .memberId(memberId)
-                .ScrapStatus(scrapStatus)
+                .scrapStatus(scrapStatus)
                 .build();
     }
 }

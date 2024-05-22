@@ -3,6 +3,7 @@ package com.gongjakso.server.domain.post.service;
 import com.gongjakso.server.domain.member.entity.Member;
 import com.gongjakso.server.domain.member.util.MemberUtilTest;
 import com.gongjakso.server.domain.post.dto.GetContestRes;
+import com.gongjakso.server.domain.post.dto.GetProjectRes;
 import com.gongjakso.server.domain.post.dto.PostScrapRes;
 import com.gongjakso.server.domain.post.entity.Post;
 import com.gongjakso.server.domain.post.entity.PostScrap;
@@ -127,7 +128,7 @@ public class PaginationServiceTest {
             assertThat(res).isNotNull();
             assertThat(res.postId()).isEqualTo(1L);
             assertThat(res.memberId()).isEqualTo(member.getMemberId());
-            assertThat(res.ScrapStatus()).isTrue();
+            assertThat(res.scrapStatus()).isTrue();
             assertThat(savedPostScrap.getPost().getScrapCount()).isEqualTo(1);
 
             // given
@@ -141,7 +142,7 @@ public class PaginationServiceTest {
             PostScrap canceledPostScrap = postScrapRepository.findByPostAndMember(post, member);
             assertThat(canceledPostScrap).isNotNull();
 
-            assertThat(res.ScrapStatus()).isFalse();
+            assertThat(res.scrapStatus()).isFalse();
             assertThat(canceledPostScrap.getPost().getScrapCount()).isEqualTo(0);
         }
 
@@ -168,7 +169,7 @@ public class PaginationServiceTest {
             assertThat(res).isNotNull();
             assertThat(res.postId()).isEqualTo(1L);
             assertThat(res.memberId()).isEqualTo(member.getMemberId());
-            assertThat(res.ScrapStatus()).isTrue();
+            assertThat(res.scrapStatus()).isTrue();
             assertThat(getPostScrap.getPost().getScrapCount()).isEqualTo(1);
         }
 
@@ -180,17 +181,19 @@ public class PaginationServiceTest {
             List<Post> testPosts = PostUtilTest.builderMultiplePosts();
             List<PostScrap> testPostScraps= PostScrapUtilTest.builderMultiplePostScraps(testPosts, member);
             Pageable pageable = PageRequest.of(0, 6);
-            Page<Post> testPage = new PageImpl<>(testPostScraps, pageable, testPostScraps.size()); // Page 생성
+            Page<PostScrap> testPage = new PageImpl<>(testPostScraps, pageable, testPostScraps.size()); // Page 생성
 
-            given(postRepository.findAllByPostTypeFalseAndDeletedAtIsNullAndFinishDateAfterAndStatusOrderByPostIdDesc(
-                    any(LocalDateTime.class), any(PostStatus.class), any(Pageable.class)
+
+            given(postScrapRepository.findAllByMemberAndPostPostTypeTrueAndPostDeletedAtIsNullAndScrapStatusTrueOrderByPostScrapIdDesc(
+                    any(Member.class), any(Pageable.class)
             )).willReturn(testPage);
 
             // when
-            Page<GetContestRes> res = postService.getContests("createdAt", pageable);
+            Page<GetProjectRes> res = postService.getMyScrapProject(member, pageable);
 
             // then
             assertThat(res).isNotNull();
+            assertThat(res.getTotalPages()).isEqualTo(1);
             assertThat(res.getTotalElements()).isEqualTo(3);
             assertThat(res.getContent().get(0).title()).isEqualTo("Title1");
             assertThat(res.getContent().get(1).title()).isEqualTo("Title2");
@@ -200,7 +203,28 @@ public class PaginationServiceTest {
         @Test
         @DisplayName("내가 스크랩한 공모전 목록 조회 및 페이지네이션 기능 테스트")
         void getMyScrapContestTest() {
+            // given
+            Member member = MemberUtilTest.buildMemberAndId(1L);
+            List<Post> testPosts = PostUtilTest.builderMultiplePosts();
+            List<PostScrap> testPostScraps= PostScrapUtilTest.builderMultiplePostScraps(testPosts, member);
+            Pageable pageable = PageRequest.of(0, 6);
+            Page<PostScrap> testPage = new PageImpl<>(testPostScraps, pageable, testPostScraps.size()); // Page 생성
 
+
+            given(postScrapRepository.findAllByMemberAndPostPostTypeFalseAndPostDeletedAtIsNullAndScrapStatusTrueOrderByPostScrapIdDesc(
+                    any(Member.class), any(Pageable.class)
+            )).willReturn(testPage);
+
+            // when
+            Page<GetContestRes> res = postService.getMyScrapContest(member, pageable);
+
+            // then
+            assertThat(res).isNotNull();
+            assertThat(res.getTotalPages()).isEqualTo(1);
+            assertThat(res.getTotalElements()).isEqualTo(3);
+            assertThat(res.getContent().get(0).title()).isEqualTo("Title1");
+            assertThat(res.getContent().get(1).title()).isEqualTo("Title2");
+            assertThat(res.getContent().get(2).title()).isEqualTo("Title3");
         }
     }
 }

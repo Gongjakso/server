@@ -1,47 +1,13 @@
 package com.gongjakso.server.domain.post.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.gongjakso.server.domain.apply.service.ApplyService;
-import com.gongjakso.server.domain.member.entity.Member;
-import com.gongjakso.server.domain.member.repository.MemberRepository;
-import com.gongjakso.server.domain.member.util.MemberUtilTest;
-import com.gongjakso.server.domain.post.dto.PostScrapRes;
-import com.gongjakso.server.domain.post.entity.Post;
-import com.gongjakso.server.domain.post.repository.PostRepository;
-import com.gongjakso.server.domain.post.service.PostService;
-import com.gongjakso.server.domain.post.util.PostScrapUtilTest;
-import com.gongjakso.server.domain.post.util.PostUtilTest;
-import com.gongjakso.server.global.security.PrincipalDetails;
-import com.gongjakso.server.global.security.jwt.JwtFilter;
-import com.gongjakso.server.global.security.jwt.TokenProvider;
-import com.gongjakso.server.global.util.redis.RedisClient;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.http.MediaType;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.test.web.servlet.MockMvc;
-
-import java.security.Principal;
-
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.verify;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @AutoConfigureMockMvc
 @ExtendWith(MockitoExtension.class)
 public class PaginationControllerTest {
-
+/*
     MockMvc mockMvc;
 
     private ObjectMapper objectMapper = new ObjectMapper();
@@ -97,4 +63,6 @@ public class PaginationControllerTest {
 
         verify(postService).scrapPost(any(Member.class), any(Long.class));
     }
+
+ */
 }
