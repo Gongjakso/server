@@ -14,7 +14,7 @@ import java.util.List;
 public class PostUtilTest {
     public  static Post builderPost(Long id, Member member){
         return new Post(
-                1L,
+                id,
                 "Title1",
                 member,
                 "Content1",
