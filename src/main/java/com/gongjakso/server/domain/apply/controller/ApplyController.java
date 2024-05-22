@@ -42,8 +42,8 @@ public class ApplyController {
     //내가 참여한 공고 정보 요청 api
     @Operation(summary = "내가 참여한 공고 정보 API", description = "내가 참여한 공고 정보")
     @GetMapping("/my-participation-post")
-    public ApplicationResponse<ParticipationPageRes> getMyParticipationPostList(@RequestParam(name = "page", defaultValue = "0") int page,@RequestParam(name = "size", defaultValue = "6") int size){
-        return ApplicationResponse.ok(applyService.myParticipationPostListPage(page,size));
+    public ApplicationResponse<ParticipationPageRes> getMyParticipationPostList(@AuthenticationPrincipal PrincipalDetails principalDetails,@RequestParam(name = "page", defaultValue = "0") int page,@RequestParam(name = "size", defaultValue = "6") int size){
+        return ApplicationResponse.ok(applyService.myParticipationPostListPage(principalDetails.getMember(),page,size));
     }
     //지원서 열람 요청 api
     @Operation(summary = "지원서 열람 API", description = "내가 모집 중인 팀 페이지에서 지원서 열람 시")
@@ -82,7 +82,7 @@ public class ApplyController {
     @Operation(summary = "공고 마감 API", description = "내가 모집 중인 팀 페이지에서 공고 마감 버튼 클릭시")
     @PatchMapping("/{post_id}/close")
     public ApplicationResponse<Void> updatePostStatusToClose(@AuthenticationPrincipal PrincipalDetails principalDetails, @PathVariable("post_id") Long postId){
-        applyService.updatePostState(principalDetails.getMember(),postId, PostStatus.CLOSE);
+        applyService.updatePostState(principalDetails.getMember(),postId, PostStatus.ACTIVE);
         return ApplicationResponse.ok();
     }
     //공고 취소 요청 api

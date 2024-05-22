@@ -120,7 +120,6 @@ public class Post extends BaseTimeEntity {
         this.postView = 0L;
     }
 
-    @Builder
     public void modify(PostModifyReq req) {
         this.title = req.title();
         this.contents = req.contents();
@@ -141,6 +140,10 @@ public class Post extends BaseTimeEntity {
 
     public void updatePostView(Long postView) {
         this.postView = postView + 1;
+    }
+
+    public void updateStatus(PostStatus status) {
+        this.status = status;
     }
 
     @Builder
