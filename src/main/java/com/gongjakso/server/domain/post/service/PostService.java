@@ -379,7 +379,7 @@ public class PostService {
 
         Page<PostScrap> scrapPageList = postScrapRepository.findAllByMemberAndPostPostTypeTrueAndPostDeletedAtIsNullAndScrapStatusTrueOrderByPostScrapIdDesc(member, pageable);
 
-        List<GetProjectRes> filteredProjects = scrapPageList.stream()
+        List<GetProjectRes> myScrapProjects = scrapPageList.stream()
                 .map(scrap -> {
                     Post post = scrap.getPost();
                     post.getCategories().size();
@@ -389,7 +389,7 @@ public class PostService {
                 .collect(Collectors.toList()); // 리스트로 수집
 
         // 필터링된 리스트를 페이지로 반환
-        return new PageImpl<>(filteredProjects, pageable, filteredProjects.size());
+        return new PageImpl<>( myScrapProjects, pageable, myScrapProjects.size());
     }
 
     @Transactional
@@ -398,7 +398,7 @@ public class PostService {
 
         Page<PostScrap> scrapPageList = postScrapRepository.findAllByMemberAndPostPostTypeFalseAndPostDeletedAtIsNullAndScrapStatusTrueOrderByPostScrapIdDesc(member, pageable);
 
-        List<GetContestRes> filteredContests = scrapPageList.stream()
+        List<GetContestRes> myScrapContests = scrapPageList.stream()
                 .map(scrap -> {
                     Post post = scrap.getPost();
                     post.getCategories().size();
@@ -408,7 +408,7 @@ public class PostService {
                 .collect(Collectors.toList()); // 리스트로 수집
 
         // 필터링된 리스트를 페이지로 반환
-        return new PageImpl<>(filteredContests, pageable, filteredContests.size());
+        return new PageImpl<>(myScrapContests, pageable, myScrapContests.size());
     }
 
     @Transactional

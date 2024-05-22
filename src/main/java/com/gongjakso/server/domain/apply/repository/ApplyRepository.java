@@ -23,7 +23,7 @@ public interface ApplyRepository extends JpaRepository<Apply,Long> {
   
     List<Apply> findApplyByApplyTypeAndMemberAndIsCanceledFalse(ApplyType applyType, Member member);
   
-    List<Apply> findAllByMemberAndDeletedAtIsNullOrderByCreatedAtDesc(Member member);
+    Page<Apply> findAllByMemberAndDeletedAtIsNullOrderByCreatedAtDesc(Member member, Pageable pageable);
 
     Apply findApplyByMemberAndPost(Member member,Post post);
 

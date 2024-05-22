@@ -18,12 +18,9 @@ import com.gongjakso.server.domain.post.repository.PostRepository;
 import com.gongjakso.server.domain.post.repository.StackNameRepository;
 import com.gongjakso.server.global.exception.ApplicationException;
 import com.gongjakso.server.global.exception.ErrorCode;
-import com.gongjakso.server.global.util.email.EmailClient;
+// import com.gongjakso.server.global.util.email.EmailClient;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -48,7 +45,7 @@ public class ApplyService {
     private final CategoryRepository categoryRepository;
     private final StackNameRepository stackNameRepository;
     private final ApplyStackRepository applyStackRepository;
-    private final EmailClient emailClient;
+//    private final EmailClient emailClient;
 
     @Transactional
     public void save(Member member, Long postId, ApplyReq req) {
@@ -263,15 +260,12 @@ public class ApplyService {
     }
 
 
-    public List<MyPageRes> getMyApplyList(Member member) {
+    public Page<MyPageRes> getMyApplyList(Member member, Pageable pageable) {
         // Validation
 
         // Business Logic
-        List<Apply> applyList = applyRepository.findAllByMemberAndDeletedAtIsNullOrderByCreatedAtDesc(member);
-
-
-        // Response
-        return applyList.stream()
+        Page<Apply> applyPage = applyRepository.findAllByMemberAndDeletedAtIsNullOrderByCreatedAtDesc(member, pageable);
+        List<MyPageRes> applyList = applyPage.stream()
                 .filter(apply -> apply.getPost().getStatus() == PostStatus.RECRUITING ||
                         apply.getPost().getStatus() == PostStatus.EXTENSION ||
                         apply.getPost().getStatus() == PostStatus.CANCEL ||
@@ -284,7 +278,10 @@ public class ApplyService {
 
                     return MyPageRes.of(post, apply, categoryList);
                 })
-                .collect(Collectors.toList());
+                .toList();
+
+        // Response
+        return new PageImpl<>(applyList, pageable, applyPage.getTotalElements());
     }
 
     public ApplicationRes getMyApplication(Member member, Long postId){

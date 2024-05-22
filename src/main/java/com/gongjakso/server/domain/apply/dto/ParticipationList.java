@@ -8,6 +8,7 @@ import java.time.LocalDateTime;
 
 @Builder
 public record ParticipationList(
+        Long postId,
         String title,
         String leaderName,
         LocalDateTime startDate,
@@ -17,6 +18,7 @@ public record ParticipationList(
 ) {
     public static ParticipationList of(Post post) {
         return ParticipationList.builder()
+                .postId(post.getPostId())
                 .title(post.getTitle())
                 .leaderName(post.getMember().getName())
                 .startDate(post.getStartDate())
