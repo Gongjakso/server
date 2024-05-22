@@ -397,7 +397,6 @@ public class PostService {
         Pageable pageable = PageRequest.of(page.getPageNumber(), page.getPageSize());
 
         Page<PostScrap> scrapPageList = postScrapRepository.findAllByMemberAndPostPostTypeFalseAndPostDeletedAtIsNullAndScrapStatusTrueOrderByPostScrapIdDesc(member, pageable);
-
         List<GetContestRes> myScrapContests = scrapPageList.stream()
                 .map(scrap -> {
                     Post post = scrap.getPost();
