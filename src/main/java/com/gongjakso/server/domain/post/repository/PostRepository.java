@@ -130,7 +130,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     Page<Post> findAllPostsJoinedWithStackNamesByTitleContainsAndPostTypeTrueAndDeletedAtIsNullAndFinishDateAfterAndStatusAndMeetingCityContainsAndMeetingTownContainsAndStackNamesStackNameTypeContainsOrderByScrapCountDescPostIdDesc
     (@Param("searchWord") String searchWord, @Param("currentTimestamp") LocalDateTime currentTimestamp, @Param("status") PostStatus status, @Param("meetingCity") String meetingCity, @Param("meetingTown") String meetingTown, @Param("stackNameType") String stackNameType,Pageable pageable);
 
-    List<Post> findAllByMemberAndStatusAndDeletedAtIsNullOrderByCreatedAtDesc(Member member, PostStatus status);
+    List<Post> findAllByMemberAndStatusInAndDeletedAtIsNullOrderByCreatedAtDesc(Member member, List<PostStatus> statusList);
 
     Page<Post> findAllByPostIdInOrMember(List<Long> postIdList, Member member, Pageable pageable);
 }
