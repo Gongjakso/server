@@ -21,13 +21,20 @@ public record PostScrapRes(
                 description = "사용자가 공고를 스크랩 했는지 boolean값으로 판단",
                 defaultValue = "0"
         )
-        Boolean ScrapStatus
+        Boolean scrapStatus,
+
+        @Schema(
+                description = "해당 공고의 스크랩 총 수 반환",
+                defaultValue = "0"
+        )
+        long scrapCount
 ) {
-        public static PostScrapRes of(PostScrap postScrap){
+        public static PostScrapRes of(PostScrap postScrap, long scrapCount){
             return PostScrapRes.builder()
                     .postId(postScrap.getPost().getPostId())
                     .memberId(postScrap.getMember().getMemberId())
-                    .ScrapStatus(postScrap.getScrapStatus())
+                    .scrapStatus(postScrap.getScrapStatus())
+                    .scrapCount(scrapCount)
                     .build();
         }
 }

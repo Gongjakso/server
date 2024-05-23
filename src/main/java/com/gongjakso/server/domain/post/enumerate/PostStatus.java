@@ -11,7 +11,7 @@ public enum PostStatus {
     CANCEL("모집 취소"),
     CLOSE("모집 마감"),
     ACTIVE("활동 중"),
-    COMPLETE("모집 완료"),
+    COMPLETE("활동 완료"),
     EXTENSION("모집 연장");
 
     private final String status;

@@ -141,4 +141,8 @@ public class Post extends BaseTimeEntity {
     public void updatePostView(Long postView) {
         this.postView = postView + 1;
     }
+
+    public void updateStatus(PostStatus status) {
+        this.status = status;
+    }
 }
