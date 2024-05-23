@@ -27,6 +27,7 @@ import org.springframework.data.domain.Pageable;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -56,7 +57,7 @@ public class PaginationServiceTest {
             @DisplayName("공모전 공고 전체 조회 최신순")
             void getContestsByCreatedAt() {
                 // given
-                List<Post> testPosts = PostUtilTest.builderMultiplePosts();
+                List<Post> testPosts = PostUtilTest.builderMultiplePosts(false);
                 Pageable pageable = PageRequest.of(0, 6);
                 Page<Post> testPage = new PageImpl<>(testPosts, pageable, testPosts.size()); // Page 생성
 
@@ -69,9 +70,10 @@ public class PaginationServiceTest {
 
                 // then
                 assertThat(res).isNotNull();
-                assertThat(res.getTotalElements()).isEqualTo(3);
+                assertThat(res.getTotalElements()).isEqualTo(7);
+                assertThat(res.getTotalPages()).isEqualTo(2);
                 assertThat(res.getContent().get(0).title()).isEqualTo("Title1");
-                assertThat(res.getContent().get(1).title()).isEqualTo("Title2");
+                assertThat(res.getContent().get(1).title()).isEqualTo("제목5");
                 assertThat(res.getContent().get(2).title()).isEqualTo("Title3");
             }
 
@@ -79,7 +81,7 @@ public class PaginationServiceTest {
             @DisplayName("공모전 공고 전체 조회 인기순")
             void getContestsByScrapCount() {
                 // given
-                List<Post> testPosts = PostUtilTest.builderMultiplePosts();
+                List<Post> testPosts = PostUtilTest.builderMultiplePosts(false);
                 Pageable pageable = PageRequest.of(0, 6);
                 Page<Post> testPage = new PageImpl<>(testPosts, pageable, testPosts.size()); // Page 생성
 
@@ -92,9 +94,10 @@ public class PaginationServiceTest {
 
                 // then
                 assertThat(res).isNotNull();
-                assertThat(res.getTotalElements()).isEqualTo(3);
+                assertThat(res.getTotalElements()).isEqualTo(7);
+                assertThat(res.getTotalPages()).isEqualTo(2);
                 assertThat(res.getContent().get(0).title()).isEqualTo("Title1");
-                assertThat(res.getContent().get(1).title()).isEqualTo("Title2");
+                assertThat(res.getContent().get(1).title()).isEqualTo("제목5");
                 assertThat(res.getContent().get(2).title()).isEqualTo("Title3");
             }
         }
@@ -178,8 +181,10 @@ public class PaginationServiceTest {
         void getMyScrapProjectTest() {
             // given
             Member member = MemberUtilTest.buildMemberAndId(1L);
-            List<Post> testPosts = PostUtilTest.builderMultiplePosts();
-            List<PostScrap> testPostScraps= PostScrapUtilTest.builderMultiplePostScraps(testPosts, member);
+            List<Post> testPosts = PostUtilTest.builderMultiplePosts(false);
+            List<PostScrap> testPostScraps= PostScrapUtilTest.builderMultiplePostScraps(testPosts, member).stream()
+                    .filter(PostScrap::getScrapStatus)
+                    .collect(Collectors.toList());
             Pageable pageable = PageRequest.of(0, 6);
             Page<PostScrap> testPage = new PageImpl<>(testPostScraps, pageable, testPostScraps.size()); // Page 생성
 
@@ -193,10 +198,10 @@ public class PaginationServiceTest {
 
             // then
             assertThat(res).isNotNull();
-            assertThat(res.getTotalPages()).isEqualTo(1);
-            assertThat(res.getTotalElements()).isEqualTo(3);
+            assertThat(res.getTotalElements()).isEqualTo(7);
+            assertThat(res.getTotalPages()).isEqualTo(2);
             assertThat(res.getContent().get(0).title()).isEqualTo("Title1");
-            assertThat(res.getContent().get(1).title()).isEqualTo("Title2");
+            assertThat(res.getContent().get(1).title()).isEqualTo("제목5");
             assertThat(res.getContent().get(2).title()).isEqualTo("Title3");
         }
 
@@ -205,8 +210,10 @@ public class PaginationServiceTest {
         void getMyScrapContestTest() {
             // given
             Member member = MemberUtilTest.buildMemberAndId(1L);
-            List<Post> testPosts = PostUtilTest.builderMultiplePosts();
-            List<PostScrap> testPostScraps= PostScrapUtilTest.builderMultiplePostScraps(testPosts, member);
+            List<Post> testPosts = PostUtilTest.builderMultiplePosts(false);
+            List<PostScrap> testPostScraps= PostScrapUtilTest.builderMultiplePostScraps(testPosts, member).stream()
+                    .filter(PostScrap::getScrapStatus)
+                    .collect(Collectors.toList());
             Pageable pageable = PageRequest.of(0, 6);
             Page<PostScrap> testPage = new PageImpl<>(testPostScraps, pageable, testPostScraps.size()); // Page 생성
 
@@ -220,10 +227,10 @@ public class PaginationServiceTest {
 
             // then
             assertThat(res).isNotNull();
-            assertThat(res.getTotalPages()).isEqualTo(1);
-            assertThat(res.getTotalElements()).isEqualTo(3);
+            assertThat(res.getTotalElements()).isEqualTo(7);
+            assertThat(res.getTotalPages()).isEqualTo(2);
             assertThat(res.getContent().get(0).title()).isEqualTo("Title1");
-            assertThat(res.getContent().get(1).title()).isEqualTo("Title2");
+            assertThat(res.getContent().get(1).title()).isEqualTo("제목5");
             assertThat(res.getContent().get(2).title()).isEqualTo("Title3");
         }
     }

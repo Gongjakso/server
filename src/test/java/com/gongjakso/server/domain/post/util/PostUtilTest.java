@@ -34,7 +34,7 @@ public class PostUtilTest {
         );
     }
 
-    public static Post builderPosts(Long id, String title, String contents, String link) {
+    public static Post builderPosts(Long id, String title, String contents, String link, Boolean postType) {
         Member member = MemberUtilTest.buildMember();
 
         return new Post(
@@ -52,17 +52,21 @@ public class PostUtilTest {
                 "마포구",
                 true,
                 ".com",
-                false,
+                postType,
                 new ArrayList<>(),
                 new ArrayList<>()
         );
     }
 
-    public static List<Post> builderMultiplePosts() {
+    public static List<Post> builderMultiplePosts(Boolean postType) {
         return Arrays.asList(
-                builderPosts(1L, "Title1", "Content1", "Link1"),
-                builderPosts(2L, "Title2", "Content2", "Link2"),
-                builderPosts(3L, "Title3", "Content3", "Link3")
+                builderPosts(1L, "Title1", "Content1", "Link1", postType),
+                builderPosts(5L, "제목5", "Content5", "Link5", postType),
+                builderPosts(3L, "Title3", "Content3", "Link3", postType),
+                builderPosts(4L, "제목4", "Content4", "Link4", postType),
+                builderPosts(2L, "Title2", "Content2", "Link2", postType),
+                builderPosts(6L, "제목6", "Content6", "Link6", postType),
+                builderPosts(7L, "제목7", "Content7", "Link7", postType)
         );
     }
 
