@@ -315,9 +315,9 @@ public class PostService {
                 post.setScrapCount(post.getScrapCount() + 1);
             }
         }
-        postScrapRepository.save(postScrap);
-        postRepository.save(post);
-        return PostScrapRes.of(postScrap, post.getScrapCount());
+        PostScrap savePostScrap = postScrapRepository.save(postScrap);
+        Post savePost = postRepository.save(post);
+        return PostScrapRes.of(savePostScrap, savePost.getScrapCount());
     }
 
     @Transactional
