@@ -24,10 +24,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static com.gongjakso.server.domain.post.enumerate.PostStatus.EXTENSION;
 import static com.gongjakso.server.domain.post.enumerate.PostStatus.RECRUITING;
 import static com.gongjakso.server.global.exception.ErrorCode.*;
 
@@ -336,7 +338,8 @@ public class PostService {
         // Validation
 
         // Business Logic
-        List<Post> postList = postRepository.findAllByMemberAndStatusAndDeletedAtIsNullOrderByCreatedAtDesc(member, RECRUITING);
+        List<PostStatus> statusList = Arrays.asList(RECRUITING, EXTENSION);
+        List<Post> postList = postRepository.findAllByMemberAndStatusInAndDeletedAtIsNullOrderByCreatedAtDesc(member, statusList);
 
         // Return
         return postList.stream()
