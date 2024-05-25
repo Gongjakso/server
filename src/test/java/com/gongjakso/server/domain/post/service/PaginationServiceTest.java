@@ -5,6 +5,7 @@ import com.gongjakso.server.domain.member.util.MemberUtilTest;
 import com.gongjakso.server.domain.post.dto.GetContestRes;
 import com.gongjakso.server.domain.post.dto.GetProjectRes;
 import com.gongjakso.server.domain.post.dto.PostScrapRes;
+import com.gongjakso.server.domain.post.entity.Category;
 import com.gongjakso.server.domain.post.entity.Post;
 import com.gongjakso.server.domain.post.entity.PostScrap;
 import com.gongjakso.server.domain.post.enumerate.PostStatus;
@@ -25,6 +26,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -73,7 +75,7 @@ public class PaginationServiceTest {
                 assertThat(res.getTotalElements()).isEqualTo(7);
                 assertThat(res.getTotalPages()).isEqualTo(2);
                 assertThat(res.getContent().get(0).title()).isEqualTo("Title1");
-                assertThat(res.getContent().get(1).title()).isEqualTo("제목5");
+                assertThat(res.getContent().get(1).title()).isEqualTo("Title2");
                 assertThat(res.getContent().get(2).title()).isEqualTo("Title3");
             }
 
@@ -82,24 +84,173 @@ public class PaginationServiceTest {
             void getContestsByScrapCount() {
                 // given
                 List<Post> testPosts = PostUtilTest.builderMultiplePosts(false);
+                testPosts.get(3).setScrapCount(10); // 제목4
+                testPosts.get(6).setScrapCount(8);  // 제목7
+                testPosts.sort(Comparator.comparing(Post::getScrapCount)
+                        .thenComparing(Post::getPostId).reversed());
                 Pageable pageable = PageRequest.of(0, 6);
                 Page<Post> testPage = new PageImpl<>(testPosts, pageable, testPosts.size()); // Page 생성
+
 
                 given(postRepository.findAllByPostTypeFalseAndDeletedAtIsNullAndFinishDateAfterAndStatusOrderByScrapCountDescPostIdDesc(
                         any(LocalDateTime.class), any(PostStatus.class), any(Pageable.class)
                 )).willReturn(testPage);
 
-                // when
+                // When
                 Page<GetContestRes> res = postService.getContests("scrapCount", pageable);
 
                 // then
                 assertThat(res).isNotNull();
                 assertThat(res.getTotalElements()).isEqualTo(7);
                 assertThat(res.getTotalPages()).isEqualTo(2);
-                assertThat(res.getContent().get(0).title()).isEqualTo("Title1");
-                assertThat(res.getContent().get(1).title()).isEqualTo("제목5");
-                assertThat(res.getContent().get(2).title()).isEqualTo("Title3");
+                assertThat(res.getContent().get(0).title()).isEqualTo("제목4");
+                assertThat(res.getContent().get(1).title()).isEqualTo("제목7");
+                // 스크랩 순 -> 최신 순으로 정렬되는 지 확인
+                assertThat(res.getContent().get(2).title()).isEqualTo("제목6");
+                assertThat(res.getContent().get(3).title()).isEqualTo("제목5");
             }
+        }
+        @Nested
+        @DisplayName("공모전 공고 검색어 기반 조회")
+        class ContestTestsWithSearchWord {
+
+            @Test
+            @DisplayName("공모전 공고 검색어 기반 조회 최신순")
+            void getContestsByCreatedAt() {
+                // given
+                String searchWord = "제목";
+                List<Post> testPosts =  PostUtilTest.builderMultiplePosts(false).stream()
+                        .filter(post -> post.getTitle().contains(searchWord))
+                        .collect(Collectors.toList());
+                Pageable pageable = PageRequest.of(0, 6);
+                Page<Post> testPage = new PageImpl<>(testPosts, pageable, testPosts.size());
+
+                given(postRepository.findAllByTitleContainsAndPostTypeFalseAndDeletedAtIsNullAndFinishDateAfterAndStatusOrderByPostIdDesc(
+                        any(String.class), any(LocalDateTime.class), any(PostStatus.class), any(Pageable.class)
+                )).willReturn(testPage);
+
+                // when
+                Page<GetContestRes> res = postService.getContestsBySearchWord("createdAt", searchWord, pageable);
+
+                // then
+                assertThat(res).isNotNull();
+                assertThat(res.getTotalElements()).isEqualTo(4);
+                assertThat(res.getTotalPages()).isEqualTo(1);
+                assertThat(res.getContent().get(0).title()).isEqualTo("제목4");
+                assertThat(res.getContent().get(1).title()).isEqualTo("제목5");
+                assertThat(res.getContent().get(2).title()).isEqualTo("제목6");
+            }
+
+            @Test
+            @DisplayName("공모전 공고 검색어 기반 조회 인기순")
+            void getContestsByScrapCount() {
+                // given
+                String searchWord = "제목";
+                List<Post> testPosts =  PostUtilTest.builderMultiplePosts(false);
+                testPosts.get(6).setScrapCount(10); // 제목7
+                testPosts.get(5).setScrapCount(8);  // 제목6
+                testPosts.sort(Comparator.comparing(Post::getScrapCount)
+                        .thenComparing(Post::getPostId).reversed());
+                testPosts = testPosts.stream()
+                        .filter(post -> post.getTitle().contains(searchWord))
+                        .collect(Collectors.toList());
+                Pageable pageable = PageRequest.of(0, 6);
+                Page<Post> testPage = new PageImpl<>(testPosts, pageable, testPosts.size()); // Page 생성
+
+                given(postRepository.findAllByTitleContainsAndPostTypeFalseAndDeletedAtIsNullAndFinishDateAfterAndStatusOrderByScrapCountDescPostIdDesc(
+                        any(String.class), any(LocalDateTime.class), any(PostStatus.class), any(Pageable.class)
+                )).willReturn(testPage);
+
+                // when
+                Page<GetContestRes> res = postService.getContestsBySearchWord("scrapCount", searchWord, pageable);
+
+                // then
+                assertThat(res).isNotNull();
+                assertThat(res.getTotalElements()).isEqualTo(4);
+                assertThat(res.getTotalPages()).isEqualTo(1);
+                assertThat(res.getContent().get(0).title()).isEqualTo("제목7");
+                assertThat(res.getContent().get(1).title()).isEqualTo("제목6");
+                assertThat(res.getContent().get(2).title()).isEqualTo("제목5");
+            }
+        }
+
+        @Nested
+        @DisplayName("공모전 공고 검색어, 지역, 스택 기반 기반 조회")
+        class ContestTestsWithMeetingAreaAndCategoryAndSearchWord {
+            @Test
+            @DisplayName("공모전 공고 검색어 기반 조회 최신순")
+            void getContestsByCreatedAt() {
+                // given
+                String searchWord = "제목";
+                String meetingCity = "서울시";
+                String meetingTown = "마포구";
+                String category = "BE";
+                List<Post> testPosts = PostUtilTest.builderMultiplePosts(false);
+                testPosts = testPosts.stream()
+                        .filter(post -> post.getTitle().contains(searchWord) &&
+                                post.getMeetingCity().contains(meetingCity) &&
+                                post.getMeetingTown().contains(meetingTown) &&
+                                post.getCategories().stream()
+                                        .map(Category::getCategoryType)
+                                        .anyMatch(catType -> String.valueOf(catType).contains(category)))
+                        .collect(Collectors.toList());
+                Pageable pageable = PageRequest.of(0, 6);
+                Page<Post> testPage = new PageImpl<>(testPosts, pageable, testPosts.size());
+
+                given(postRepository.findAllPostsJoinedWithCategoriesByTitleContainsAndPostTypeFalseAndDeletedAtIsNullAndFinishDateAfterAndStatusAndMeetingCityContainsAndMeetingTownContainsAndCategoriesCategoryTypeContainsOrderByPostIdDesc(
+                        any(String.class), any(LocalDateTime.class), any(PostStatus.class),  any(String.class), any(String.class), any(String.class), any(Pageable.class)
+                )).willReturn(testPage);
+
+                // when
+                Page<GetContestRes> res = postService.getContestsByMeetingAreaAndCategoryAndSearchWord("createdAt", meetingCity, meetingTown, category, searchWord, pageable);
+
+                // then
+                assertThat(res).isNotNull();
+                assertThat(res.getTotalElements()).isEqualTo(2);
+                assertThat(res.getTotalPages()).isEqualTo(1);
+                assertThat(res.getContent().get(0).title()).isEqualTo("제목4");
+                assertThat(res.getContent().get(1).title()).isEqualTo("제목5");
+            }
+
+            @Test
+            @DisplayName("공모전 공고 검색어 기반 조회 인기순")
+            void getContestsByScrapCount() {
+                // given
+                String searchWord = "제목";
+                String meetingCity = "서울시";
+                String meetingTown = "마포구";
+                String category = "BE";
+                List<Post> testPosts = PostUtilTest.builderMultiplePosts(true);
+                testPosts.get(4).setScrapCount(10); // 제목7
+                testPosts.get(3).setScrapCount(8);  // 제목6
+                testPosts.sort(Comparator.comparing(Post::getScrapCount)
+                        .thenComparing(Post::getPostId).reversed());
+                testPosts = testPosts.stream()
+                        .filter(post -> post.getTitle().contains(searchWord) &&
+                                post.getMeetingCity().contains(meetingCity) &&
+                                post.getMeetingTown().contains(meetingTown) &&
+                                post.getCategories().stream()
+                                        .map(Category::getCategoryType)
+                                        .anyMatch(catType -> String.valueOf(catType).contains(category)))
+                        .collect(Collectors.toList());
+                Pageable pageable = PageRequest.of(0, 6);
+                Page<Post> testPage = new PageImpl<>(testPosts, pageable, testPosts.size());
+
+                given(postRepository.findAllPostsJoinedWithCategoriesByTitleContainsAndPostTypeFalseAndDeletedAtIsNullAndFinishDateAfterAndStatusAndMeetingCityContainsAndMeetingTownContainsAndCategoriesCategoryTypeContainsOrderByScrapCountDescPostIdDesc(
+                        any(String.class), any(LocalDateTime.class), any(PostStatus.class),  any(String.class), any(String.class), any(String.class), any(Pageable.class)
+                )).willReturn(testPage);
+
+                // when
+                Page<GetContestRes> res = postService.getContestsByMeetingAreaAndCategoryAndSearchWord("scrapCount", meetingCity, meetingTown, category, searchWord, pageable);
+
+                // then
+                assertThat(res).isNotNull();
+                assertThat(res.getTotalElements()).isEqualTo(2);
+                assertThat(res.getTotalPages()).isEqualTo(1);
+                assertThat(res.getContent().get(0).title()).isEqualTo("제목5");
+                assertThat(res.getContent().get(1).title()).isEqualTo("제목4");
+            }
+
         }
     }
 
@@ -201,7 +352,7 @@ public class PaginationServiceTest {
             assertThat(res.getTotalElements()).isEqualTo(7);
             assertThat(res.getTotalPages()).isEqualTo(2);
             assertThat(res.getContent().get(0).title()).isEqualTo("Title1");
-            assertThat(res.getContent().get(1).title()).isEqualTo("제목5");
+            assertThat(res.getContent().get(1).title()).isEqualTo("Title2");
             assertThat(res.getContent().get(2).title()).isEqualTo("Title3");
         }
 
@@ -230,7 +381,7 @@ public class PaginationServiceTest {
             assertThat(res.getTotalElements()).isEqualTo(7);
             assertThat(res.getTotalPages()).isEqualTo(2);
             assertThat(res.getContent().get(0).title()).isEqualTo("Title1");
-            assertThat(res.getContent().get(1).title()).isEqualTo("제목5");
+            assertThat(res.getContent().get(1).title()).isEqualTo("Title2");
             assertThat(res.getContent().get(2).title()).isEqualTo("Title3");
         }
     }
