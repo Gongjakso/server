@@ -132,5 +132,5 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 
     List<Post> findAllByMemberAndStatusInAndDeletedAtIsNullOrderByCreatedAtDesc(Member member, List<PostStatus> statusList);
 
-    Page<Post> findAllByPostIdInOrMember(List<Long> postIdList, Member member, Pageable pageable);
+    Page<Post> findAllByPostIdInOrMemberAndDeletedAtIsNull(List<Long> postIdList, Member member, Pageable pageable);
 }
