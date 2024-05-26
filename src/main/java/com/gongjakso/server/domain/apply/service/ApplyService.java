@@ -26,12 +26,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import static com.gongjakso.server.domain.post.enumerate.PostStatus.EXTENSION;
-import static com.gongjakso.server.domain.post.enumerate.PostStatus.RECRUITING;
+import static com.gongjakso.server.domain.post.enumerate.PostStatus.*;
 import static com.gongjakso.server.global.exception.ErrorCode.INVALID_VALUE_EXCEPTION;
 
 
@@ -184,9 +184,8 @@ public class ApplyService {
                 .filter(apply -> apply.getPost().getStatus().equals(PostStatus.ACTIVE) || apply.getPost().getStatus().equals(PostStatus.COMPLETE))
                 .map(Apply::getApplyId)
                 .toList();
-        Page<Post> postPage = postRepository.findAllByPostIdInOrMember(postIdList, member, pageable);
+        Page<Post> postPage = postRepository.findAllByPostIdInOrMemberAndDeletedAtIsNull(postIdList, member, pageable);
         List<ParticipationList> participationLists = postPage.getContent().stream()
-                .filter(post -> post.getDeletedAt() == null)
                 .map(ParticipationList::of)
                 .collect(Collectors.toList());
         int pageNo = postPage.getNumber();
@@ -264,12 +263,9 @@ public class ApplyService {
         // Validation
 
         // Business Logic
-        Page<Apply> applyPage = applyRepository.findAllByMemberAndDeletedAtIsNullOrderByCreatedAtDesc(member, pageable);
+        List<PostStatus> postStatusList = Arrays.asList(RECRUITING, EXTENSION, CANCEL, CLOSE);
+        Page<Apply> applyPage = applyRepository.findAllByMemberAndPostStatusInAndDeletedAtIsNullAndIsCanceledFalseOrderByCreatedAtDesc(member, postStatusList,  pageable);
         List<MyPageRes> applyList = applyPage.stream()
-                .filter(apply -> apply.getPost().getStatus() == PostStatus.RECRUITING ||
-                        apply.getPost().getStatus() == PostStatus.EXTENSION ||
-                        apply.getPost().getStatus() == PostStatus.CANCEL ||
-                        apply.getPost().getStatus() == PostStatus.CLOSE)
                 .map(apply -> {
                     Post post = apply.getPost();
                     List<String> categoryList = post.getCategories().stream()
