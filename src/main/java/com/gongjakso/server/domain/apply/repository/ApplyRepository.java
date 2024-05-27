@@ -30,7 +30,7 @@ public interface ApplyRepository extends JpaRepository<Apply,Long> {
             countQuery = "SELECT COUNT(DISTINCT a) FROM Apply a WHERE a.member = :member AND a.post.status IN :postStatus AND a.deletedAt IS NULL AND a.isCanceled = false")
     Page<Apply> findAllByMemberAndPostStatusInAndDeletedAtIsNullAndIsCanceledFalseOrderByCreatedAtDesc(@Param("member") Member member, @Param("postStatus") List<PostStatus> postStatusList, Pageable pageable);
 
-    Apply findApplyByMemberAndPost(Member member,Post post);
+    Optional<Apply> findApplyByMemberAndPostAndDeletedAtIsNullAndIsCanceledFalse(Member member,Post post);
 
-    Optional<Apply> findApplyByApplyIdAndDeletedAtIsNull(Long applyId);
+    Optional<Apply> findApplyByApplyIdAndDeletedAtIsNullAndIsCanceledFalse(Long applyId);
 }

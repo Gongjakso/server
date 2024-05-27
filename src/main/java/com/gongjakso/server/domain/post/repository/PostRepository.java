@@ -6,6 +6,7 @@ import com.gongjakso.server.domain.post.enumerate.PostStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDateTime;
@@ -13,7 +14,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface PostRepository extends JpaRepository<Post, Long> {
-    Post findByPostId(Long postId);
+    Optional<Post> findByPostId(Long postId);
 
     Optional<Post> findWithStackNameAndCategoryUsingFetchJoinByPostId(Long postId);
 
@@ -132,5 +133,26 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 
     List<Post> findAllByMemberAndStatusInAndDeletedAtIsNullOrderByCreatedAtDesc(Member member, List<PostStatus> statusList);
 
-    Page<Post> findAllByPostIdInOrMemberAndDeletedAtIsNull(List<Long> postIdList, Member member, Pageable pageable);
+    @Query(value = "SELECT DISTINCT p " +
+            "FROM Post p " +
+            "LEFT JOIN FETCH p.member m " +
+            "LEFT JOIN FETCH p.categories c " +
+            "LEFT JOIN Apply a ON p.postId = a.post.postId " +
+            "WHERE ((a.member.memberId = :memberId " +
+            "AND a.deletedAt IS NULL " +
+            "AND a.isCanceled = false " +
+            "AND a.applyType = 'PASS') OR (p.member.memberId = :memberId)) " +
+            "AND p.deletedAt IS NULL " +
+            "AND p.status IN :postStatus " +
+            "ORDER BY p.createdAt DESC",
+            countQuery = "SELECT COUNT(DISTINCT p) " +
+                    "FROM Post p " +
+                    "LEFT JOIN Apply a ON p.postId = a.post.postId " +
+                    "WHERE ((a.member.memberId = :memberId " +
+                    "AND a.deletedAt IS NULL " +
+                    "AND a.isCanceled = false " +
+                    "AND a.applyType = 'PASS') OR (p.member.memberId = :memberId)) " +
+                    "AND p.deletedAt IS NULL " +
+                    "AND p.status IN :postStatus")
+    Page<Post> findPostsByMemberIdAndPostStatusInOrderByCreatedAtDesc(@Param("memberId") Long memberId, @Param("postStatus") List<PostStatus> postStatusList, Pageable pageable);
 }
