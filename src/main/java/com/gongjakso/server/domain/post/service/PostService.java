@@ -18,7 +18,10 @@ import com.gongjakso.server.global.exception.ErrorCode;
 import com.gongjakso.server.global.security.PrincipalDetails;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -377,17 +380,9 @@ public class PostService {
     public Page<GetProjectRes> getMyScrapProject(Member member, Pageable page){
         Pageable pageable = PageRequest.of(page.getPageNumber(), page.getPageSize());
 
-        Page<PostScrap> scrapPageList = postScrapRepository.findAllByMemberAndScrapStatusTrueOrderByPostScrapIdDesc(member, pageable);
+        Page<PostScrap> scrapPageList = postScrapRepository.findAllByMemberAndPostPostTypeTrueAndPostDeletedAtIsNullAndScrapStatusTrueOrderByPostScrapIdDesc(member, pageable);
 
-        List<GetProjectRes> filteredProjects = scrapPageList.stream()
-                .filter(scrap -> {
-                    Post post = scrap.getPost();
-
-                    //유효한 post만 남기기
-                    return post != null &&
-                            post.isPostType() &&
-                            post.getDeletedAt() == null;
-                })
+        List<GetProjectRes> myScrapProjects = scrapPageList.stream()
                 .map(scrap -> {
                     Post post = scrap.getPost();
                     post.getCategories().size();
@@ -397,24 +392,16 @@ public class PostService {
                 .collect(Collectors.toList()); // 리스트로 수집
 
         // 필터링된 리스트를 페이지로 반환
-        return new PageImpl<>(filteredProjects, pageable, scrapPageList.getTotalElements());
+        return new PageImpl<>( myScrapProjects, pageable, myScrapProjects.size());
     }
 
     @Transactional
     public Page<GetContestRes> getMyScrapContest(Member member, Pageable page){
         Pageable pageable = PageRequest.of(page.getPageNumber(), page.getPageSize());
 
-        Page<PostScrap> scrapPageList = postScrapRepository.findAllByMemberAndScrapStatusTrueOrderByPostScrapIdDesc(member, pageable);
+        Page<PostScrap> scrapPageList = postScrapRepository.findAllByMemberAndPostPostTypeFalseAndPostDeletedAtIsNullAndScrapStatusTrueOrderByPostScrapIdDesc(member, pageable);
 
-        List<GetContestRes> filteredContests = scrapPageList.stream()
-                .filter(scrap -> {
-                    Post post = scrap.getPost();
-
-                    //유효한 post만 남기기
-                    return post != null &&
-                            !post.isPostType() &&
-                            post.getDeletedAt() == null;
-                })
+        List<GetContestRes> myScrapContests = scrapPageList.stream()
                 .map(scrap -> {
                     Post post = scrap.getPost();
                     post.getCategories().size();
@@ -424,8 +411,9 @@ public class PostService {
                 .collect(Collectors.toList()); // 리스트로 수집
 
         // 필터링된 리스트를 페이지로 반환
-        return new PageImpl<>(filteredContests, pageable, scrapPageList.getTotalElements());
+        return new PageImpl<>(myScrapContests, pageable, myScrapContests.size());
     }
+
 
     @Transactional
     public PostSimpleRes completePost(Member member, Long postId) {

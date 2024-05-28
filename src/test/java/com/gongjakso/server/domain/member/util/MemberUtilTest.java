@@ -20,6 +20,22 @@ public class MemberUtilTest {
                 .build();
     }
 
+    public static Member buildMemberAndId(Long id) {
+        return new Member(
+                id,
+                "example@gmail.com",
+                "password123",
+                "공작소",
+                "010-1234-5678",
+                "http://example.com",
+                MemberType.GENERAL.toString(),
+                LoginType.KAKAO.toString(),
+                "상태",
+                "전공",
+                "직업"
+        );
+    }
+
     public static MemberReq buildMemberReq() {
         return MemberReq.builder()
                 .name("변경 공작소")

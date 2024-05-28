@@ -18,7 +18,6 @@ import com.gongjakso.server.domain.post.repository.PostRepository;
 import com.gongjakso.server.domain.post.repository.StackNameRepository;
 import com.gongjakso.server.global.exception.ApplicationException;
 import com.gongjakso.server.global.exception.ErrorCode;
-// import com.gongjakso.server.global.util.email.EmailClient;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
