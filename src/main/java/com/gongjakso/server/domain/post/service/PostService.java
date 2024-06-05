@@ -58,10 +58,24 @@ public class PostService {
         }
 
         // Business Logic
-        // TODO: new 방식으로 서비스에서 생성하는 것이 아닌, DTO 내의 메소드를 활용하도록 변경하는 것은 어떤지 고려할 필요 존재
-        Post entity = new Post(req.title(), member, req.contents(), req.contestLink(), req.startDate(), req.endDate(),
-                req.finishDate(), req.maxPerson(), req.meetingMethod(), req.meetingCity(), req.meetingTown(), req.questionMethod(),
-                req.questionLink(), req.postType(), new ArrayList<>(), new ArrayList<>());
+        Post entity = Post.builder()
+                .title(req.title())
+                .member(member)
+                .contents(req.contents())
+                .contestLink(req.contestLink())
+                .startDate(req.startDate())
+                .endDate(req.endDate())
+                .finishDate(req.finishDate())
+                .maxPerson(req.maxPerson())
+                .meetingMethod(req.meetingMethod())
+                .meetingCity(req.meetingCity())
+                .meetingTown(req.meetingTown())
+                .questionMethod(req.questionMethod())
+                .questionLink(req.questionLink())
+                .postType(req.postType())
+                .stackNames(new ArrayList<>())
+                .categories(new ArrayList<>())
+                .build();
 
         List<StackName> stackNames = req.stackNames().stream()
                 .map(stackNameReq -> new StackName(entity, stackNameReq.getStackNameType()))
