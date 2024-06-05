@@ -25,12 +25,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import static com.gongjakso.server.domain.post.enumerate.PostStatus.EXTENSION;
-import static com.gongjakso.server.domain.post.enumerate.PostStatus.RECRUITING;
+import static com.gongjakso.server.domain.post.enumerate.PostStatus.*;
 import static com.gongjakso.server.global.exception.ErrorCode.INVALID_VALUE_EXCEPTION;
 
 
@@ -176,22 +176,15 @@ public class ApplyService {
         return ApplyPageRes.of(applyLists, pageNo, size, totalPages, last);
     }
 
-    public ParticipationPageRes myParticipationPostListPage(Member member, int page, int size) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
-        List<Apply> applyList = applyRepository.findApplyByApplyTypeAndMemberAndIsCanceledFalse(ApplyType.PASS,member);
-        List<Long> postIdList = applyList.stream()
-                .filter(apply -> apply.getPost().getStatus().equals(PostStatus.ACTIVE) || apply.getPost().getStatus().equals(PostStatus.COMPLETE))
-                .map(Apply::getApplyId)
-                .toList();
-        Page<Post> postPage = postRepository.findAllByPostIdInOrMember(postIdList, member, pageable);
+    public ParticipationPageRes myParticipationPostListPage(Member member, Pageable page) {
+        Pageable pageable = PageRequest.of(page.getPageNumber(), page.getPageSize(), Sort.by("createdAt").descending());
+        System.out.println(pageable.getOffset());
+        List<PostStatus> postStatusList = Arrays.asList(ACTIVE, COMPLETE);
+        Page<Post> postPage = postRepository.findPostsByMemberIdAndPostStatusInOrderByCreatedAtDesc(member.getMemberId(), postStatusList, pageable);
         List<ParticipationList> participationLists = postPage.getContent().stream()
-                .filter(post -> post.getDeletedAt() == null)
                 .map(ParticipationList::of)
                 .collect(Collectors.toList());
-        int pageNo = postPage.getNumber();
-        int totalPages = postPage.getTotalPages();
-        boolean last = postPage.isLast();
-        return ParticipationPageRes.of(participationLists, pageNo, size, totalPages, last);
+        return ParticipationPageRes.of(participationLists, postPage.getNumber(), postPage.getSize(), postPage.getTotalPages(), postPage.isLast());
     }
 
     private String decisionState(Apply apply) {
@@ -263,12 +256,9 @@ public class ApplyService {
         // Validation
 
         // Business Logic
-        Page<Apply> applyPage = applyRepository.findAllByMemberAndDeletedAtIsNullOrderByCreatedAtDesc(member, pageable);
+        List<PostStatus> postStatusList = Arrays.asList(RECRUITING, EXTENSION, CANCEL, CLOSE);
+        Page<Apply> applyPage = applyRepository.findAllByMemberAndPostStatusInAndDeletedAtIsNullAndIsCanceledFalseOrderByCreatedAtDesc(member, postStatusList,  pageable);
         List<MyPageRes> applyList = applyPage.stream()
-                .filter(apply -> apply.getPost().getStatus() == PostStatus.RECRUITING ||
-                        apply.getPost().getStatus() == PostStatus.EXTENSION ||
-                        apply.getPost().getStatus() == PostStatus.CANCEL ||
-                        apply.getPost().getStatus() == PostStatus.CLOSE)
                 .map(apply -> {
                     Post post = apply.getPost();
                     List<String> categoryList = post.getCategories().stream()
@@ -284,39 +274,32 @@ public class ApplyService {
     }
 
     public ApplicationRes getMyApplication(Member member, Long postId){
-        Post post = postRepository.findByPostId(postId);
-        if (post == null) {
-            throw new ApplicationException(ErrorCode.NOT_FOUND_POST_EXCEPTION);
-        }else{
-            Apply apply = applyRepository.findApplyByMemberAndPost(member, post);
-            if(apply == null){
-                throw new ApplicationException(ErrorCode.NOT_FOUND_APPLY_EXCEPTION);
-            }else {
-                //Change List Type
-                List<String> categoryList = changeCategoryType(post);
-                List<String> stackNameList;
-                List<String> applyStackList = null;
-                if(post.isPostType()){
-                    stackNameList = changeStackNameType(post);
-                    System.out.println("change stack name");
-                    List<ApplyStack> applyStacks = applyStackRepository.findAllByApply(apply);
-                    applyStackList = new ArrayList<>();
-                    for(ApplyStack applyStack : applyStacks){
-                        applyStackList.add(applyStack.getStackName().getStackNameType());
-                    }
-                }else {
-                    stackNameList= null;
-                }
+        Post post = postRepository.findByPostId(postId).orElseThrow(() -> new ApplicationException(ErrorCode.NOT_FOUND_POST_EXCEPTION));
 
-                return ApplicationRes.of(apply, categoryList, stackNameList,applyStackList);
+        Apply apply = applyRepository.findApplyByMemberAndPostAndDeletedAtIsNullAndIsCanceledFalse(member, post).orElseThrow(() -> new ApplicationException(ErrorCode.NOT_FOUND_APPLY_EXCEPTION));
+
+        // Change List Type
+        List<String> categoryList = changeCategoryType(post);
+        List<String> stackNameList;
+        List<String> applyStackList = null;
+        if(post.isPostType()){
+            stackNameList = changeStackNameType(post);
+            List<ApplyStack> applyStacks = applyStackRepository.findAllByApply(apply);
+            applyStackList = new ArrayList<>();
+            for(ApplyStack applyStack : applyStacks){
+                applyStackList.add(applyStack.getStackName().getStackNameType());
             }
+        }else {
+            stackNameList= null;
         }
+
+        return ApplicationRes.of(apply, categoryList, stackNameList, applyStackList);
     }
 
     @Transactional
     public PatchApplyRes cancelApply(Member member, Long applyId) {
         // Validation: 논리적 삭제 데이터이거나 신청자 본인이 아닌 경우에 대한 유효성 검증 + 공고의 모집 기한 확인
-        Apply apply = applyRepository.findApplyByApplyIdAndDeletedAtIsNull(applyId).orElseThrow(() -> new ApplicationException(ErrorCode.ALREADY_DELETE_EXCEPTION));
+        Apply apply = applyRepository.findApplyByApplyIdAndDeletedAtIsNullAndIsCanceledFalse(applyId).orElseThrow(() -> new ApplicationException(ErrorCode.ALREADY_DELETE_EXCEPTION));
         if (!apply.getMember().getMemberId().equals(member.getMemberId())) {
             throw new ApplicationException(ErrorCode.UNAUTHORIZED_EXCEPTION);
         }

@@ -6,6 +6,7 @@ import com.gongjakso.server.domain.post.enumerate.PostStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDateTime;
@@ -13,7 +14,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface PostRepository extends JpaRepository<Post, Long> {
-    Post findByPostId(Long postId);
+    Optional<Post> findByPostId(Long postId);
 
     Optional<Post> findWithStackNameAndCategoryUsingFetchJoinByPostId(Long postId);
 
@@ -34,103 +35,124 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     /*
     전체 공모전 공고 목록 조회 최신순
      */
-    Page<Post> findAllByPostTypeFalseAndDeletedAtIsNullAndFinishDateAfterAndStatusOrderByPostIdDesc
-    (@Param("currentTimestamp") LocalDateTime currentTimestamp, @Param("status") PostStatus status, Pageable pageable);
+    Page<Post> findAllByPostTypeFalseAndDeletedAtIsNullAndFinishDateAfterAndStatusInOrderByPostIdDesc
+    (@Param("currentTimestamp") LocalDateTime currentTimestamp, @Param("status") List<PostStatus> status, Pageable pageable);
 
     /*
     전체 공모전 공고 목록 조회 스크랩순
      */
-    Page<Post> findAllByPostTypeFalseAndDeletedAtIsNullAndFinishDateAfterAndStatusOrderByScrapCountDescPostIdDesc
-    (@Param("currentTimestamp") LocalDateTime currentTimestamp, @Param("status") PostStatus status, Pageable pageable);
+    Page<Post> findAllByPostTypeFalseAndDeletedAtIsNullAndFinishDateAfterAndStatusInOrderByScrapCountDescPostIdDesc
+    (@Param("currentTimestamp") LocalDateTime currentTimestamp, @Param("status") List<PostStatus> status, Pageable pageable);
 
     /*
     검색어 기반 공모전 공고 목록 조회 최신순
      */
-    Page<Post> findAllByTitleContainsAndPostTypeFalseAndDeletedAtIsNullAndFinishDateAfterAndStatusOrderByPostIdDesc
-    (@Param("searchWord") String searchWord, @Param("currentTimestamp") LocalDateTime currentTimestamp, @Param("status") PostStatus status, Pageable pageable);
+    Page<Post> findAllByTitleContainsAndPostTypeFalseAndDeletedAtIsNullAndFinishDateAfterAndStatusInOrderByPostIdDesc
+    (@Param("searchWord") String searchWord, @Param("currentTimestamp") LocalDateTime currentTimestamp, @Param("status") List<PostStatus> status, Pageable pageable);
 
     /*
     검색어 기반 공모전 공고 목록 조회 스크랩순
      */
-    Page<Post> findAllByTitleContainsAndPostTypeFalseAndDeletedAtIsNullAndFinishDateAfterAndStatusOrderByScrapCountDescPostIdDesc
-    (@Param("searchWord") String searchWord, @Param("currentTimestamp") LocalDateTime currentTimestamp, @Param("status") PostStatus status, Pageable pageable);
+    Page<Post> findAllByTitleContainsAndPostTypeFalseAndDeletedAtIsNullAndFinishDateAfterAndStatusInOrderByScrapCountDescPostIdDesc
+    (@Param("searchWord") String searchWord, @Param("currentTimestamp") LocalDateTime currentTimestamp, @Param("status") List<PostStatus> status, Pageable pageable);
 
     /*
     지역, 검색어 기반 공모전 공고 목록 조회 최신순
      */
-    Page<Post> findAllByTitleContainsAndPostTypeFalseAndDeletedAtIsNullAndFinishDateAfterAndStatusAndMeetingCityContainsAndMeetingTownContainsOrderByPostIdDesc
-    (@Param("searchWord") String searchWord, @Param("currentTimestamp") LocalDateTime currentTimestamp, @Param("status") PostStatus status, @Param("meetingCity") String meetingCity, @Param("meetingTown") String meetingTown,  Pageable pageable);
+    Page<Post> findAllByTitleContainsAndPostTypeFalseAndDeletedAtIsNullAndFinishDateAfterAndStatusInAndMeetingCityContainsAndMeetingTownContainsOrderByPostIdDesc
+    (@Param("searchWord") String searchWord, @Param("currentTimestamp") LocalDateTime currentTimestamp, @Param("status") List<PostStatus> status, @Param("meetingCity") String meetingCity, @Param("meetingTown") String meetingTown,  Pageable pageable);
 
     /*
     지역, 검색어 기반 공모전 공고 목록 조회 스크랩순
      */
-    Page<Post> findAllByTitleContainsAndPostTypeFalseAndDeletedAtIsNullAndFinishDateAfterAndStatusAndMeetingCityContainsAndMeetingTownContainsOrderByScrapCountDescPostIdDesc
-    (@Param("searchWord") String searchWord, @Param("currentTimestamp") LocalDateTime currentTimestamp, @Param("status") PostStatus status, @Param("meetingCity") String meetingCity, @Param("meetingTown") String meetingTown, Pageable pageable);
+    Page<Post> findAllByTitleContainsAndPostTypeFalseAndDeletedAtIsNullAndFinishDateAfterAndStatusInAndMeetingCityContainsAndMeetingTownContainsOrderByScrapCountDescPostIdDesc
+    (@Param("searchWord") String searchWord, @Param("currentTimestamp") LocalDateTime currentTimestamp, @Param("status") List<PostStatus> status, @Param("meetingCity") String meetingCity, @Param("meetingTown") String meetingTown, Pageable pageable);
 
 
     /*
     지역, 카테고리, 검색어 기반 공모전 공고 목록 조회 최신순
      */
-    Page<Post> findAllPostsJoinedWithCategoriesByTitleContainsAndPostTypeFalseAndDeletedAtIsNullAndFinishDateAfterAndStatusAndMeetingCityContainsAndMeetingTownContainsAndCategoriesCategoryTypeContainsOrderByPostIdDesc
-    (@Param("searchWord") String searchWord, @Param("currentTimestamp") LocalDateTime currentTimestamp, @Param("status") PostStatus status, @Param("meetingCity") String meetingCity, @Param("meetingTown") String meetingTown, @Param("stackNameType") String categoryType,Pageable pageable);
+    Page<Post> findAllPostsJoinedWithCategoriesByTitleContainsAndPostTypeFalseAndDeletedAtIsNullAndFinishDateAfterAndStatusInAndMeetingCityContainsAndMeetingTownContainsAndCategoriesCategoryTypeContainsOrderByPostIdDesc
+    (@Param("searchWord") String searchWord, @Param("currentTimestamp") LocalDateTime currentTimestamp, @Param("status") List<PostStatus> status, @Param("meetingCity") String meetingCity, @Param("meetingTown") String meetingTown, @Param("stackNameType") String categoryType,Pageable pageable);
 
     /*
     지역, 카테고리, 검색어 기반 공모전 공고 목록 조회 최신순
      */
-    Page<Post> findAllPostsJoinedWithCategoriesByTitleContainsAndPostTypeFalseAndDeletedAtIsNullAndFinishDateAfterAndStatusAndMeetingCityContainsAndMeetingTownContainsAndCategoriesCategoryTypeContainsOrderByScrapCountDescPostIdDesc
-    (@Param("searchWord") String searchWord, @Param("currentTimestamp") LocalDateTime currentTimestamp, @Param("status") PostStatus status, @Param("meetingCity") String meetingCity, @Param("meetingTown") String meetingTown, @Param("stackNameType") String categoryType,Pageable pageable);
+    Page<Post> findAllPostsJoinedWithCategoriesByTitleContainsAndPostTypeFalseAndDeletedAtIsNullAndFinishDateAfterAndStatusInAndMeetingCityContainsAndMeetingTownContainsAndCategoriesCategoryTypeContainsOrderByScrapCountDescPostIdDesc
+    (@Param("searchWord") String searchWord, @Param("currentTimestamp") LocalDateTime currentTimestamp, @Param("status") List<PostStatus> status, @Param("meetingCity") String meetingCity, @Param("meetingTown") String meetingTown, @Param("stackNameType") String categoryType,Pageable pageable);
 
 
     /*
     전체 프로젝트 공고 목록 조회 최신순
      */
-    Page<Post> findAllByPostTypeTrueAndDeletedAtIsNullAndFinishDateAfterAndStatusOrderByPostIdDesc
-    (@Param("currentTimestamp") LocalDateTime currentTimestamp, @Param("status") PostStatus status, Pageable pageable);
+    Page<Post> findAllByPostTypeTrueAndDeletedAtIsNullAndFinishDateAfterAndStatusInOrderByPostIdDesc
+    (@Param("currentTimestamp") LocalDateTime currentTimestamp, @Param("status") List<PostStatus> status, Pageable pageable);
 
     /*
     전체 프로젝트 공고 목록 조회 스크랩순
      */
-    Page<Post> findAllByPostTypeTrueAndDeletedAtIsNullAndFinishDateAfterAndStatusOrderByScrapCountDescPostIdDesc
-    (@Param("currentTimestamp") LocalDateTime currentTimestamp, @Param("status") PostStatus status, Pageable pageable);
+    Page<Post> findAllByPostTypeTrueAndDeletedAtIsNullAndFinishDateAfterAndStatusInOrderByScrapCountDescPostIdDesc
+    (@Param("currentTimestamp") LocalDateTime currentTimestamp, @Param("status") List<PostStatus> status, Pageable pageable);
 
     /*
     검색어 기반 프로젝트 공고 목록 조회 최신순
      */
-    Page<Post> findAllByTitleContainsAndPostTypeTrueAndDeletedAtIsNullAndFinishDateAfterAndStatusOrderByPostIdDesc
-    (@Param("searchWord") String searchWord, @Param("currentTimestamp") LocalDateTime currentTimestamp, @Param("status") PostStatus status, Pageable pageable);
+    Page<Post> findAllByTitleContainsAndPostTypeTrueAndDeletedAtIsNullAndFinishDateAfterAndStatusInOrderByPostIdDesc
+    (@Param("searchWord") String searchWord, @Param("currentTimestamp") LocalDateTime currentTimestamp, @Param("status") List<PostStatus> status, Pageable pageable);
 
     /*
     검색어 기반 프로젝트 공고 목록 조회 스크랩순
      */
-    Page<Post> findAllByTitleContainsAndPostTypeTrueAndDeletedAtIsNullAndFinishDateAfterAndStatusOrderByScrapCountDescPostIdDesc
-    (@Param("searchWord") String searchWord, @Param("currentTimestamp") LocalDateTime currentTimestamp, @Param("status") PostStatus status, Pageable pageable);
+    Page<Post> findAllByTitleContainsAndPostTypeTrueAndDeletedAtIsNullAndFinishDateAfterAndStatusInOrderByScrapCountDescPostIdDesc
+    (@Param("searchWord") String searchWord, @Param("currentTimestamp") LocalDateTime currentTimestamp, @Param("status") List<PostStatus> status, Pageable pageable);
 
     /*
     지역, 검색어 기반 프로젝트 공고 목록 조회 최신순
      */
-    Page<Post> findAllByTitleContainsAndPostTypeTrueAndDeletedAtIsNullAndFinishDateAfterAndStatusAndMeetingCityContainsAndMeetingTownContainsOrderByPostIdDesc
-    (@Param("searchWord") String searchWord, @Param("currentTimestamp") LocalDateTime currentTimestamp, @Param("status") PostStatus status, @Param("meetingCity") String meetingCity, @Param("meetingTown") String meetingTown, Pageable pageable);
+    Page<Post> findAllByTitleContainsAndPostTypeTrueAndDeletedAtIsNullAndFinishDateAfterAndStatusInAndMeetingCityContainsAndMeetingTownContainsOrderByPostIdDesc
+    (@Param("searchWord") String searchWord, @Param("currentTimestamp") LocalDateTime currentTimestamp, @Param("status") List<PostStatus> status, @Param("meetingCity") String meetingCity, @Param("meetingTown") String meetingTown, Pageable pageable);
 
     /*
     지역, 검색어 기반 프로젝트 공고 목록 조회 스크랩순
      */
-    Page<Post> findAllByTitleContainsAndPostTypeTrueAndDeletedAtIsNullAndFinishDateAfterAndStatusAndMeetingCityContainsAndMeetingTownContainsOrderByScrapCountDescPostIdDesc
-    (@Param("searchWord") String searchWord, @Param("currentTimestamp") LocalDateTime currentTimestamp, @Param("status") PostStatus status, @Param("meetingCity") String meetingCity, @Param("meetingTown") String meetingTown, Pageable pageable);
+    Page<Post> findAllByTitleContainsAndPostTypeTrueAndDeletedAtIsNullAndFinishDateAfterAndStatusInAndMeetingCityContainsAndMeetingTownContainsOrderByScrapCountDescPostIdDesc
+    (@Param("searchWord") String searchWord, @Param("currentTimestamp") LocalDateTime currentTimestamp, @Param("status") List<PostStatus> status, @Param("meetingCity") String meetingCity, @Param("meetingTown") String meetingTown, Pageable pageable);
 
 
     /*
     지역, 스택, 검색어 기반 프로젝트 공고 목록 조회 최신순
      */
-    Page<Post> findAllPostsJoinedWithStackNamesByTitleContainsAndPostTypeTrueAndDeletedAtIsNullAndFinishDateAfterAndStatusAndMeetingCityContainsAndMeetingTownContainsAndStackNamesStackNameTypeContainsOrderByPostIdDesc
-    (@Param("searchWord") String searchWord, @Param("currentTimestamp") LocalDateTime currentTimestamp, @Param("status") PostStatus status, @Param("meetingCity") String meetingCity, @Param("meetingTown") String meetingTown, @Param("stackNameType") String stackNameType,Pageable pageable);
+    Page<Post> findAllPostsJoinedWithStackNamesByTitleContainsAndPostTypeTrueAndDeletedAtIsNullAndFinishDateAfterAndStatusInAndMeetingCityContainsAndMeetingTownContainsAndStackNamesStackNameTypeContainsOrderByPostIdDesc
+    (@Param("searchWord") String searchWord, @Param("currentTimestamp") LocalDateTime currentTimestamp, @Param("status") List<PostStatus> status, @Param("meetingCity") String meetingCity, @Param("meetingTown") String meetingTown, @Param("stackNameType") String stackNameType,Pageable pageable);
 
     /*
     지역, 스택, 검색어 기반 프로젝트 공고 목록 조회 최신순
      */
-    Page<Post> findAllPostsJoinedWithStackNamesByTitleContainsAndPostTypeTrueAndDeletedAtIsNullAndFinishDateAfterAndStatusAndMeetingCityContainsAndMeetingTownContainsAndStackNamesStackNameTypeContainsOrderByScrapCountDescPostIdDesc
-    (@Param("searchWord") String searchWord, @Param("currentTimestamp") LocalDateTime currentTimestamp, @Param("status") PostStatus status, @Param("meetingCity") String meetingCity, @Param("meetingTown") String meetingTown, @Param("stackNameType") String stackNameType,Pageable pageable);
+    Page<Post> findAllPostsJoinedWithStackNamesByTitleContainsAndPostTypeTrueAndDeletedAtIsNullAndFinishDateAfterAndStatusInAndMeetingCityContainsAndMeetingTownContainsAndStackNamesStackNameTypeContainsOrderByScrapCountDescPostIdDesc
+    (@Param("searchWord") String searchWord, @Param("currentTimestamp") LocalDateTime currentTimestamp, @Param("status") List<PostStatus> status, @Param("meetingCity") String meetingCity, @Param("meetingTown") String meetingTown, @Param("stackNameType") String stackNameType,Pageable pageable);
 
-    List<Post> findAllByMemberAndStatusAndDeletedAtIsNullOrderByCreatedAtDesc(Member member, PostStatus status);
+    List<Post> findAllByMemberAndStatusInAndDeletedAtIsNullOrderByCreatedAtDesc(Member member, List<PostStatus> statusList);
 
-    Page<Post> findAllByPostIdInOrMember(List<Long> postIdList, Member member, Pageable pageable);
+    @Query(value = "SELECT DISTINCT p " +
+            "FROM Post p " +
+            "LEFT JOIN FETCH p.member m " +
+            "LEFT JOIN FETCH p.categories c " +
+            "LEFT JOIN Apply a ON p.postId = a.post.postId " +
+            "WHERE ((a.member.memberId = :memberId " +
+            "AND a.deletedAt IS NULL " +
+            "AND a.isCanceled = false " +
+            "AND a.applyType = 'PASS') OR (p.member.memberId = :memberId)) " +
+            "AND p.deletedAt IS NULL " +
+            "AND p.status IN :postStatus " +
+            "ORDER BY p.createdAt DESC",
+            countQuery = "SELECT COUNT(DISTINCT p) " +
+                    "FROM Post p " +
+                    "LEFT JOIN Apply a ON p.postId = a.post.postId " +
+                    "WHERE ((a.member.memberId = :memberId " +
+                    "AND a.deletedAt IS NULL " +
+                    "AND a.isCanceled = false " +
+                    "AND a.applyType = 'PASS') OR (p.member.memberId = :memberId)) " +
+                    "AND p.deletedAt IS NULL " +
+                    "AND p.status IN :postStatus")
+    Page<Post> findPostsByMemberIdAndPostStatusInOrderByCreatedAtDesc(@Param("memberId") Long memberId, @Param("postStatus") List<PostStatus> postStatusList, Pageable pageable);
 }

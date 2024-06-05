@@ -43,8 +43,8 @@ public class ApplyController {
     //내가 참여한 공고 정보 요청 api
     @Operation(summary = "내가 참여한 공고 정보 API", description = "내가 참여한 공고 정보")
     @GetMapping("/my-participation-post")
-    public ApplicationResponse<ParticipationPageRes> getMyParticipationPostList(@AuthenticationPrincipal PrincipalDetails principalDetails, @RequestParam(name = "page", defaultValue = "0") int page, @RequestParam(name = "size", defaultValue = "6") int size){
-        return ApplicationResponse.ok(applyService.myParticipationPostListPage(principalDetails.getMember(),page,size));
+    public ApplicationResponse<ParticipationPageRes> getMyParticipationPostList(@AuthenticationPrincipal PrincipalDetails principalDetails, @PageableDefault(size = 6) Pageable pageable){
+        return ApplicationResponse.ok(applyService.myParticipationPostListPage(principalDetails.getMember(), pageable));
     }
     //지원서 열람 요청 api
     @Operation(summary = "지원서 열람 API", description = "내가 모집 중인 팀 페이지에서 지원서 열람 시")
