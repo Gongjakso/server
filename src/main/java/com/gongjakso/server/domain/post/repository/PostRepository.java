@@ -3,6 +3,8 @@ package com.gongjakso.server.domain.post.repository;
 import com.gongjakso.server.domain.member.entity.Member;
 import com.gongjakso.server.domain.post.entity.Post;
 import com.gongjakso.server.domain.post.enumerate.PostStatus;
+import com.gongjakso.server.domain.post.projection.ContestProjection;
+import com.gongjakso.server.domain.post.projection.ProjectProjection;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -35,101 +37,202 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     /*
     전체 공모전 공고 목록 조회 최신순
      */
-    Page<Post> findAllByPostTypeFalseAndDeletedAtIsNullAndFinishDateAfterAndStatusInOrderByPostIdDesc
-    (@Param("currentTimestamp") LocalDateTime currentTimestamp, @Param("status") List<PostStatus> status, Pageable pageable);
+    @Query(value = """
+    select p.post_id
+    from post p
+    left join member m on p.member_id = m.member_id
+    left join category c on p.post_id = c.post_id
+    where p.post_type = false
+    and p.deleted_at is null
+    and p.finish_date > :currentTimestamp
+    and p.status in (:status)
+    and (
+        case
+            when :searchWord is not null and :searchWord != '' then match(p.title, p.contents) against(:searchWord in natural language mode)
+            else true
+        end
+        )
+    and (
+        case
+            when :meetingCity is not null and :meetingCity != '' then p.meeting_city = :meetingCity
+            else true
+        end
+        )
+    and (
+        case
+            when :meetingTown is not null and :meetingTown != '' then p.meeting_town = :meetingTown
+            else true
+        end
+        )
+    group by p.post_id
+    """,
+            countQuery = """
+    SELECT COUNT(*)
+    FROM post p
+    LEFT JOIN member m ON p.member_id = m.member_id
+    LEFT JOIN category c ON p.post_id = c.post_id
+    WHERE p.post_type = false
+    AND p.deleted_at IS NULL
+    AND p.finish_date > :currentTimestamp
+    AND p.status IN (:status)
+    AND (
+        CASE
+            WHEN :searchWord IS NOT NULL AND :searchWord != '' THEN MATCH(p.title, p.contents) AGAINST(:searchWord IN natural language mode)
+            ELSE 1=1
+        END
+    )
+    AND (
+        CASE
+            WHEN :meetingCity IS NOT NULL AND :meetingCity != '' THEN p.meeting_city = :meetingCity
+            ELSE 1=1
+        END
+    )
+    AND (
+        CASE
+            WHEN :meetingTown IS NOT NULL AND :meetingTown != '' THEN p.meeting_town = :meetingTown
+            ELSE 1=1
+        END
+    )
+    group by p.post_id
+    """,
+            nativeQuery = true)
+    Page<Long> findContestPaginationByFilter(@Param("searchWord") String searchWord,
+                                                          @Param("currentTimestamp") LocalDateTime currentTimestamp,
+                                                          @Param("status") List<PostStatus> status,
+                                                          @Param("meetingCity") String meetingCity,
+                                                          @Param("meetingTown") String meetingTown,
+                                                          Pageable pageable);
 
-    /*
-    전체 공모전 공고 목록 조회 스크랩순
-     */
-    Page<Post> findAllByPostTypeFalseAndDeletedAtIsNullAndFinishDateAfterAndStatusInOrderByScrapCountDescPostIdDesc
-    (@Param("currentTimestamp") LocalDateTime currentTimestamp, @Param("status") List<PostStatus> status, Pageable pageable);
+    @Query(value = """
+    select p.post_id as postId, p.title as title, m.member_id as memberId, m.name as memberName, p.status as status, p.start_date as startDate, p.end_date as endDate, p.finish_date as finishDate, p.days_remaining as daysRemaining, c.category_id as categoryId, c.category_type as categoryType, c.size as categorySize, p.scrap_count as scrapCount
+    from post p
+    left join member m on p.member_id = m.member_id
+    left join category c on p.post_id = c.post_id
+    where p.post_id in (:postIdList)
+    order by p.created_at desc
+    """, nativeQuery = true
+    )
+    List<ContestProjection> findContestProjectionListByPostIdListAndCreatedAtDesc(@Param("postIdList") List<Long> postIdList);
 
-    /*
-    검색어 기반 공모전 공고 목록 조회 최신순
-     */
-    Page<Post> findAllByTitleContainsAndPostTypeFalseAndDeletedAtIsNullAndFinishDateAfterAndStatusInOrderByPostIdDesc
-    (@Param("searchWord") String searchWord, @Param("currentTimestamp") LocalDateTime currentTimestamp, @Param("status") List<PostStatus> status, Pageable pageable);
-
-    /*
-    검색어 기반 공모전 공고 목록 조회 스크랩순
-     */
-    Page<Post> findAllByTitleContainsAndPostTypeFalseAndDeletedAtIsNullAndFinishDateAfterAndStatusInOrderByScrapCountDescPostIdDesc
-    (@Param("searchWord") String searchWord, @Param("currentTimestamp") LocalDateTime currentTimestamp, @Param("status") List<PostStatus> status, Pageable pageable);
-
-    /*
-    지역, 검색어 기반 공모전 공고 목록 조회 최신순
-     */
-    Page<Post> findAllByTitleContainsAndPostTypeFalseAndDeletedAtIsNullAndFinishDateAfterAndStatusInAndMeetingCityContainsAndMeetingTownContainsOrderByPostIdDesc
-    (@Param("searchWord") String searchWord, @Param("currentTimestamp") LocalDateTime currentTimestamp, @Param("status") List<PostStatus> status, @Param("meetingCity") String meetingCity, @Param("meetingTown") String meetingTown,  Pageable pageable);
-
-    /*
-    지역, 검색어 기반 공모전 공고 목록 조회 스크랩순
-     */
-    Page<Post> findAllByTitleContainsAndPostTypeFalseAndDeletedAtIsNullAndFinishDateAfterAndStatusInAndMeetingCityContainsAndMeetingTownContainsOrderByScrapCountDescPostIdDesc
-    (@Param("searchWord") String searchWord, @Param("currentTimestamp") LocalDateTime currentTimestamp, @Param("status") List<PostStatus> status, @Param("meetingCity") String meetingCity, @Param("meetingTown") String meetingTown, Pageable pageable);
-
-
-    /*
-    지역, 카테고리, 검색어 기반 공모전 공고 목록 조회 최신순
-     */
-    Page<Post> findAllPostsJoinedWithCategoriesByTitleContainsAndPostTypeFalseAndDeletedAtIsNullAndFinishDateAfterAndStatusInAndMeetingCityContainsAndMeetingTownContainsAndCategoriesCategoryTypeContainsOrderByPostIdDesc
-    (@Param("searchWord") String searchWord, @Param("currentTimestamp") LocalDateTime currentTimestamp, @Param("status") List<PostStatus> status, @Param("meetingCity") String meetingCity, @Param("meetingTown") String meetingTown, @Param("stackNameType") String categoryType,Pageable pageable);
-
-    /*
-    지역, 카테고리, 검색어 기반 공모전 공고 목록 조회 최신순
-     */
-    Page<Post> findAllPostsJoinedWithCategoriesByTitleContainsAndPostTypeFalseAndDeletedAtIsNullAndFinishDateAfterAndStatusInAndMeetingCityContainsAndMeetingTownContainsAndCategoriesCategoryTypeContainsOrderByScrapCountDescPostIdDesc
-    (@Param("searchWord") String searchWord, @Param("currentTimestamp") LocalDateTime currentTimestamp, @Param("status") List<PostStatus> status, @Param("meetingCity") String meetingCity, @Param("meetingTown") String meetingTown, @Param("stackNameType") String categoryType,Pageable pageable);
-
+    @Query(value = """
+    select p.post_id as postId, p.title as title, m.member_id as memberId, m.name as memberName, p.status as status, p.start_date as startDate, p.end_date as endDate, p.finish_date as finishDate, p.days_remaining as daysRemaining, c.category_id as categoryId, c.category_type as categoryType, c.size as categorySize, p.scrap_count as scrapCount
+    from post p
+    left join member m on p.member_id = m.member_id
+    left join category c on p.post_id = c.post_id
+    where p.post_id in (:postIdList)
+    order by p.scrap_count desc
+    """, nativeQuery = true
+    )
+    List<ContestProjection> findContestProjectionListByPostIdListAndScrapCountAtDesc(@Param("postIdList") List<Long> postIdList);
 
     /*
     전체 프로젝트 공고 목록 조회 최신순
      */
-    Page<Post> findAllByPostTypeTrueAndDeletedAtIsNullAndFinishDateAfterAndStatusInOrderByPostIdDesc
-    (@Param("currentTimestamp") LocalDateTime currentTimestamp, @Param("status") List<PostStatus> status, Pageable pageable);
+    @Query(value = """
+    select p.post_id
+    from post p
+    left join member m on p.member_id = m.member_id
+    left join category c on p.post_id = c.post_id
+    left join stack_name sn on p.post_id = sn.post_id
+    WHERE p.post_type = true
+    AND p.deleted_at IS NULL
+    AND p.finish_date > :currentTimestamp
+    AND p.status IN (:status)
+    and (
+        case
+            when :searchWord is not null and :searchWord != '' then match(p.title, p.contents) against(:searchWord in natural language mode)
+            else true
+        end
+        )
+    and (
+        case
+            when :meetingCity is not null and :meetingCity != '' then p.meeting_city = :meetingCity
+            else true
+        end
+        )
+    and (
+        case
+            when :meetingTown is not null and :meetingTown != '' then p.meeting_town = :meetingTown
+            else true
+            end
+        )
+    and (
+        case
+            when :stackName is not null and :stackName != '' then sn.stack_name_type = :stackName
+            else true
+        end
+        )
+    group by p.post_id
+    """,
+            countQuery = """
+    select count(*)
+    FROM post p
+    left join member m on p.member_id = m.member_id
+    left join category c on p.post_id = c.post_id
+    left join stack_name sn on p.post_id = sn.post_id
+    WHERE p.post_type = true
+    AND p.deleted_at IS NULL
+    AND p.finish_date > :currentTimestamp
+    AND p.status IN (:status)
+    and (
+        case
+            when :searchWord is not null and :searchWord != '' then match(p.title, p.contents) against(:searchWord in natural language mode)
+            else 1=1
+        end
+        )
+    and (
+        case
+            when :meetingCity is not null and :meetingCity != '' then p.meeting_city = :meetingCity
+            else 1=1
+        end
+        )
+    and (
+        case
+            when :meetingTown is not null and :meetingTown != '' then p.meeting_town = :meetingTown
+            else 1=1
+            end
+        )
+    and (
+        case
+            when :stackName is not null and :stackName != '' then sn.stack_name_type = :stackName
+            else 1=1
+        end
+        )
+    group by p.post_id
+    """,
+            nativeQuery = true)
+    Page<Long> findProjectPaginationByFilter(
+            @Param("searchWord") String searchWord,
+            @Param("currentTimestamp") LocalDateTime currentTimestamp,
+            @Param("status") List<PostStatus> status,
+            @Param("meetingCity") String meetingCity,
+            @Param("meetingTown") String meetingTown,
+            @Param("stackName") String stackName,
+            Pageable pageable
+    );
 
-    /*
-    전체 프로젝트 공고 목록 조회 스크랩순
-     */
-    Page<Post> findAllByPostTypeTrueAndDeletedAtIsNullAndFinishDateAfterAndStatusInOrderByScrapCountDescPostIdDesc
-    (@Param("currentTimestamp") LocalDateTime currentTimestamp, @Param("status") List<PostStatus> status, Pageable pageable);
+    @Query(value = """
+    select p.post_id as postId, p.title as title, m.member_id as memberId, m.name as memberName, p.status as status, p.start_date as startDate, p.end_date as endDate, p.finish_date as finishDate, p.days_remaining as daysRemaining, c.category_id as categoryId, c.category_type as categoryType, c.size as categorySize, sn.stack_name_id as stackNameId, sn.stack_name_type as stackNameType, p.scrap_count as scrapCount
+    from post p
+    left join member m on p.member_id = m.member_id
+    left join category c on p.post_id = c.post_id
+    left join stack_name sn on p.post_id = sn.post_id
+    where p.post_id in (:postIdList)
+    order by p.created_at desc
+    """, nativeQuery = true)
+    List<ProjectProjection> findProjectProjectionListByPostIdListAndCreatedAtDesc(@Param("postIdList") List<Long> postIdList);
 
-    /*
-    검색어 기반 프로젝트 공고 목록 조회 최신순
-     */
-    Page<Post> findAllByTitleContainsAndPostTypeTrueAndDeletedAtIsNullAndFinishDateAfterAndStatusInOrderByPostIdDesc
-    (@Param("searchWord") String searchWord, @Param("currentTimestamp") LocalDateTime currentTimestamp, @Param("status") List<PostStatus> status, Pageable pageable);
+    @Query(value = """
+    select p.post_id as postId, p.title as title, m.member_id as memberId, m.name as memberName, p.status as status, p.start_date as startDate, p.end_date as endDate, p.finish_date as finishDate, p.days_remaining as daysRemaining, c.category_id as categoryId, c.category_type as categoryType, c.size as categorySize, sn.stack_name_id as stackNameId, sn.stack_name_type as stackNameType, p.scrap_count as scrapCount
+    from post p
+    left join member m on p.member_id = m.member_id
+    left join category c on p.post_id = c.post_id
+    left join stack_name sn on p.post_id = sn.post_id
+    where p.post_id in (:postIdList)
+    order by p.scrap_count desc
+    """, nativeQuery = true)
+    List<ProjectProjection> findProjectProjectionListByPostIdListAndScrapCountDesc(@Param("postIdList") List<Long> postIdList);
 
-    /*
-    검색어 기반 프로젝트 공고 목록 조회 스크랩순
-     */
-    Page<Post> findAllByTitleContainsAndPostTypeTrueAndDeletedAtIsNullAndFinishDateAfterAndStatusInOrderByScrapCountDescPostIdDesc
-    (@Param("searchWord") String searchWord, @Param("currentTimestamp") LocalDateTime currentTimestamp, @Param("status") List<PostStatus> status, Pageable pageable);
-
-    /*
-    지역, 검색어 기반 프로젝트 공고 목록 조회 최신순
-     */
-    Page<Post> findAllByTitleContainsAndPostTypeTrueAndDeletedAtIsNullAndFinishDateAfterAndStatusInAndMeetingCityContainsAndMeetingTownContainsOrderByPostIdDesc
-    (@Param("searchWord") String searchWord, @Param("currentTimestamp") LocalDateTime currentTimestamp, @Param("status") List<PostStatus> status, @Param("meetingCity") String meetingCity, @Param("meetingTown") String meetingTown, Pageable pageable);
-
-    /*
-    지역, 검색어 기반 프로젝트 공고 목록 조회 스크랩순
-     */
-    Page<Post> findAllByTitleContainsAndPostTypeTrueAndDeletedAtIsNullAndFinishDateAfterAndStatusInAndMeetingCityContainsAndMeetingTownContainsOrderByScrapCountDescPostIdDesc
-    (@Param("searchWord") String searchWord, @Param("currentTimestamp") LocalDateTime currentTimestamp, @Param("status") List<PostStatus> status, @Param("meetingCity") String meetingCity, @Param("meetingTown") String meetingTown, Pageable pageable);
-
-
-    /*
-    지역, 스택, 검색어 기반 프로젝트 공고 목록 조회 최신순
-     */
-    Page<Post> findAllPostsJoinedWithStackNamesByTitleContainsAndPostTypeTrueAndDeletedAtIsNullAndFinishDateAfterAndStatusInAndMeetingCityContainsAndMeetingTownContainsAndStackNamesStackNameTypeContainsOrderByPostIdDesc
-    (@Param("searchWord") String searchWord, @Param("currentTimestamp") LocalDateTime currentTimestamp, @Param("status") List<PostStatus> status, @Param("meetingCity") String meetingCity, @Param("meetingTown") String meetingTown, @Param("stackNameType") String stackNameType,Pageable pageable);
-
-    /*
-    지역, 스택, 검색어 기반 프로젝트 공고 목록 조회 최신순
-     */
-    Page<Post> findAllPostsJoinedWithStackNamesByTitleContainsAndPostTypeTrueAndDeletedAtIsNullAndFinishDateAfterAndStatusInAndMeetingCityContainsAndMeetingTownContainsAndStackNamesStackNameTypeContainsOrderByScrapCountDescPostIdDesc
-    (@Param("searchWord") String searchWord, @Param("currentTimestamp") LocalDateTime currentTimestamp, @Param("status") List<PostStatus> status, @Param("meetingCity") String meetingCity, @Param("meetingTown") String meetingTown, @Param("stackNameType") String stackNameType,Pageable pageable);
 
     List<Post> findAllByMemberAndStatusInAndDeletedAtIsNullOrderByCreatedAtDesc(Member member, List<PostStatus> statusList);
 

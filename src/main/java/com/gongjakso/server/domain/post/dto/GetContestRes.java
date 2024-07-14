@@ -1,8 +1,8 @@
 package com.gongjakso.server.domain.post.dto;
 
-import com.gongjakso.server.domain.post.entity.Category;
 import com.gongjakso.server.domain.post.entity.Post;
 import com.gongjakso.server.domain.post.enumerate.PostStatus;
+import com.gongjakso.server.domain.post.projection.ContestProjection;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 
@@ -57,7 +57,7 @@ public record GetContestRes (
     @Schema(
             description = "공고 카테고리(역할)를 (PLAN | DESIGN | FE | BE | ETC | LATER)의 ENUM으로 관리하는 테이블"
     )
-    List<Category> categories,
+    List<CategoryRes> categories,
 
     @Schema(
             description = "공고 스크랩 수, 스크랩 수가 높을수록 인기순 우선순위",
@@ -73,8 +73,27 @@ public record GetContestRes (
                 .startDate(post.getStartDate())
                 .endDate(post.getEndDate())
                 .daysRemaining(post.getFinishDate().isBefore(LocalDateTime.now()) ? -1 : ChronoUnit.DAYS.between(LocalDateTime.now(), post.getFinishDate()))
-                .categories(post.getCategories())
+                .categories(post.getCategories().stream().map(category -> CategoryRes.builder()
+                        .categoryId(category.getCategoryId())
+                        .categoryType(category.getCategoryType())
+                        .size(category.getSize())
+                        .build()).toList())
                 .scrapCount(post.getScrapCount())
+                .build();
+    }
+
+    public static GetContestRes of(ContestProjection contestProjection, List<CategoryRes> categoryResList) {
+        return GetContestRes.builder()
+                .postId(contestProjection.getPostId())
+                .title(contestProjection.getTitle())
+                .name(contestProjection.getMemberName())
+                .status(contestProjection.getStatus())
+                .startDate(contestProjection.getStartDate())
+                .endDate(contestProjection.getEndDate())
+                .finishDate(contestProjection.getFinishDate())
+                .daysRemaining(contestProjection.getDaysRemaining())
+                .categories(categoryResList)
+                .scrapCount(contestProjection.getScrapCount())
                 .build();
     }
 }
