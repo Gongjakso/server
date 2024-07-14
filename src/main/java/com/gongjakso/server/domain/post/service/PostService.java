@@ -241,8 +241,7 @@ public class PostService {
     @Transactional(readOnly = true)
     public Page<GetProjectRes> getProjectsByFilter(String sort, String meetingCity, String meetingTown, String stackName, String searchWord, Pageable page) {
         // Validation
-        System.out.println("TEST");
-        if(stackName != null && (stackName.isBlank() || StackNameType.isValid(stackName))) {
+        if(stackName != null && !stackName.isBlank() && !StackNameType.isValid(stackName)) {
             throw new ApplicationException(INVALID_VALUE_EXCEPTION);
         }
 

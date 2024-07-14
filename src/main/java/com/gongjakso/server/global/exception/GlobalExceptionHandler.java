@@ -20,7 +20,8 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(ApplicationException.class)
     protected ResponseEntity<ErrorResponse> handleApplicationException(ApplicationException e){
         log.error("{} {}", e, e.getErrorCode().toString());
-        discordClient.sendErrorMessage(e.getErrorCode().getCode(), e.getErrorCode().getMessage(), Arrays.toString(e.getStackTrace()));
+        // WebClient 관련 오류로 임시 비활성화
+        // discordClient.sendErrorMessage(e.getErrorCode().getCode(), e.getErrorCode().getMessage(), Arrays.toString(e.getStackTrace()));
         return ResponseEntity.status(e.getErrorCode().getHttpStatus())
                 .body(new ErrorResponse(e.getErrorCode()));
     }
@@ -28,7 +29,8 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(RuntimeException.class)
     protected ResponseEntity<ErrorResponse> handleRuntimeException(RuntimeException e) {
         log.error(e.getMessage());
-        discordClient.sendErrorMessage(ErrorCode.INTERNAL_SERVER_EXCEPTION.getCode(), e.getMessage(), Arrays.toString(e.getStackTrace()));
+        // WebClient 오류로 임시 비활성화
+        // discordClient.sendErrorMessage(ErrorCode.INTERNAL_SERVER_EXCEPTION.getCode(), e.getMessage(), Arrays.toString(e.getStackTrace()));
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(new ErrorResponse(e.getMessage()));
     }
