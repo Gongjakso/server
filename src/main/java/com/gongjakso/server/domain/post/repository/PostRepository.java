@@ -129,7 +129,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     전체 프로젝트 공고 목록 조회 최신순
      */
     @Query(value = """
-    select p.*, m.*, c.*, sn.*
+    select p.post_id
     from post p
     left join member m on p.member_id = m.member_id
     left join category c on p.post_id = c.post_id
@@ -167,7 +167,9 @@ public interface PostRepository extends JpaRepository<Post, Long> {
             countQuery = """
     select count(*)
     FROM post p
-    LEFT JOIN stack_name sn ON p.post_id = sn.post_id
+    left join member m on p.member_id = m.member_id
+    left join category c on p.post_id = c.post_id
+    left join stack_name sn on p.post_id = sn.post_id
     WHERE p.post_type = true
     AND p.deleted_at IS NULL
     AND p.finish_date > :currentTimestamp
@@ -175,36 +177,61 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     and (
         case
             when :searchWord is not null and :searchWord != '' then match(p.title, p.contents) against(:searchWord in natural language mode)
-            else true
+            else 1=1
         end
         )
     and (
         case
             when :meetingCity is not null and :meetingCity != '' then p.meeting_city = :meetingCity
-            else true
+            else 1=1
         end
         )
     and (
         case
             when :meetingTown is not null and :meetingTown != '' then p.meeting_town = :meetingTown
-            else true
+            else 1=1
             end
         )
     and (
         case
             when :stackName is not null and :stackName != '' then sn.stack_name_type = :stackName
-            else true
+            else 1=1
         end
         )
+    group by p.post_id
     """,
             nativeQuery = true)
-    Page<ProjectProjection> findProjectPaginationByFilter(@Param("searchWord") String searchWord,
-                                                          @Param("currentTimestamp") LocalDateTime currentTimestamp,
-                                                          @Param("status") List<PostStatus> status,
-                                                          @Param("meetingCity") String meetingCity,
-                                                          @Param("meetingTown") String meetingTown,
-                                                          @Param("stackName") String stackName,
-                                                          Pageable pageable);
+    Page<Long> findProjectPaginationByFilter(
+            @Param("searchWord") String searchWord,
+            @Param("currentTimestamp") LocalDateTime currentTimestamp,
+            @Param("status") List<PostStatus> status,
+            @Param("meetingCity") String meetingCity,
+            @Param("meetingTown") String meetingTown,
+            @Param("stackName") String stackName,
+            Pageable pageable
+    );
+
+    @Query(value = """
+    select p.post_id as postId, p.title as title, m.member_id as memberId, m.name as memberName, p.status as status, p.start_date as startDate, p.end_date as endDate, p.finish_date as finishDate, p.days_remaining as daysRemaining, c.category_id as categoryId, c.category_type as categoryType, c.size as categorySize, sn.stack_name_id as stackNameId, sn.stack_name_type as stackNameType, p.scrap_count as scrapCount
+    from post p
+    left join member m on p.member_id = m.member_id
+    left join category c on p.post_id = c.post_id
+    left join stack_name sn on p.post_id = sn.post_id
+    where p.post_id in (:postIdList)
+    order by p.created_at desc
+    """, nativeQuery = true)
+    List<ProjectProjection> findProjectProjectionListByPostIdListAndCreatedAtDesc(@Param("postIdList") List<Long> postIdList);
+
+    @Query(value = """
+    select p.post_id as postId, p.title as title, m.member_id as memberId, m.name as memberName, p.status as status, p.start_date as startDate, p.end_date as endDate, p.finish_date as finishDate, p.days_remaining as daysRemaining, c.category_id as categoryId, c.category_type as categoryType, c.size as categorySize, sn.stack_name_id as stackNameId, sn.stack_name_type as stackNameType, p.scrap_count as scrapCount
+    from post p
+    left join member m on p.member_id = m.member_id
+    left join category c on p.post_id = c.post_id
+    left join stack_name sn on p.post_id = sn.post_id
+    where p.post_id in (:postIdList)
+    order by p.scrap_count desc
+    """, nativeQuery = true)
+    List<ProjectProjection> findProjectProjectionListByPostIdListAndScrapCountDesc(@Param("postIdList") List<Long> postIdList);
 
 
     List<Post> findAllByMemberAndStatusInAndDeletedAtIsNullOrderByCreatedAtDesc(Member member, List<PostStatus> statusList);

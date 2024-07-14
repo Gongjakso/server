@@ -10,7 +10,9 @@ public interface ProjectProjection {
 
     String getTitle();
 
-    String getName();
+    Long getMemberId();
+
+    String getMemberName();
 
     PostStatus getStatus();
 
@@ -24,11 +26,13 @@ public interface ProjectProjection {
 
     Long getCategoryId();
 
-    Long getCategoryPostId();
-
     CategoryType getCategoryType();
 
-    Integer getSize();
+    Integer getCategorySize();
+
+    Long getStackNameId();
+
+    String getStackNameType();
 
     long getScrapCount();
 }

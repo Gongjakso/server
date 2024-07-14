@@ -181,10 +181,6 @@ public class PostService {
                 page
         );
 
-        for(Long postId: postIdPage) {
-            System.out.println(postId);
-        }
-
         List<ContestProjection> contestProjectionList = switch (sort) {
             case "createdAt" -> postRepository.findContestProjectionListByPostIdListAndCreatedAtDesc(postIdPage.getContent());
             case "scrapCount" -> postRepository.findContestProjectionListByPostIdListAndScrapCountAtDesc(postIdPage.getContent());
@@ -203,6 +199,7 @@ public class PostService {
 
                     // CategoryRes 리스트 구성
                     List<CategoryRes> categoryResList = contestProjections.stream()
+                            .filter(contestProjection -> contestProjection.getCategoryId() != null && contestProjection.getCategoryType() != null && contestProjection.getCategorySize() != null)
                             .map(contestProjection -> CategoryRes.builder()
                                     .categoryId(contestProjection.getCategoryId())
                                     .categoryType(contestProjection.getCategoryType())
@@ -241,6 +238,7 @@ public class PostService {
      * @param page 페이지네이션에 필요한 오프셋, 사이즈 정보를 담은 Pageable 객체
      * @return Page<GetProjectRes> 프로젝트 공고 목록
      */
+    @Transactional(readOnly = true)
     public Page<GetProjectRes> getProjectsByFilter(String sort, String meetingCity, String meetingTown, String stackName, String searchWord, Pageable page) {
         // Validation
         if(stackName != null && (stackName.isBlank() || StackNameType.isValid(stackName))) {
@@ -250,35 +248,83 @@ public class PostService {
         // Business Logic
         List<PostStatus> statusList = Arrays.asList(RECRUITING, EXTENSION); // 공고가 모집/연장 상태인 경우만 조회되도록 하기 위한 상태값 설정
         String search = (searchWord != null && !searchWord.isEmpty()) ? searchWord.toLowerCase() : searchWord;
-        Page<ProjectProjection> projectProjectionPage = switch (sort) {
-            case "createdAt":
-                page = PageRequest.of(page.getPageNumber(), page.getPageSize(), Sort.by("created_at").descending());
-                yield postRepository.findProjectPaginationByFilter(
-                        search,
-                        LocalDateTime.now(), 
-                        statusList, 
-                        meetingCity,
-                        meetingTown,
-                        stackName,
-                        page
-                );
-            case "scrapCount":
-                page = PageRequest.of(page.getPageNumber(), page.getPageSize(), Sort.by("scrap_count").descending());
-                yield postRepository.findProjectPaginationByFilter(
-                        search,
-                        LocalDateTime.now(), 
-                        statusList,
-                        meetingCity, 
-                        meetingTown,
-                        stackName,
-                        page
-                );
-            default:
-                throw new IllegalStateException("Unexpected value: " + sort);
+        Sort sortCondition = switch (sort) {
+            case "createdAt" -> Sort.by("created_at").descending();
+            case "scrapCount" -> Sort.by("scrap_count").descending();
+            default -> throw new IllegalStateException("Unexpected value: " + sort);
         };
 
+        System.out.println(searchWord);
+
+        page = PageRequest.of(page.getPageNumber(), page.getPageSize(), sortCondition);
+        Page<Long> postIdPage = postRepository.findProjectPaginationByFilter(
+                search,
+                LocalDateTime.now(),
+                statusList,
+                meetingCity,
+                meetingTown,
+                stackName,
+                page
+        );
+
+        List<ProjectProjection> projectProjectionList = switch (sort) {
+            case "createdAt" -> postRepository.findProjectProjectionListByPostIdListAndCreatedAtDesc(postIdPage.getContent());
+            case "scrapCount" -> postRepository.findProjectProjectionListByPostIdListAndScrapCountDesc(postIdPage.getContent());
+            default -> throw new IllegalStateException("Unexpected value: " + sort);
+        };
+
+        // PostId 기준으로 그룹화
+        Map<Long, List<ProjectProjection>> groupedByPostId = projectProjectionList.stream()
+                .collect(Collectors.groupingBy(ProjectProjection::getPostId, LinkedHashMap::new, Collectors.toList()));
+
+        List<GetProjectRes> projectResList = groupedByPostId.entrySet().stream()
+                .map(entry -> {
+                    Long postId = entry.getKey();
+                    List<ProjectProjection> projections = entry.getValue();
+
+                    // CategoryRes 리스트 구성 (중복 제거)
+                    Set<CategoryRes> categoryResSet = projections.stream()
+                            .filter(contestProjection -> contestProjection.getCategoryId() != null
+                                    && contestProjection.getCategoryType() != null
+                                    && contestProjection.getCategorySize() != null)
+                            .map(category -> CategoryRes.builder()
+                                    .categoryId(category.getCategoryId())
+                                    .categoryType(category.getCategoryType())
+                                    .size(category.getCategorySize())
+                                    .build())
+                            .collect(Collectors.toSet());  // Set으로 수집하여 중복 제거
+
+                    // StackName 리스트 구성 (중복 제거)
+                    Set<StackNameRes> stackNameSet = projections.stream()
+                            .filter(stack -> stack != null
+                                    && stack.getStackNameId() != null
+                                    && stack.getStackNameType() != null)
+                            .map(stack -> StackNameRes.builder()
+                                    .stackNameId(stack.getStackNameId())
+                                    .stackNameType(stack.getStackNameType())
+                                    .build())
+                            .collect(Collectors.toSet());  // Set으로 수집하여 중복 제거
+
+                    // GetProjectRes 객체 생성
+                    ProjectProjection firstProjection = projections.get(0);
+                    return GetProjectRes.builder()
+                            .postId(postId)
+                            .title(firstProjection.getTitle())
+                            .name(firstProjection.getMemberName())
+                            .status(firstProjection.getStatus())
+                            .startDate(firstProjection.getStartDate())
+                            .endDate(firstProjection.getEndDate())
+                            .finishDate(firstProjection.getFinishDate())
+                            .daysRemaining(firstProjection.getDaysRemaining())
+                            .categories(new ArrayList<>(categoryResSet))  // Set을 List로 변환
+                            .stackNames(new ArrayList<>(stackNameSet))    // Set을 List로 변환
+                            .scrapCount(firstProjection.getScrapCount())
+                            .build();
+                })
+                .collect(Collectors.toList());
+
         // Response
-        return new PageImpl<>(null, projectProjectionPage.getPageable(), projectProjectionPage.getTotalPages());
+        return new PageImpl<>(projectResList, postIdPage.getPageable(), postIdPage.getTotalPages());
     }
 
     /*
