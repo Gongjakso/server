@@ -163,7 +163,7 @@ public class PostService {
     @Transactional(readOnly = true)
     public Page<GetContestRes> getContestsByFilter(String sort, String meetingCity, String meetingTown, String category, String searchWord, Pageable page) {
         // Business Logic
-        List<PostStatus> statusList = Arrays.asList(RECRUITING, EXTENSION); // 공고가 모집/연장 상태인 경우만 조회되도록 하기 위한 상태값 설정
+        List<String> statusList = Arrays.asList(PostStatus.RECRUITING.toString(), PostStatus.EXTENSION.toString()); // 공고가 모집/연장 상태인 경우만 조회되도록 하기 위한 상태값 설정
         String search = (searchWord != null && !searchWord.isEmpty()) ? searchWord.toLowerCase() : searchWord;
         Sort sortCondition = switch (sort) {
             case "createdAt" -> Sort.by("created_at").descending();
@@ -241,12 +241,13 @@ public class PostService {
     @Transactional(readOnly = true)
     public Page<GetProjectRes> getProjectsByFilter(String sort, String meetingCity, String meetingTown, String stackName, String searchWord, Pageable page) {
         // Validation
+        System.out.println("TEST");
         if(stackName != null && (stackName.isBlank() || StackNameType.isValid(stackName))) {
             throw new ApplicationException(INVALID_VALUE_EXCEPTION);
         }
 
         // Business Logic
-        List<PostStatus> statusList = Arrays.asList(RECRUITING, EXTENSION); // 공고가 모집/연장 상태인 경우만 조회되도록 하기 위한 상태값 설정
+        List<String> statusList = Arrays.asList(PostStatus.RECRUITING.toString(), PostStatus.EXTENSION.toString()); // 공고가 모집/연장 상태인 경우만 조회되도록 하기 위한 상태값 설정
         String search = (searchWord != null && !searchWord.isEmpty()) ? searchWord.toLowerCase() : searchWord;
         Sort sortCondition = switch (sort) {
             case "createdAt" -> Sort.by("created_at").descending();

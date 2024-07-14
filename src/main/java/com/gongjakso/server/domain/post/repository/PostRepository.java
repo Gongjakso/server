@@ -98,7 +98,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
             nativeQuery = true)
     Page<Long> findContestPaginationByFilter(@Param("searchWord") String searchWord,
                                                           @Param("currentTimestamp") LocalDateTime currentTimestamp,
-                                                          @Param("status") List<PostStatus> status,
+                                                          @Param("status") List<String> status,
                                                           @Param("meetingCity") String meetingCity,
                                                           @Param("meetingTown") String meetingTown,
                                                           Pageable pageable);
@@ -204,7 +204,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     Page<Long> findProjectPaginationByFilter(
             @Param("searchWord") String searchWord,
             @Param("currentTimestamp") LocalDateTime currentTimestamp,
-            @Param("status") List<PostStatus> status,
+            @Param("status") List<String> status,
             @Param("meetingCity") String meetingCity,
             @Param("meetingTown") String meetingTown,
             @Param("stackName") String stackName,
