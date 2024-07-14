@@ -55,15 +55,7 @@ public class PostController {
                                                          @RequestParam(value = "meetingCity", required = false) String meetingCity,
                                                          @RequestParam(value = "meetingTown", required = false) String meetingTown,
                                                          @RequestParam(value = "sort", required = false) String sort) {
-        if(category.isBlank() && meetingCity.isBlank()){
-            if(searchWord.isBlank()){
-                return ApplicationResponse.ok(postService.getContests(sort, pageable));
-            }else {
-                return ApplicationResponse.ok(postService.getContestsBySearchWord(sort, searchWord, pageable));
-            }
-        }else {
-            return ApplicationResponse.ok(postService.getContestsByMeetingAreaAndCategoryAndSearchWord(sort, meetingCity, meetingTown, category, searchWord, pageable));
-        }
+        return ApplicationResponse.ok(postService.getContestsByFilter(sort, meetingCity, meetingTown, category, searchWord, pageable));
     }
 
     @Operation(summary = "프로젝트 공고 목록 조회 및 페이지네이션 API", description = "프로젝트 공고 페이지에서 공고 목록 조회")
@@ -74,15 +66,7 @@ public class PostController {
                                                                 @RequestParam(value = "meetingCity", required = false) String meetingCity,
                                                                 @RequestParam(value = "meetingTown", required = false) String meetingTown,
                                                          @RequestParam(value = "sort", required = false) String sort) {
-        if(stackName.isBlank() && meetingCity.isBlank()){
-            if(searchWord.isBlank()){
-                return ApplicationResponse.ok(postService.getProjects(sort, pageable));
-            }else {
-                return ApplicationResponse.ok(postService.getProjectsBySearchWord(sort, searchWord, pageable));
-            }
-        }else {
-            return ApplicationResponse.ok(postService.getProjectsByMeetingAreaAndStackNameAndSearchWord(sort, meetingCity, meetingTown, stackName, searchWord, pageable));
-        }
+        return ApplicationResponse.ok(postService.getProjectsByFilter(sort, meetingCity, meetingTown, stackName, searchWord, pageable));
     }
 
     @Operation(summary = "프로젝트 공고 스크랩 기능", description = "프로젝트 공고 스크랩")
