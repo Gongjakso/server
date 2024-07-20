@@ -3,11 +3,13 @@ package com.gongjakso.server.domain.post.service;
 import com.gongjakso.server.domain.post.entity.Post;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 
+@SpringBootTest
 class PostServiceTest {
 
-    @Autowired
+    @MockBean
     PostService postService;
     Post post = null;
 
@@ -18,7 +20,7 @@ class PostServiceTest {
 
     @Test
     void create() {
-        
+
     }
 
     @Test

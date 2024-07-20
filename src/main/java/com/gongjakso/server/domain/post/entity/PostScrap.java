@@ -31,6 +31,14 @@ public class PostScrap{
         this.scrapStatus = scrapStatus;
     }
 
+    @Builder
+    public PostScrap(long postScrapId, Post post, Member member, Boolean scrapStatus){
+        this.postScrapId = postScrapId;
+        this.post = post;
+        this.member = member;
+        this.scrapStatus = scrapStatus;
+    }
+
     public Boolean getScrapStatus(){
         return scrapStatus;
     }

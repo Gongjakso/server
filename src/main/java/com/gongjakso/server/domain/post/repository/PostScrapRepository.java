@@ -13,5 +13,8 @@ public interface PostScrapRepository extends JpaRepository<PostScrap, Long> {
     PostScrap findByPostAndMember(Post post, Member member);
     List<PostScrap> findByMemberAndScrapStatus(Member member,boolean scrapStatus);
 
-    Page<PostScrap> findAllByMemberAndScrapStatusTrue(Member member, Pageable pageable);
+    Page<PostScrap> findAllByMemberAndPostPostTypeTrueAndPostDeletedAtIsNullAndScrapStatusTrueOrderByPostScrapIdDesc(Member member, Pageable pageable);
+
+    Page<PostScrap> findAllByMemberAndPostPostTypeFalseAndPostDeletedAtIsNullAndScrapStatusTrueOrderByPostScrapIdDesc(Member member, Pageable pageable);
+
 }

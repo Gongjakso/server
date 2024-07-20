@@ -1,6 +1,5 @@
 package com.gongjakso.server.domain.post.controller;
 
-import com.gongjakso.server.domain.apply.service.ApplyService;
 import com.gongjakso.server.domain.post.dto.*;
 import com.gongjakso.server.domain.post.service.PostService;
 import com.gongjakso.server.global.common.ApplicationResponse;
@@ -23,7 +22,6 @@ import java.util.List;
 public class PostController {
 
     private final PostService postService;
-    private final ApplyService applyService;
 
     @Operation(summary = "공모전/프로젝트 공고 생성 API", description = "팀빌딩 페이지에서 정보 입력 후 공고 생성")
     @PostMapping("")
@@ -32,9 +30,9 @@ public class PostController {
     }
 
     @Operation(summary = "사용자 별 상세 조회 API", description = "사용자별로 공고 상세 조회 다르게 반환")
-    @GetMapping("/read")
-    public ApplicationResponse<?> read(@AuthenticationPrincipal PrincipalDetails principalDetails, @RequestParam(value = "id", required = true) Long postId, @RequestParam(value = "role", required = false) String role ) {
-        return ApplicationResponse.ok(postService.read(principalDetails, postId, role));
+    @GetMapping("/{id}")
+    public ApplicationResponse<?> read(@AuthenticationPrincipal PrincipalDetails principalDetails, @PathVariable("id") Long postId) {
+        return ApplicationResponse.ok(postService.read(principalDetails, postId));
     }
 
     @Operation(summary = "공모전/프로젝트 공고 수정 API", description = "팀빌딩 페이지에서 정보 입력 후 공고 수정")
@@ -57,15 +55,7 @@ public class PostController {
                                                          @RequestParam(value = "meetingCity", required = false) String meetingCity,
                                                          @RequestParam(value = "meetingTown", required = false) String meetingTown,
                                                          @RequestParam(value = "sort", required = false) String sort) {
-        if(category.isBlank() && meetingCity.isBlank()){
-            if(searchWord.isBlank()){
-                return ApplicationResponse.ok(postService.getContests(sort, pageable));
-            }else {
-                return ApplicationResponse.ok(postService.getContestsBySearchWord(sort, searchWord, pageable));
-            }
-        }else {
-            return ApplicationResponse.ok(postService.getContestsByMeetingAreaAndCategoryAndSearchWord(sort, meetingCity, meetingTown, category, searchWord, pageable));
-        }
+        return ApplicationResponse.ok(postService.getContestsByFilter(sort, meetingCity, meetingTown, category, searchWord, pageable));
     }
 
     @Operation(summary = "프로젝트 공고 목록 조회 및 페이지네이션 API", description = "프로젝트 공고 페이지에서 공고 목록 조회")
@@ -76,15 +66,7 @@ public class PostController {
                                                                 @RequestParam(value = "meetingCity", required = false) String meetingCity,
                                                                 @RequestParam(value = "meetingTown", required = false) String meetingTown,
                                                          @RequestParam(value = "sort", required = false) String sort) {
-        if(stackName.isBlank() && meetingCity.isBlank()){
-            if(searchWord.isBlank()){
-                return ApplicationResponse.ok(postService.getProjects(sort, pageable));
-            }else {
-                return ApplicationResponse.ok(postService.getProjectsBySearchWord(sort, searchWord, pageable));
-            }
-        }else {
-            return ApplicationResponse.ok(postService.getProjectsByMeetingAreaAndStackNameAndSearchWord(sort, meetingCity, meetingTown, stackName, searchWord, pageable));
-        }
+        return ApplicationResponse.ok(postService.getProjectsByFilter(sort, meetingCity, meetingTown, stackName, searchWord, pageable));
     }
 
     @Operation(summary = "프로젝트 공고 스크랩 기능", description = "프로젝트 공고 스크랩")
@@ -121,5 +103,11 @@ public class PostController {
     @GetMapping("/contest/myScrap")
     public ApplicationResponse<Page<GetContestRes>> MyScrapContestList(@PageableDefault(size = 6) Pageable pageable,@AuthenticationPrincipal PrincipalDetails principalDetails){
         return ApplicationResponse.ok(postService.getMyScrapContest(principalDetails.getMember(), pageable));
+    }
+
+    @Operation(summary = "활동 종료 API", description = "팀장이 활동 중인 프로젝트 공고를 활동 종료할 때 사용하는 API로, 활동 종료된 공고의 정보가 반환")
+    @PatchMapping("/complete/{post_id}")
+    public ApplicationResponse<PostSimpleRes> completePost(@AuthenticationPrincipal PrincipalDetails principalDetails, @PathVariable("post_id") Long postId) {
+        return ApplicationResponse.ok(postService.completePost(principalDetails.getMember(), postId));
     }
 }

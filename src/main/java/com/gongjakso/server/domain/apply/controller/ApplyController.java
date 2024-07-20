@@ -9,10 +9,11 @@ import com.gongjakso.server.global.security.PrincipalDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RequiredArgsConstructor
 @RestController
@@ -30,20 +31,20 @@ public class ApplyController {
     //팀 공고 요청 api
     @Operation(summary = "내가 모집 중인 팀 정보 API", description = "내가 모집 중인 팀 페이지에서 필요한 팀 정보 요청")
     @GetMapping("/{post_id}")
-    public ApplicationResponse<ApplyRes> getApply(@AuthenticationPrincipal PrincipalDetails principalDetails,@PathVariable("post_id") Long postId){
+    public ApplicationResponse<ApplyRes> getApply(@AuthenticationPrincipal PrincipalDetails principalDetails, @PathVariable("post_id") Long postId){
         return ApplicationResponse.ok(applyService.findApply(principalDetails.getMember(),postId));
     }
     //내가 모집 중인 팀 지원자 정보 요청 api
     @Operation(summary = "내가 모집 중인 팀 지원자 정보 API", description = "내가 모집 중인 팀 페이지에서 필요한 지원자 정보 요청")
     @GetMapping("/{post_id}/applylist")
-    public ApplicationResponse<ApplyPageRes> getApplyList(@AuthenticationPrincipal PrincipalDetails principalDetails,@PathVariable("post_id") Long postId,@RequestParam(name = "page", defaultValue = "0") int page,@RequestParam(name = "size", defaultValue = "11") int size){
+    public ApplicationResponse<ApplyPageRes> getApplyList(@AuthenticationPrincipal PrincipalDetails principalDetails, @PathVariable("post_id") Long postId, @RequestParam(name = "page", defaultValue = "0") int page, @RequestParam(name = "size", defaultValue = "11") int size){
         return ApplicationResponse.ok(applyService.applyListPage(principalDetails.getMember(),postId,page,size));
     }
     //내가 참여한 공고 정보 요청 api
     @Operation(summary = "내가 참여한 공고 정보 API", description = "내가 참여한 공고 정보")
     @GetMapping("/my-participation-post")
-    public ApplicationResponse<ParticipationPageRes> getMyParticipationPostList(@RequestParam(name = "page", defaultValue = "0") int page,@RequestParam(name = "size", defaultValue = "6") int size){
-        return ApplicationResponse.ok(applyService.myParticipationPostListPage(page,size));
+    public ApplicationResponse<ParticipationPageRes> getMyParticipationPostList(@AuthenticationPrincipal PrincipalDetails principalDetails, @PageableDefault(size = 6) Pageable pageable){
+        return ApplicationResponse.ok(applyService.myParticipationPostListPage(principalDetails.getMember(), pageable));
     }
     //지원서 열람 요청 api
     @Operation(summary = "지원서 열람 API", description = "내가 모집 중인 팀 페이지에서 지원서 열람 시")
@@ -82,7 +83,7 @@ public class ApplyController {
     @Operation(summary = "공고 마감 API", description = "내가 모집 중인 팀 페이지에서 공고 마감 버튼 클릭시")
     @PatchMapping("/{post_id}/close")
     public ApplicationResponse<Void> updatePostStatusToClose(@AuthenticationPrincipal PrincipalDetails principalDetails, @PathVariable("post_id") Long postId){
-        applyService.updatePostState(principalDetails.getMember(),postId, PostStatus.CLOSE);
+        applyService.updatePostState(principalDetails.getMember(),postId, PostStatus.ACTIVE);
         return ApplicationResponse.ok();
     }
     //공고 취소 요청 api
@@ -102,13 +103,19 @@ public class ApplyController {
 
     @Operation(summary = "내가 지원한 팀 리스트 API", description = "현재 지원 중인 상태의 팀 정보 반환")
     @GetMapping("/my")
-    public ApplicationResponse<List<MyPageRes>> getMyApplyList(@AuthenticationPrincipal PrincipalDetails principalDetails) {
-        return ApplicationResponse.ok(applyService.getMyApplyList(principalDetails.getMember()));
+    public ApplicationResponse<Page<MyPageRes>> getMyApplyList(@AuthenticationPrincipal PrincipalDetails principalDetails, @PageableDefault(size = 6) Pageable pageable) {
+        return ApplicationResponse.ok(applyService.getMyApplyList(principalDetails.getMember(), pageable));
     }
 
     @Operation(summary = "지원서 열람 API", description = "해당 공고에 대한 사용자의 지원서 정보 반환")
     @GetMapping("/my/{post_id}")
     public ApplicationResponse<ApplicationRes> getMyApplication(@AuthenticationPrincipal PrincipalDetails principalDetails, @PathVariable("post_id") Long postId){
         return ApplicationResponse.ok(applyService.getMyApplication(principalDetails.getMember(), postId));
+    }
+
+    @Operation(summary = "지원 취소 API", description = "해당 공고에 대한 지원을 취소한다.")
+    @PatchMapping("/cancel/{apply_id}")
+    public ApplicationResponse<PatchApplyRes> cancelApply(@AuthenticationPrincipal PrincipalDetails principalDetails, @PathVariable("apply_id") Long applyId){
+        return ApplicationResponse.ok(applyService.cancelApply(principalDetails.getMember(), applyId));
     }
 }
