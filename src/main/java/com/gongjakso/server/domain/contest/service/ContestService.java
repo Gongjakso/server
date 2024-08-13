@@ -13,7 +13,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.time.LocalDate;
 
 @Service
 @RequiredArgsConstructor
@@ -64,5 +63,14 @@ public class ContestService {
         contestRepository.save(contest);
         //Response
         return ContestRes.of(contest);
+    }
+
+    @Transactional
+    public void delete(Long id){
+        //Vaildation
+        Contest contest = contestRepository.findById(id).orElseThrow(()-> new ApplicationException(ErrorCode.NOT_FOUND_EXCEPTION));
+        //Business
+        s3Client.delete(contest.getImgUrl());
+        contestRepository.delete(contest);
     }
 }
