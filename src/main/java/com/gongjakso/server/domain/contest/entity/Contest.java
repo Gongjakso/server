@@ -17,13 +17,13 @@ public class Contest {
     @Column(name = "contest_id",nullable = false,columnDefinition = "bigint")
     private Long id;
 
-    @Column(name = "title",nullable = false,columnDefinition = "varchar(50)")
+    @Column(name = "title",nullable = false,columnDefinition = "varchar(150)")
     private String title;
     @Column(name = "body",columnDefinition = "text")
     private String body;
     @Column(name = "contest_link",columnDefinition = "text")
     private String contestLink;
-    @Column(name = "institution",columnDefinition = "varchar(50)")
+    @Column(name = "institution",columnDefinition = "varchar(100)")
     private String institution;
     @Column(name = "started_at",columnDefinition = "timestamp")
     private LocalDate startedAt;

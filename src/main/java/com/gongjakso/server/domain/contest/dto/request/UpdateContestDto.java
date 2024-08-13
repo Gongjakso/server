@@ -9,14 +9,14 @@ import java.time.LocalDate;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record UpdateContestDto(
         @Nullable
-        @Size(min=1,max=50)
+        @Size(min=1,max=150)
         String title,
         @Nullable
         String body,
         @Nullable
         String contestLink,
         @Nullable
-        @Size(min=1,max=50)
+        @Size(min=1,max=100)
         String institution,
         @Nullable
         @JsonFormat(pattern = "yyyy-MM-dd")

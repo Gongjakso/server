@@ -11,11 +11,11 @@ import java.time.LocalDate;
 
 @Builder
 public record ContestReq(
-        @Size(min=1,max=50)
+        @Size(min=1,max=150)
         String title,
         String body,
         String contestLink,
-        @Size(min=1,max=50)
+        @Size(min=1,max=100)
         String institution,
         @JsonFormat(pattern = "yyyy-MM-dd")
         LocalDate startedAt,
