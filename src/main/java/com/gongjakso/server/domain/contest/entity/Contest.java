@@ -2,10 +2,11 @@ package com.gongjakso.server.domain.contest.entity;
 
 import jakarta.persistence.*;
 import lombok.Builder;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
-
+@Getter
 @NoArgsConstructor
 @Entity
 @Table(name = "contest")
