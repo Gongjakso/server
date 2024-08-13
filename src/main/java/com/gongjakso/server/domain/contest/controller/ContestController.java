@@ -1,6 +1,7 @@
 package com.gongjakso.server.domain.contest.controller;
 
 import com.gongjakso.server.domain.contest.dto.request.ContestReq;
+import com.gongjakso.server.domain.contest.dto.request.UpdateContestDto;
 import com.gongjakso.server.domain.contest.dto.response.ContestRes;
 import com.gongjakso.server.domain.contest.service.ContestService;
 import com.gongjakso.server.global.common.ApplicationResponse;
@@ -26,7 +27,11 @@ public class ContestController {
         return ApplicationResponse.created();
     }
     @GetMapping("/{contest_id}")
-    public ApplicationResponse<ContestRes> findContest(@PathVariable Long contest_id){
+    public ApplicationResponse<ContestRes> find(@PathVariable Long contest_id){
         return ApplicationResponse.ok(contestService.find(contest_id));
+    }
+    @PatchMapping("/{contest_id}")
+    public ApplicationResponse<ContestRes> update(@PathVariable Long contest_id,@RequestPart(required = false) MultipartFile image,@Valid @RequestPart UpdateContestDto contestReq){
+        return ApplicationResponse.ok(contestService.update(contest_id,image,contestReq));
     }
 }

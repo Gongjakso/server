@@ -1,5 +1,6 @@
 package com.gongjakso.server.domain.contest.entity;
 
+import com.gongjakso.server.domain.contest.dto.request.UpdateContestDto;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
@@ -31,7 +32,15 @@ public class Contest {
     @Column(name = "img_url",columnDefinition = "text")
     private String imgUrl;
 
-
+    public void update(UpdateContestDto contest,String imgUrl){
+        this.title= (contest.title()==null) ? this.title : contest.title();
+        this.body= (contest.body()==null) ? this.body : contest.body();
+        this.contestLink= (contest.contestLink()==null) ? this.contestLink : contest.contestLink();
+        this.institution= (contest.institution()==null) ? this.institution : contest.institution();
+        this.startedAt= (contest.startedAt()==null) ? this.startedAt : contest.startedAt();
+        this.finishedAt= (contest.finishedAt()==null) ? this.finishedAt : contest.finishedAt();
+        this.imgUrl= (imgUrl==null) ? this.imgUrl : imgUrl;
+    }
 
     @Builder
     public Contest(String title,String body,String contestLink,String institution,LocalDate startedAt,LocalDate finishedAt,String imgUrl){
