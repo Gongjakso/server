@@ -31,6 +31,8 @@ public class Contest {
     @Column(name = "img_url",columnDefinition = "text")
     private String imgUrl;
 
+
+
     @Builder
     public Contest(String title,String body,String contestLink,String institution,LocalDate startedAt,LocalDate finishedAt,String imgUrl){
         this.title=title;
