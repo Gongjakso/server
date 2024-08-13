@@ -10,6 +10,9 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -18,8 +21,8 @@ public class ContestController {
     private final ContestService contestService;
     @Operation(summary = "공모전 생성 API", description = "")
     @PostMapping("")
-    public ApplicationResponse<Void> create(@AuthenticationPrincipal PrincipalDetails principalDetails, @Valid @RequestBody ContestReq contestReq){
-        contestService.save(contestReq);
+    public ApplicationResponse<Void> create(@AuthenticationPrincipal PrincipalDetails principalDetails, @RequestPart(required = false) MultipartFile image, @Valid @RequestPart ContestReq contestReq){
+        contestService.save(image,contestReq);
         return ApplicationResponse.created();
     }
     @GetMapping("/{contest_id}")

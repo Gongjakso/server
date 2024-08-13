@@ -14,8 +14,7 @@ public record ContestReq(
         String contestLink,
         String institution,
         LocalDate startedAt,
-        LocalDate finishedAt,
-        MultipartFile image
+        LocalDate finishedAt
 
 ) {
 

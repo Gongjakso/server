@@ -2,8 +2,6 @@ package com.gongjakso.server.domain.contest.dto.response;
 
 import com.gongjakso.server.domain.contest.entity.Contest;
 import lombok.Builder;
-import org.springframework.cglib.core.Local;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;

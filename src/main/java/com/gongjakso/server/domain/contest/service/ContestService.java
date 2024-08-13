@@ -10,6 +10,7 @@ import com.gongjakso.server.global.util.s3.S3Client;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 
@@ -21,10 +22,10 @@ public class ContestService {
 
 
     @Transactional
-    public void save(ContestReq contestReq){
+    public void save(MultipartFile image,ContestReq contestReq){
         //Business
         //image s3에 올리기
-        String s3Url = s3Client.upload(contestReq.image(), "contest");
+        String s3Url = s3Client.upload(image, "contest");
         //contest build 및 생성
         Contest contest = Contest.builder()
                 .title(contestReq.title())
