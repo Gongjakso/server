@@ -2,13 +2,17 @@ package com.gongjakso.server.domain.contest.controller;
 
 import com.gongjakso.server.domain.contest.dto.request.ContestReq;
 import com.gongjakso.server.domain.contest.dto.request.UpdateContestDto;
+import com.gongjakso.server.domain.contest.dto.response.ContestListRes;
 import com.gongjakso.server.domain.contest.dto.response.ContestRes;
 import com.gongjakso.server.domain.contest.service.ContestService;
 import com.gongjakso.server.global.common.ApplicationResponse;
 import com.gongjakso.server.global.security.PrincipalDetails;
+import io.lettuce.core.dynamic.annotation.Param;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -26,9 +30,18 @@ public class ContestController {
         contestService.save(image,contestReq);
         return ApplicationResponse.created();
     }
+    @Operation(description = "공모전 정보 API")
     @GetMapping("/{contest_id}")
     public ApplicationResponse<ContestRes> find(@PathVariable Long contest_id){
         return ApplicationResponse.ok(contestService.find(contest_id));
+    }
+    @Operation(description = "공모전 검색 API")
+    @GetMapping("/search")
+    public ApplicationResponse<ContestListRes> search(
+            @RequestParam(name = "word", defaultValue = "공모전") String word,
+            @RequestParam(name = "sort", defaultValue = "createdAt") String sort,
+            @PageableDefault(size = 12,page = 0) Pageable pageable){
+        return ApplicationResponse.ok(contestService.search(word,sort,pageable));
     }
     @Operation(description = "공모전 수정 API - 관리자만")
     @PatchMapping("/{contest_id}")
@@ -41,4 +54,6 @@ public class ContestController {
         contestService.delete(contest_id);
         return ApplicationResponse.ok();
     }
+
+
 }

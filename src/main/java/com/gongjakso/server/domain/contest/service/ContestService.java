@@ -2,6 +2,8 @@ package com.gongjakso.server.domain.contest.service;
 
 import com.gongjakso.server.domain.contest.dto.request.ContestReq;
 import com.gongjakso.server.domain.contest.dto.request.UpdateContestDto;
+import com.gongjakso.server.domain.contest.dto.response.ContestCard;
+import com.gongjakso.server.domain.contest.dto.response.ContestListRes;
 import com.gongjakso.server.domain.contest.dto.response.ContestRes;
 import com.gongjakso.server.domain.contest.entity.Contest;
 import com.gongjakso.server.domain.contest.repository.ContestRepository;
@@ -9,9 +11,13 @@ import com.gongjakso.server.global.exception.ApplicationException;
 import com.gongjakso.server.global.exception.ErrorCode;
 import com.gongjakso.server.global.util.s3.S3Client;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.ArrayList;
+import java.util.List;
 
 
 @Service
@@ -72,5 +78,12 @@ public class ContestService {
         //Business
         s3Client.delete(contest.getImgUrl());
         contestRepository.delete(contest);
+    }
+
+    @Transactional
+    public ContestListRes search(String word, String sort, Pageable pageable){
+        ContestListRes contestListRes = contestRepository.searchList(word, sort, pageable);
+        List<ContestCard> list = new ArrayList<>();
+        contestListRes.contestList().forEach(contest-> list.add(ContestCard.of(contest.,1)));
     }
 }
