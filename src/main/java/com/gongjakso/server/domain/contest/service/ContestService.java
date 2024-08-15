@@ -84,6 +84,7 @@ public class ContestService {
     public ContestListRes search(String word, String sort, Pageable pageable){
         ContestListRes contestListRes = contestRepository.searchList(word, sort, pageable);
         List<ContestCard> list = new ArrayList<>();
-        contestListRes.contestList().forEach(contest-> list.add(ContestCard.of(contest.,1)));
+        contestListRes.contestList().forEach(contest-> list.add(ContestCard.of(contest,1)));
+        return null;
     }
 }
