@@ -7,14 +7,17 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+
 @Getter
-@NoArgsConstructor
 @Entity
 @Table(name = "contest")
-public class Contest {
+@SQLDelete(sql = "UPDATE contest SET deleted_at = NOW() where contest_id = ?")
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+public class Contest extends BaseTimeEntity {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "contest_id",nullable = false,columnDefinition = "bigint")
+    @Column(name = "id", nullable = false, columnDefinition = "bigint")
     private Long id;
 
     @Column(name = "title",nullable = false,columnDefinition = "varchar(150)")

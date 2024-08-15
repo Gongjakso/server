@@ -11,14 +11,14 @@ import org.hibernate.annotations.SQLDelete;
 @Getter
 @Entity
 @Table(name = "email")
-@SQLDelete(sql = "UPDATE email SET deleted_at = NOW() where email_id = ?")
+@SQLDelete(sql = "UPDATE email SET deleted_at = NOW() where id = ?")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Email extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "email_id", nullable = false, columnDefinition = "bigint")
-    private Long emailId;
+    @Column(name = "id", nullable = false, columnDefinition = "bigint")
+    private Long id;
 
     @Column(name = "address", nullable = false, columnDefinition = "text")
     private String address;

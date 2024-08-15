@@ -26,7 +26,7 @@ public record LoginRes(
 ) {
     public static LoginRes of(Member member, TokenDto tokenDto) {
         return LoginRes.builder()
-                .memberId(member.getMemberId())
+                .memberId(member.getId())
                 .email(member.getEmail())
                 .name(member.getName())
                 .phone(member.getPhone())
