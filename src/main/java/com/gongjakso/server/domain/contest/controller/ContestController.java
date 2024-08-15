@@ -39,9 +39,9 @@ public class ContestController {
     @GetMapping("/search")
     public ApplicationResponse<ContestListRes> search(
             @RequestParam(name = "word", defaultValue = "공모전") String word,
-            @RequestParam(name = "sort", defaultValue = "createdAt") String sort,
+            @RequestParam(name = "sort", defaultValue = "createdAt") String arrange,
             @PageableDefault(size = 12,page = 0) Pageable pageable){
-        return ApplicationResponse.ok(contestService.search(word,sort,pageable));
+        return ApplicationResponse.ok(contestService.search(word,arrange,pageable));
     }
     @Operation(description = "공모전 수정 API - 관리자만")
     @PatchMapping("/{contest_id}")

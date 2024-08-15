@@ -81,8 +81,8 @@ public class ContestService {
     }
 
     @Transactional
-    public ContestListRes search(String word, String sort, Pageable pageable){
-        ContestListRes contestListRes = contestRepository.searchList(word, sort, pageable);
+    public ContestListRes search(String word, String arrange, Pageable pageable){
+        ContestListRes contestListRes = contestRepository.searchList(word, arrange, pageable);
         List<ContestCard> list = new ArrayList<>();
         contestListRes.contestList().forEach(contest-> list.add(ContestCard.of(contest,1)));
         return null;
