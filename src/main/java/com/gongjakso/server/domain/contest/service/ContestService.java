@@ -5,6 +5,7 @@ import com.gongjakso.server.domain.contest.dto.request.UpdateContestDto;
 import com.gongjakso.server.domain.contest.dto.response.ContestCard;
 import com.gongjakso.server.domain.contest.dto.response.ContestListRes;
 import com.gongjakso.server.domain.contest.dto.response.ContestRes;
+import com.gongjakso.server.domain.contest.dto.response.SearchContent;
 import com.gongjakso.server.domain.contest.entity.Contest;
 import com.gongjakso.server.domain.contest.repository.ContestRepository;
 import com.gongjakso.server.global.exception.ApplicationException;
@@ -82,9 +83,11 @@ public class ContestService {
 
     @Transactional
     public ContestListRes search(String word, String arrange, Pageable pageable){
-        ContestListRes contestListRes = contestRepository.searchList(word, arrange, pageable);
+        //Business
+        SearchContent contestListRes = contestRepository.searchList(word, arrange, pageable);
         List<ContestCard> list = new ArrayList<>();
         contestListRes.contestList().forEach(contest-> list.add(ContestCard.of(contest,1)));
-        return null;
+        //Response
+        return ContestListRes.of(list, contestListRes.total(), contestListRes.totalPages());
     }
 }

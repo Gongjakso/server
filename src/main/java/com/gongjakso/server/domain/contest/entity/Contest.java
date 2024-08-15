@@ -5,6 +5,9 @@ import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import com.gongjakso.server.global.common.BaseTimeEntity;
+import lombok.AccessLevel;
+import org.hibernate.annotations.SQLDelete;
 
 import java.time.LocalDate;
 

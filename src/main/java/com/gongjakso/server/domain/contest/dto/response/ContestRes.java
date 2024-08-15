@@ -22,7 +22,7 @@ public record ContestRes(
         if(remainDay==0){
             return "오늘 모집 마감";
         }else if(remainDay<0){
-            return "공모전 모집 종료";
+            return "공고 종료";
         }else{
             return "D-"+remainDay;
         }

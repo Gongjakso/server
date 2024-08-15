@@ -8,13 +8,15 @@ import java.util.List;
 @Builder
 public record SearchContent(
         List<Contest> contestList,
-        long pageSize
+        long total,
+        int totalPages
 ) {
     public static SearchContent of(List<Contest> contestList,
-                                   long pageSize){
+                                   long total,int totalPages){
         return SearchContent.builder()
                 .contestList(contestList)
-                .pageSize(pageSize)
+                .total(total)
+                .totalPages(totalPages)
                 .build();
     }
 }
