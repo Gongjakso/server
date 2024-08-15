@@ -5,6 +5,7 @@ import lombok.Builder;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
+import java.util.Date;
 
 @Builder
 public record ContestRes(
@@ -17,8 +18,8 @@ public record ContestRes(
         String dayState,
         String imgUrl
 ) {
-    public static String text(LocalDate startedAt, LocalDate finishedAt){
-        long remainDay = ChronoUnit.DAYS.between(startedAt,finishedAt);
+    public static String text(LocalDate finishedAt){
+        long remainDay = ChronoUnit.DAYS.between(finishedAt,LocalDate.now());
         if(remainDay==0){
             return "오늘 모집 마감";
         }else if(remainDay<0){
@@ -36,7 +37,7 @@ public record ContestRes(
                 .startedAt(contest.getStartedAt())
                 .finishedAt(contest.getFinishedAt())
                 .imgUrl(contest.getImgUrl())
-                .dayState(text(contest.getStartedAt(),contest.getFinishedAt()))
+                .dayState(text(contest.getFinishedAt()))
                 .build();
     }
 }

@@ -18,7 +18,7 @@ public record ContestCard(
                 .id(contest.getId())
                 .title(contest.getTitle())
                 .imgUrl(contest.getImgUrl())
-                .dayState(text(contest.getStartedAt(),contest.getFinishedAt()))
+                .dayState(text(contest.getFinishedAt()))
                 .teamCount(teamCount)
                 .build();
     }
