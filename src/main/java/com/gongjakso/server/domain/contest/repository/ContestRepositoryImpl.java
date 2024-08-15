@@ -54,7 +54,12 @@ public class ContestRepositoryImpl implements ContestRepositoryCustom{
             return null;
         }
 
-        String expression = "MATCH({0}, {1}) AGAINST ({2} IN NATURAL LANGUAGE MODE)";
-        return Expressions.booleanTemplate(expression, contest.title, contest.body, word);
+        return Expressions.booleanTemplate(
+                //{0},{1}과 {2}의 일치도가 높은지 판단하기 위해 >0을 사용 일치하면 true
+                "function('match', {0}, {1}, {2})",
+                contest.title,
+                contest.body,
+                word
+        );
     }
 }
