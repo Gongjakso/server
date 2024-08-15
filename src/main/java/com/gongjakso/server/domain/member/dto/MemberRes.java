@@ -24,7 +24,7 @@ public record MemberRes(
 
     public static MemberRes of(Member member) {
         return MemberRes.builder()
-                .memberId(member.getMemberId())
+                .memberId(member.getId())
                 .email(member.getEmail())
                 .name(member.getName())
                 .phone(member.getPhone())

@@ -14,7 +14,7 @@ public record EmailRes(
 
     public static EmailRes of(Email email) {
         return EmailRes.builder()
-                .emailId(email.getEmailId())
+                .emailId(email.getId())
                 .address(email.getAddress())
                 .isReceive(email.getIsReceive())
                 .build();
