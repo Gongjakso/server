@@ -26,10 +26,10 @@ public class AuthService {
     private final MemberRepository memberRepository;
 
     @Transactional
-    public LoginRes signIn(String code) {
+    public LoginRes signIn(String code, String redirectUri) {
         // Business Logic
         // 카카오로 액세스 토큰 요청하기
-        KakaoToken kakaoAccessToken = kakaoClient.getKakaoAccessToken(code);
+        KakaoToken kakaoAccessToken = kakaoClient.getKakaoAccessToken(code, redirectUri);
 
         // 카카오톡에 있는 사용자 정보 반환
         KakaoProfile kakaoProfile = kakaoClient.getMemberInfo(kakaoAccessToken);
