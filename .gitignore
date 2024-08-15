@@ -136,3 +136,6 @@ prometheus.yml
 
 __default__.tmpl
 grafana.db
+
+# QueryDSL
+/src/main/generated/
