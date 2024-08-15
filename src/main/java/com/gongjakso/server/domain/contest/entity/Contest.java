@@ -1,33 +1,45 @@
 package com.gongjakso.server.domain.contest.entity;
 
+import com.gongjakso.server.global.common.BaseTimeEntity;
 import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.SQLDelete;
 
 import java.time.LocalDate;
+
 @Getter
-@NoArgsConstructor
 @Entity
 @Table(name = "contest")
-public class Contest {
+@SQLDelete(sql = "UPDATE contest SET deleted_at = NOW() where contest_id = ?")
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+public class Contest extends BaseTimeEntity {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "contest_id",nullable = false,columnDefinition = "bigint")
+    @Column(name = "id", nullable = false, columnDefinition = "bigint")
     private Long id;
 
     @Column(name = "title",nullable = false,columnDefinition = "varchar(150)")
     private String title;
+
     @Column(name = "body",columnDefinition = "text")
     private String body;
+
     @Column(name = "contest_link",columnDefinition = "text")
     private String contestLink;
+
     @Column(name = "institution",columnDefinition = "varchar(100)")
     private String institution;
+
     @Column(name = "started_at",columnDefinition = "timestamp")
     private LocalDate startedAt;
+
     @Column(name = "finished_at",columnDefinition = "timestamp")
     private LocalDate finishedAt;
+
     @Column(name = "img_url",columnDefinition = "text")
     private String imgUrl;
 

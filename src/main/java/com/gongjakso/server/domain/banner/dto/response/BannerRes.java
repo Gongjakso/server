@@ -18,7 +18,7 @@ public record BannerRes(
 
     public static BannerRes of(Banner banner) {
         return BannerRes.builder()
-                .bannerId(banner.getBannerId())
+                .bannerId(banner.getId())
                 .domainType(banner.getDomainType())
                 .imageUrl(banner.getImageUrl())
                 .linkUrl(banner.getLinkUrl())
