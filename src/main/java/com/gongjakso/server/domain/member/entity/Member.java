@@ -14,14 +14,14 @@ import org.hibernate.annotations.SQLDelete;
 @Getter
 @Entity
 @Table(name = "member")
-@SQLDelete(sql = "UPDATE member SET deleted_at = NOW() where member_id = ?")
+@SQLDelete(sql = "UPDATE member SET deleted_at = NOW() where id = ?")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Member extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "member_id", nullable = false, columnDefinition = "bigint")
-    private Long memberId;
+    @Column(name = "id", nullable = false, columnDefinition = "bigint")
+    private Long id;
 
     // 이메일은 최대 255자 + 1자(@) + 69자해서 최대 320글자이므로, varchar(320) 사용
     @Column(name = "email", nullable = false, columnDefinition = "varchar(320)")
@@ -79,7 +79,7 @@ public class Member extends BaseTimeEntity {
     }
 
     public Member(Long id, String email, String password, String name, String phone, String profileUrl, String memberType, String loginType, String status, String major, String job){
-        this.memberId = id;
+        this.id = id;
         this.email = email;
         this.password = password;
         this.name = name;

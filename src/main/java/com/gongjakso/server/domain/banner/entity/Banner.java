@@ -13,14 +13,14 @@ import org.hibernate.annotations.SQLDelete;
 @Getter
 @Entity
 @Table(name = "banner")
-@SQLDelete(sql = "UPDATE banner SET deleted_at = NOW() where banner_id = ?")
+@SQLDelete(sql = "UPDATE banner SET deleted_at = NOW() where id = ?")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Banner extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "banner_id", nullable = false, columnDefinition = "bigint")
-    private Long bannerId;
+    @Column(name = "id", nullable = false, columnDefinition = "bigint")
+    private Long id;
 
     @Column(name = "domain_type", columnDefinition = "varchar(100)")
     @Enumerated(EnumType.STRING)
