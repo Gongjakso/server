@@ -5,13 +5,13 @@ import com.gongjakso.server.domain.contest.dto.request.UpdateContestDto;
 import com.gongjakso.server.domain.contest.dto.response.ContestCard;
 import com.gongjakso.server.domain.contest.dto.response.ContestListRes;
 import com.gongjakso.server.domain.contest.dto.response.ContestRes;
-import com.gongjakso.server.domain.contest.dto.response.SearchContent;
 import com.gongjakso.server.domain.contest.entity.Contest;
 import com.gongjakso.server.domain.contest.repository.ContestRepository;
 import com.gongjakso.server.global.exception.ApplicationException;
 import com.gongjakso.server.global.exception.ErrorCode;
 import com.gongjakso.server.global.util.s3.S3Client;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,7 +34,10 @@ public class ContestService {
     public void save(MultipartFile image,ContestReq contestReq){
         //Business
         //image s3에 올리기
-        String s3Url = s3Client.upload(image, S3_CONTEST_DIR_NAME);
+        String s3Url = null;
+        if (image != null && !image.isEmpty()) {
+            s3Url = s3Client.upload(image, S3_CONTEST_DIR_NAME);
+        }
         //contest build 및 생성
         Contest contest = Contest.builder()
                 .title(contestReq.title())
@@ -84,10 +87,10 @@ public class ContestService {
     @Transactional
     public ContestListRes search(String word, String arrange, Pageable pageable){
         //Business
-        SearchContent contestListRes = contestRepository.searchList(word, arrange, pageable);
+        Page<Contest> contestPage = contestRepository.searchList(word, arrange, pageable);
         List<ContestCard> list = new ArrayList<>();
-        contestListRes.contestList().forEach(contest-> list.add(ContestCard.of(contest,1)));
+        contestPage.getContent().forEach(contest-> list.add(ContestCard.of(contest,1)));
         //Response
-        return ContestListRes.of(list, contestListRes.total(), contestListRes.totalPages());
+        return ContestListRes.of(list,contestPage.getNumber(),contestPage.getTotalElements(), contestPage.getTotalPages());
     }
 }

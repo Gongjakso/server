@@ -1,9 +1,10 @@
 package com.gongjakso.server.domain.contest.repository;
 
-import com.gongjakso.server.domain.contest.dto.response.ContestListRes;
-import com.gongjakso.server.domain.contest.dto.response.SearchContent;
+
+import com.gongjakso.server.domain.contest.entity.Contest;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 public interface ContestRepositoryCustom {
-    SearchContent searchList (String word, String sort, Pageable pageable);
+    Page<Contest> searchList (String word, String sort, Pageable pageable);
 }

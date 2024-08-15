@@ -8,16 +8,20 @@ import java.util.List;
 @Builder
 public record ContestListRes(
         List<ContestCard> contestList,
+        int pageNum,
         long total,
         int totalPages
 ) {
     public static ContestListRes of(List<ContestCard> contestList,
+                                    int pageNum,
                                     long total,
-                                    int totalPages){
+                                    int totalPages
+                                    ){
         return ContestListRes.builder()
                 .contestList(contestList)
                 .total(total)
                 .totalPages(totalPages)
+                .pageNum(pageNum)
                 .build();
     }
 }

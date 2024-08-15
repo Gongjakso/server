@@ -26,7 +26,8 @@ public class ContestController {
     private final ContestService contestService;
     @Operation(description = "공모전 생성 API - 관리자만")
     @PostMapping("")
-    public ApplicationResponse<Void> create(@AuthenticationPrincipal PrincipalDetails principalDetails, @RequestPart(required = false) MultipartFile image, @Valid @RequestPart ContestReq contestReq){
+    public ApplicationResponse<Void> create(@RequestPart(name = "image",required = false) MultipartFile image,
+                                            @Valid @RequestPart(name = "contestReq") ContestReq contestReq){
         contestService.save(image,contestReq);
         return ApplicationResponse.created();
     }
@@ -39,7 +40,7 @@ public class ContestController {
     @GetMapping("/search")
     public ApplicationResponse<ContestListRes> search(
             @RequestParam(name = "word", defaultValue = "공모전") String word,
-            @RequestParam(name = "sort", defaultValue = "createdAt") String arrange,
+            @RequestParam(name = "arrange", defaultValue = "createdAt") String arrange,
             @PageableDefault(size = 12,page = 0) Pageable pageable){
         return ApplicationResponse.ok(contestService.search(word,arrange,pageable));
     }
