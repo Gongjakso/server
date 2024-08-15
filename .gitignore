@@ -132,6 +132,7 @@ docker-compose.yml
 monitoring-docker-compose.yml
 prometheus.yml
 **/application.yml
+**/application-prod.yml
 
 __default__.tmpl
 grafana.db
