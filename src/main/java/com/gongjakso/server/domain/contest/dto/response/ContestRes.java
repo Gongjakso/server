@@ -19,7 +19,7 @@ public record ContestRes(
         String imgUrl
 ) {
     public static String text(LocalDate finishedAt){
-        long remainDay = ChronoUnit.DAYS.between(finishedAt,LocalDate.now());
+        long remainDay = ChronoUnit.DAYS.between(LocalDate.now(),finishedAt);
         if(remainDay==0){
             return "오늘 모집 마감";
         }else if(remainDay<0){
