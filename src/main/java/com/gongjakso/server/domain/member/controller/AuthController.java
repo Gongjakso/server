@@ -9,7 +9,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,20 +21,17 @@ public class AuthController {
 
     private final AuthService authService;
 
-    @GetMapping("/test")
-    public String test() {
-        return "test";
-    }
-
     @Operation(summary = "로그인 API", description = "카카오 로그인 페이지로 리다이렉트되어 카카오 로그인을 수행할 수 있도록 안내")
     @PostMapping("/sign-in")
-    public ApplicationResponse<LoginRes> signIn(@RequestParam(name = "code") String code) {
-        return ApplicationResponse.ok(authService.signIn(code));
+    public ApplicationResponse<LoginRes> signIn(@RequestParam(name = "code") String code,
+                                                @RequestParam(name = "redirect-uri") String redirectUri) {
+        return ApplicationResponse.ok(authService.signIn(code, redirectUri));
     }
 
     @Operation(summary = "로그아웃 API", description = "로그아웃된 JWT 블랙리스트 등록")
     @PostMapping("/sign-out")
-    public ApplicationResponse<Void> signOut(HttpServletRequest request, @AuthenticationPrincipal PrincipalDetails principalDetails) {
+    public ApplicationResponse<Void> signOut(HttpServletRequest request,
+                                             @AuthenticationPrincipal PrincipalDetails principalDetails) {
         String token = request.getHeader("Authorization");
         authService.signOut(token, principalDetails.getMember());
         return ApplicationResponse.ok();
@@ -50,10 +46,9 @@ public class AuthController {
 
     @Operation(summary = "토큰재발급 API", description = "RefreshToken 정보로 요청 시, ")
     @GetMapping("/reissue")
-    public ApplicationResponse<TokenDto> reissue(HttpServletRequest request, @AuthenticationPrincipal PrincipalDetails principalDetails) {
+    public ApplicationResponse<TokenDto> reissue(HttpServletRequest request,
+                                                 @AuthenticationPrincipal PrincipalDetails principalDetails) {
         String token = request.getHeader("Authorization");
         return ApplicationResponse.ok(authService.reissue(token, principalDetails.getMember()));
     }
 }
-
-// https://yeees.tistory.com/231
