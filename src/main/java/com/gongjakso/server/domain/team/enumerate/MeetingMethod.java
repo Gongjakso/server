@@ -5,14 +5,14 @@ import lombok.ToString;
 
 @Getter
 @ToString
-public enum TeamStatus {
-
-    ACTIVE("모집 중"),
-    EXTENSION("모집 연장");
+public enum MeetingMethod {
+    OFFLINE("오프라인"),
+    ONLINE("온라인"),
+    HYBRID("하이브리드");
 
     private final String description;
 
-    TeamStatus(String description) {
+    MeetingMethod(String description) {
         this.description = description;
     }
 }

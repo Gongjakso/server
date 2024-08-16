@@ -2,6 +2,7 @@ package com.gongjakso.server.domain.team.entity;
 
 import com.gongjakso.server.domain.contest.entity.Contest;
 import com.gongjakso.server.domain.member.entity.Member;
+import com.gongjakso.server.domain.team.enumerate.MeetingMethod;
 import com.gongjakso.server.domain.team.enumerate.TeamStatus;
 import com.gongjakso.server.global.common.BaseTimeEntity;
 import jakarta.persistence.*;
@@ -42,9 +43,11 @@ public class Team extends BaseTimeEntity {
 
     private int passCount;
 
-    private String meetingMethod;
+    private MeetingMethod meetingMethod;
 
-    private String meetingArea;
+    private String province; // 시/도 (ex. 서울특별시)
+
+    private String district; // 시/군/구 (ex. 강남구)
 
     private LocalDate recruitFinishedAt;
 
@@ -57,9 +60,34 @@ public class Team extends BaseTimeEntity {
     private int scrapCount;
 
     @Builder
-    public Team(
-            Long id
-    ) {
+    public Team(Long id,
+                Member member,
+                Contest contest,
+                String title,
+                String body,
+                int totalCount,
+                MeetingMethod meetingMethod,
+                String province,
+                String district,
+                LocalDate recruitFinishedAt,
+                LocalDate startedAt,
+                LocalDate finishedAt,
+                String channelLink) {
         this.id = id;
+        this.member = member;
+        this.contest = contest;
+        this.title = title;
+        this.body = body;
+        this.status = TeamStatus.ACTIVE;
+        this.totalCount = totalCount;
+        this.passCount = 0;
+        this.meetingMethod = meetingMethod;
+        this.province = province;
+        this.district = district;
+        this.recruitFinishedAt = recruitFinishedAt;
+        this.startedAt = startedAt;
+        this.finishedAt = finishedAt;
+        this.channelLink = channelLink;
+        this.scrapCount = 0;
     }
 }
