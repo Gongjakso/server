@@ -40,13 +40,20 @@ public enum ErrorCode {
     NOT_FOUND_CATEGORY_EXCEPTION(HttpStatus.NOT_FOUND,4006,"카테고리가 없습니다"),
     OVER_APPLY_EXCEPTION(HttpStatus.NOT_FOUND,4007,"지원 파트 정원이 찼습니다."),
     INVALID_STACK_TYPE_EXCEPTION(HttpStatus.NOT_FOUND,4008,"기술 스택 없습니다"),
+    FINISHED_TEAM_APPLY_EXCEPTION(HttpStatus.BAD_REQUEST,4009,"모집 기간이 마감된 팀입니다."),
 
     //5000: Post Error
     NOT_POST_EXCEPTION(HttpStatus.BAD_REQUEST,5000,"공고를 더 이상 생성할 수 없습니다"),
     POST_VALUE_EXCEPTION(HttpStatus.BAD_REQUEST,5001,"올바르지 않은 요청 값입니다."),
     NOT_FOUND_SCRAP_EXCEPTION(HttpStatus.NOT_FOUND,5002,"스크랩 정보가 존재하지 않습니다."),
     ALREADY_FINISH_EXCEPTION(HttpStatus.BAD_REQUEST, 5003, "이미 모집 기간이 마감된 공고입니다."),
-    ILLEGAL_POST_EXCEPTION(HttpStatus.BAD_REQUEST, 5004, "파트별 인원수가 전체 인원수와 일치하지 않습니다.");
+    ILLEGAL_POST_EXCEPTION(HttpStatus.BAD_REQUEST, 5004, "파트별 인원수가 전체 인원수와 일치하지 않습니다."),
+
+    //6000: Team Error
+    NOT_FOUND_TEAM_EXCEPTION(HttpStatus.BAD_REQUEST, 6000, "존재하지 않는 팀입니다."),
+
+    //7000: Portfolio Error
+    NOT_FOUND_PORTFOLIO_EXCEPTION(HttpStatus.BAD_REQUEST, 7000, "존재하지 않는 포트폴리오입니다.");
 
     private final HttpStatus httpStatus;
     private final Integer code;
