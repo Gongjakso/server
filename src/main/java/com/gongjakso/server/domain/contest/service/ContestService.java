@@ -7,6 +7,8 @@ import com.gongjakso.server.domain.contest.dto.response.ContestListRes;
 import com.gongjakso.server.domain.contest.dto.response.ContestRes;
 import com.gongjakso.server.domain.contest.entity.Contest;
 import com.gongjakso.server.domain.contest.repository.ContestRepository;
+import com.gongjakso.server.domain.member.entity.Member;
+import com.gongjakso.server.domain.member.enumerate.MemberType;
 import com.gongjakso.server.global.exception.ApplicationException;
 import com.gongjakso.server.global.exception.ErrorCode;
 import com.gongjakso.server.global.util.s3.S3Client;
@@ -31,7 +33,11 @@ public class ContestService {
 
 
     @Transactional
-    public void save(MultipartFile image,ContestReq contestReq){
+    public void save(Member member, MultipartFile image,ContestReq contestReq){
+        // Validation
+        if(!member.getMemberType().equals(MemberType.ADMIN)) {
+            throw new ApplicationException(ErrorCode.UNAUTHORIZED_EXCEPTION);
+        }
         //Business
         //image s3에 올리기
         String s3Url = null;
@@ -60,8 +66,11 @@ public class ContestService {
     }
 
     @Transactional
-    public ContestRes update(Long id,MultipartFile image,UpdateContestDto updateContestDto){
-        //Vaildation
+    public ContestRes update(Member member, Long id,MultipartFile image,UpdateContestDto updateContestDto){
+        // Validation
+        if(!member.getMemberType().equals(MemberType.ADMIN)) {
+            throw new ApplicationException(ErrorCode.UNAUTHORIZED_EXCEPTION);
+        }
         Contest contest = contestRepository.findById(id).orElseThrow(()-> new ApplicationException(ErrorCode.NOT_FOUND_EXCEPTION));
         //Business
         String imgUrl = null;
@@ -76,8 +85,11 @@ public class ContestService {
     }
 
     @Transactional
-    public void delete(Long id){
-        //Vaildation
+    public void delete(Member member,Long id){
+        // Validation
+        if(!member.getMemberType().equals(MemberType.ADMIN)) {
+            throw new ApplicationException(ErrorCode.UNAUTHORIZED_EXCEPTION);
+        }
         Contest contest = contestRepository.findById(id).orElseThrow(()-> new ApplicationException(ErrorCode.NOT_FOUND_EXCEPTION));
         //Business
         s3Client.delete(contest.getImgUrl());

@@ -26,9 +26,9 @@ public class ContestController {
     private final ContestService contestService;
     @Operation(description = "공모전 생성 API - 관리자만")
     @PostMapping("")
-    public ApplicationResponse<Void> create(@RequestPart(name = "image",required = false) MultipartFile image,
+    public ApplicationResponse<Void> create(@AuthenticationPrincipal PrincipalDetails principalDetails,@RequestPart(name = "image",required = false) MultipartFile image,
                                             @Valid @RequestPart(name = "contestReq") ContestReq contestReq){
-        contestService.save(image,contestReq);
+        contestService.save(principalDetails.getMember(),image,contestReq);
         return ApplicationResponse.created();
     }
     @Operation(description = "공모전 정보 API")
@@ -46,13 +46,13 @@ public class ContestController {
     }
     @Operation(description = "공모전 수정 API - 관리자만")
     @PatchMapping("/{contest_id}")
-    public ApplicationResponse<ContestRes> update(@PathVariable Long contest_id,@RequestPart(required = false) MultipartFile image,@Valid @RequestPart UpdateContestDto contestReq){
-        return ApplicationResponse.ok(contestService.update(contest_id,image,contestReq));
+    public ApplicationResponse<ContestRes> update(@AuthenticationPrincipal PrincipalDetails principalDetails,@PathVariable Long contest_id,@RequestPart(required = false) MultipartFile image,@Valid @RequestPart UpdateContestDto contestReq){
+        return ApplicationResponse.ok(contestService.update(principalDetails.getMember(),contest_id,image,contestReq));
     }
     @Operation(description = "공모전 삭제 API - 관리자만")
     @DeleteMapping("/{contest_id}")
-    public ApplicationResponse<Void> delete(@PathVariable Long contest_id){
-        contestService.delete(contest_id);
+    public ApplicationResponse<Void> delete(@AuthenticationPrincipal PrincipalDetails principalDetails,@PathVariable Long contest_id){
+        contestService.delete(principalDetails.getMember(),contest_id);
         return ApplicationResponse.ok();
     }
 
