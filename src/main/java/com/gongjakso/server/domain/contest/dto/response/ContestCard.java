@@ -11,15 +11,15 @@ public record ContestCard(
         String title,
         String imgUrl,
         String dayState,
-        int teamCount
+        String institution
 ) {
-    public static ContestCard of(Contest contest,int teamCount){
+    public static ContestCard of(Contest contest){
         return ContestCard.builder()
                 .id(contest.getId())
                 .title(contest.getTitle())
                 .imgUrl(contest.getImgUrl())
                 .dayState(text(contest.getFinishedAt()))
-                .teamCount(teamCount)
+                .institution(contest.getInstitution())
                 .build();
     }
 }
