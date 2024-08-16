@@ -101,7 +101,7 @@ public class ContestService {
         //Business
         Page<Contest> contestPage = contestRepository.searchList(word, arrange, pageable);
         List<ContestCard> list = new ArrayList<>();
-        contestPage.getContent().forEach(contest-> list.add(ContestCard.of(contest,1)));
+        contestPage.getContent().forEach(contest-> list.add(ContestCard.of(contest)));
         //Response
         return ContestListRes.of(list,contestPage.getNumber(),contestPage.getTotalElements(), contestPage.getTotalPages());
     }
