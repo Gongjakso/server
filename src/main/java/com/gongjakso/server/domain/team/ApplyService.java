@@ -1,7 +1,6 @@
 package com.gongjakso.server.domain.team;
 
 import com.gongjakso.server.domain.member.entity.Member;
-import com.gongjakso.server.domain.member.repository.MemberRepository;
 import com.gongjakso.server.domain.portfolio.entity.Portfolio;
 import com.gongjakso.server.domain.team.dto.ApplyReq;
 import com.gongjakso.server.domain.team.dto.ApplyRes;
@@ -12,8 +11,9 @@ import com.gongjakso.server.domain.team.repository.TeamRepository;
 import com.gongjakso.server.global.exception.ApplicationException;
 import com.gongjakso.server.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
 import java.util.Optional;
 
 import static java.time.LocalDateTime.now;
@@ -53,5 +53,18 @@ public class ApplyService {
 
         //Response
         return ApplyRes.of(apply);
+    }
+
+    public Page<ApplyRes> getMyApplies(Member member, Pageable pageable) {
+        //Validation: member 조회
+        if(member == null) {
+            throw new ApplicationException(ErrorCode.UNAUTHORIZED_EXCEPTION);
+        }
+
+        //Business Logic
+        Page<Apply> apply = applyRepository.findByMemberAndPage(member, pageable);
+
+        //Response
+        return ApplyRes.toPagination(apply);
     }
 }

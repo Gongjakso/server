@@ -32,13 +32,14 @@ public class Apply extends BaseTimeEntity {
         private Member member;
 
         @OneToOne(fetch = FetchType.LAZY)
-        @JoinColumn(name = "portfolio_id", nullable = true, columnDefinition = "bigint")
+        @JoinColumn(name = "id", columnDefinition = "bigint")
         private Portfolio portfolio;
 
         @Column(nullable = false, columnDefinition = "varchar(500)")
         private String body;
 
         @Column(nullable = false, columnDefinition = "varchar(20)")
+        @Enumerated(EnumType.STRING)
         private ApplyStatus status;
 
         @Column(nullable = false, columnDefinition = "varchar(20)")
