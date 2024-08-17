@@ -15,4 +15,8 @@ public record ErrorResponse(
     public ErrorResponse(String message) {
         this(LocalDateTime.now(), ErrorCode.INTERNAL_SERVER_EXCEPTION.getCode(), message);
     }
+
+    public ErrorResponse(ErrorCode errorcode, String message) {
+        this(LocalDateTime.now(), errorcode.getCode(), message);
+    }
 }
