@@ -18,7 +18,7 @@ public class TeamController {
     @Operation(summary = "팀 생성 API", description = "특정 공모전에 해당하는 팀을 생성하는 API")
     @PostMapping("/create")
     public ApplicationResponse<?> createTeam(@PathVariable(value = "contest_id") Long contestId) {
-        return null;
+        return ApplicationResponse.created(teamService.createTeam(contestId));
     }
 
     @Operation(summary = "팀 수정 API", description = "특정 공모전에 해당하는 팀을 수정하는 API")
@@ -32,7 +32,8 @@ public class TeamController {
     @PutMapping("/delete/{team_id}")
     public ApplicationResponse<?> deleteTeam(@PathVariable(value = "contest_id") Long contestId,
                                              @PathVariable(value = "team_id") Long teamId) {
-        return null;
+        teamService.deleteTeam(contestId, teamId);
+        return ApplicationResponse.ok();
     }
 
     @Operation(summary = "팀 조회 API", description = "특정 공모전에 해당하는 팀을 조회하는 API")
