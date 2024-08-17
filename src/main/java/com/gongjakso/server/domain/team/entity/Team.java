@@ -74,8 +74,7 @@ public class Team extends BaseTimeEntity {
     private int scrapCount;
 
     @Builder
-    public Team(Long id,
-                Member member,
+    public Team(Member member,
                 Contest contest,
                 String title,
                 String body,
@@ -87,7 +86,6 @@ public class Team extends BaseTimeEntity {
                 LocalDate startedAt,
                 LocalDate finishedAt,
                 String channelLink) {
-        this.id = id;
         this.member = member;
         this.contest = contest;
         this.title = title;

@@ -1,8 +1,14 @@
 package com.gongjakso.server.domain.team.service;
 
+import com.gongjakso.server.domain.contest.entity.Contest;
+import com.gongjakso.server.domain.contest.repository.ContestRepository;
+import com.gongjakso.server.domain.member.entity.Member;
+import com.gongjakso.server.domain.team.dto.request.TeamReq;
 import com.gongjakso.server.domain.team.dto.response.TeamRes;
 import com.gongjakso.server.domain.team.entity.Team;
 import com.gongjakso.server.domain.team.repository.TeamRepository;
+import com.gongjakso.server.global.exception.ApplicationException;
+import com.gongjakso.server.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,23 +19,29 @@ import org.springframework.transaction.annotation.Transactional;
 public class TeamService {
 
     private final TeamRepository teamRepository;
+    private final ContestRepository contestRepository;
 
     @Transactional
-    public TeamRes createTeam(Long contestId) {
+    public TeamRes createTeam(Member member, Long contestId, TeamReq teamReq) {
         // Validation
-        // TODO: Contest Validation 코드 추가 필요
+        Contest contest = contestRepository.findByIdAndDeletedAtIsNull(contestId)
+                .orElseThrow(() -> new ApplicationException(ErrorCode.CONTEST_NOT_FOUND_EXCEPTION));
 
         // Business Logic
+        Team team = teamReq.from(member, contest);
+        Team savedTeam = teamRepository.save(team);
 
         // Response
-        return null;
+        return TeamRes.of(savedTeam);
     }
 
     @Transactional
     public void deleteTeam(Long contestId, Long teamId) {
         // Validation
-        // TODO: Contest Validation 코드 추가 필요
-        Team team = teamRepository.findById(teamId).orElseThrow(() -> new IllegalArgumentException("해당 팀이 존재하지 않습니다."));
+        contestRepository.findByIdAndDeletedAtIsNull(contestId)
+                .orElseThrow(() -> new ApplicationException(ErrorCode.CONTEST_NOT_FOUND_EXCEPTION));
+        Team team = teamRepository.findByIdAndDeletedAtIsNull(teamId)
+                .orElseThrow(() -> new ApplicationException(ErrorCode.TEAM_NOT_FOUND_EXCEPTION));
 
         // Business Logic
         teamRepository.delete(team);

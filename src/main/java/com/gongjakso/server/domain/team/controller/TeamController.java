@@ -1,10 +1,14 @@
 package com.gongjakso.server.domain.team.controller;
 
+import com.gongjakso.server.domain.team.dto.request.TeamReq;
 import com.gongjakso.server.domain.team.service.TeamService;
 import com.gongjakso.server.global.common.ApplicationResponse;
+import com.gongjakso.server.global.security.PrincipalDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -17,8 +21,9 @@ public class TeamController {
 
     @Operation(summary = "팀 생성 API", description = "특정 공모전에 해당하는 팀을 생성하는 API")
     @PostMapping("/create")
-    public ApplicationResponse<?> createTeam(@PathVariable(value = "contest_id") Long contestId) {
-        return ApplicationResponse.created(teamService.createTeam(contestId));
+    public ApplicationResponse<?> createTeam(@AuthenticationPrincipal PrincipalDetails principalDetails,
+                                             @PathVariable(value = "contest_id") Long contestId, @Valid @RequestBody TeamReq teamReq) {
+        return ApplicationResponse.created(teamService.createTeam(principalDetails.getMember(), contestId, teamReq));
     }
 
     @Operation(summary = "팀 수정 API", description = "특정 공모전에 해당하는 팀을 수정하는 API")
