@@ -35,28 +35,42 @@ public class Team extends BaseTimeEntity {
     @Column(name = "title", nullable = false, columnDefinition = "varchar(50)")
     private String title;
 
+    @Column(name = "body", columnDefinition = "text")
     private String body;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", nullable = false, columnDefinition = "varchar(20)")
     private TeamStatus status;
 
+    @Column(name = "total_count", nullable = false, columnDefinition = "int")
     private int totalCount;
 
+    @Column(name = "pass_count", nullable = false, columnDefinition = "int")
     private int passCount;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "meeting_method", nullable = false, columnDefinition = "varchar(20)")
     private MeetingMethod meetingMethod;
 
+    @Column(name = "province", columnDefinition = "varchar(20)")
     private String province; // 시/도 (ex. 서울특별시)
 
+    @Column(name = "district", columnDefinition = "varchar(20)")
     private String district; // 시/군/구 (ex. 강남구)
 
+    @Column(name = "recruit_finished_at", nullable = false, columnDefinition = "date")
     private LocalDate recruitFinishedAt;
 
+    @Column(name = "started_at", columnDefinition = "date")
     private LocalDate startedAt;
 
+    @Column(name = "finished_at", columnDefinition = "date")
     private LocalDate finishedAt;
 
+    @Column(name = "channel_link", columnDefinition = "text")
     private String channelLink;
 
+    @Column(name = "scrap_count", nullable = false, columnDefinition = "int")
     private int scrapCount;
 
     @Builder
