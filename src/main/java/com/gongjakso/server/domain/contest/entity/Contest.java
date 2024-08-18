@@ -38,7 +38,7 @@ public class Contest extends BaseTimeEntity {
     @Column(name = "img_url",columnDefinition = "text")
     private String imgUrl;
     @Column(name = "view",columnDefinition = "bigint")
-    private String view;
+    private int view;
 
     public void update(UpdateContestDto contest,String imgUrl){
         this.title= (contest.title()==null) ? this.title : contest.title();

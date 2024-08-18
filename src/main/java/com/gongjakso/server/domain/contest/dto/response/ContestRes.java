@@ -16,7 +16,8 @@ public record ContestRes(
         LocalDate startedAt,
         LocalDate finishedAt,
         String dayState,
-        String imgUrl
+        String imgUrl,
+        int viewCount
 ) {
     public static String text(LocalDate finishedAt){
         long remainDay = ChronoUnit.DAYS.between(LocalDate.now(),finishedAt);
@@ -38,6 +39,7 @@ public record ContestRes(
                 .finishedAt(contest.getFinishedAt())
                 .imgUrl(contest.getImgUrl())
                 .dayState(text(contest.getFinishedAt()))
+                .viewCount(contest.getView())
                 .build();
     }
 }
