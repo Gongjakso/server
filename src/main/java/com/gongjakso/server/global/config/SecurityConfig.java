@@ -65,9 +65,10 @@ public class SecurityConfig {
                 // Swagger UI 외부 접속 허용
                 authorize.requestMatchers( "/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
                         // 로그인 로직 접속 허용
+                        .requestMatchers("/error").permitAll()
                         .requestMatchers("/api/v1/auth/**").permitAll()
-                        .requestMatchers("api/v1/member/**").authenticated()
-                        // 메인 페이지, 공고 페이지 등에 한해 인증 정보 없이 접근 가능 (추후 추가)
+                        .requestMatchers("/api/v1/member/**").authenticated()
+                        .requestMatchers("/api/v1/contest/{contest_id}/team/**").authenticated()
                         // 이외의 모든 요청은 인증 정보 필요
                         .anyRequest().permitAll());
 
