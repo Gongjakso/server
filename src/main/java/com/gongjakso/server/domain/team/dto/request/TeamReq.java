@@ -1,6 +1,8 @@
 package com.gongjakso.server.domain.team.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import com.gongjakso.server.domain.contest.entity.Contest;
 import com.gongjakso.server.domain.member.entity.Member;
 import com.gongjakso.server.domain.team.entity.Team;
@@ -13,6 +15,7 @@ import lombok.Builder;
 import java.time.LocalDate;
 
 @Builder
+@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public record TeamReq(
 
     @Schema(description = "팀 제목", example = "광화문광장 숏폼 공모전 참여자 모집")
