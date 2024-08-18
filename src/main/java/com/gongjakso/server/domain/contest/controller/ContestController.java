@@ -44,6 +44,7 @@ public class ContestController {
             @PageableDefault(size = 12,page = 0) Pageable pageable){
         return ApplicationResponse.ok(contestService.search(word,arrange,pageable));
     }
+
     @Operation(description = "공모전 수정 API - 관리자만")
     @PatchMapping("/{contest_id}")
     public ApplicationResponse<ContestRes> update(@AuthenticationPrincipal PrincipalDetails principalDetails,@PathVariable Long contest_id,@RequestPart(required = false) MultipartFile image,@Valid @RequestPart UpdateContestDto contestReq){

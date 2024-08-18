@@ -47,4 +47,14 @@ public class RedisClient {
     public void deleteValue(String key) {
         redisTemplate.delete(key);
     }
+
+
+    /**
+     * Redis에서 key에 해당하는 값을 증가시키는 메소드
+     * @param key - 증가시킬 데이터의 key
+     */
+    public void incrementValue(String key) {
+        ValueOperations<String, Object> values = redisTemplate.opsForValue();
+        values.increment(key);
+    }
 }
