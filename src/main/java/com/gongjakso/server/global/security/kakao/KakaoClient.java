@@ -26,9 +26,6 @@ public class KakaoClient {
     @Value("${spring.security.oauth2.client.registration.kakao.authorization-grant-type}")
     private String kakaoGrantType;
 
-    @Value("${spring.security.oauth2.client.registration.kakao.redirect-uri}")
-    private String kakaoRedirectUri;
-
     @Value("${spring.security.oauth2.client.provider.kakao.token-uri}")
     private String kakaoTokenUri;
 
@@ -40,7 +37,7 @@ public class KakaoClient {
      * @param code - 카카오에서 발급해준 인가 코드
      * @return - 카카오에서 반환한 응답 토큰 객체
      */
-    public KakaoToken getKakaoAccessToken(String code) {
+    public KakaoToken getKakaoAccessToken(String code, String redirectUri) {
         // 요청 보낼 객체 기본 생성
         WebClient webClient = WebClient.create(kakaoTokenUri);
 
@@ -48,7 +45,7 @@ public class KakaoClient {
         MultiValueMap<String , String> params = new LinkedMultiValueMap<>();
         params.add("grant_type", kakaoGrantType);
         params.add("client_id", kakaoClientId);
-        params.add("redirect_uri", kakaoRedirectUri);
+        params.add("redirect_uri", redirectUri);
         params.add("code", code);
         params.add("client_secret", kakaoClientSecret);
 
