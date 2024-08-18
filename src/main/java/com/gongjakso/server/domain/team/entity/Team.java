@@ -2,6 +2,7 @@ package com.gongjakso.server.domain.team.entity;
 
 import com.gongjakso.server.domain.contest.entity.Contest;
 import com.gongjakso.server.domain.member.entity.Member;
+import com.gongjakso.server.domain.team.dto.request.TeamReq;
 import com.gongjakso.server.domain.team.enumerate.MeetingMethod;
 import com.gongjakso.server.domain.team.enumerate.TeamStatus;
 import com.gongjakso.server.global.common.BaseTimeEntity;
@@ -72,6 +73,19 @@ public class Team extends BaseTimeEntity {
 
     @Column(name = "scrap_count", nullable = false, columnDefinition = "int")
     private int scrapCount;
+
+    public void update(TeamReq teamReq) {
+        this.title = (teamReq.title() != null) ? teamReq.title() : this.title;
+        this.body = (teamReq.body() != null) ? teamReq.body() : this.body;
+        this.totalCount = (teamReq.totalCount() != 0) ? teamReq.totalCount() : this.totalCount;
+        this.meetingMethod = (teamReq.meetingMethod() != null) ? MeetingMethod.valueOf(teamReq.meetingMethod()) : this.meetingMethod;
+        this.province = (teamReq.province() != null) ? teamReq.province() : this.province;
+        this.district = (teamReq.district() != null) ? teamReq.district() : this.district;
+        this.recruitFinishedAt = (teamReq.recruitFinishedAt() != null) ? teamReq.recruitFinishedAt() : this.recruitFinishedAt;
+        this.startedAt = (teamReq.startedAt() != null) ? teamReq.startedAt() : this.startedAt;
+        this.finishedAt = (teamReq.finishedAt() != null) ? teamReq.finishedAt() : this.finishedAt;
+        this.channelLink = (teamReq.channelLink() != null) ? teamReq.channelLink() : this.channelLink;
+    }
 
     @Builder
     public Team(Member member,

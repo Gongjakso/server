@@ -10,6 +10,7 @@ import com.gongjakso.server.domain.team.repository.TeamRepository;
 import com.gongjakso.server.global.exception.ApplicationException;
 import com.gongjakso.server.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,7 +37,46 @@ public class TeamService {
     }
 
     @Transactional
-    public void deleteTeam(Long contestId, Long teamId) {
+    public TeamRes updateTeam(Member member, Long contestId, Long teamId, TeamReq teamReq) {
+        // Validation
+        contestRepository.findByIdAndDeletedAtIsNull(contestId)
+                .orElseThrow(() -> new ApplicationException(ErrorCode.CONTEST_NOT_FOUND_EXCEPTION));
+        Team team = teamRepository.findByIdAndDeletedAtIsNull(teamId)
+                .orElseThrow(() -> new ApplicationException(ErrorCode.TEAM_NOT_FOUND_EXCEPTION));
+        if (!team.getContest().getId().equals(contestId)) {
+            throw new ApplicationException(ErrorCode.INVALID_VALUE_EXCEPTION);
+        }
+        if (!team.getMember().getId().equals(member.getId())) {
+            throw new ApplicationException(ErrorCode.FORBIDDEN_EXCEPTION);
+        }
+
+        // Business Logic
+        team.update(teamReq);
+        Team updatedTeam = teamRepository.save(team);
+
+        // Response
+        return TeamRes.of(updatedTeam);
+    }
+
+    @Transactional
+    public void deleteTeam(Member member, Long contestId, Long teamId) {
+        // Validation
+        contestRepository.findByIdAndDeletedAtIsNull(contestId)
+                .orElseThrow(() -> new ApplicationException(ErrorCode.CONTEST_NOT_FOUND_EXCEPTION));
+        Team team = teamRepository.findByIdAndDeletedAtIsNull(teamId)
+                .orElseThrow(() -> new ApplicationException(ErrorCode.TEAM_NOT_FOUND_EXCEPTION));
+        if (!team.getContest().getId().equals(contestId)) {
+            throw new ApplicationException(ErrorCode.INVALID_VALUE_EXCEPTION);
+        }
+        if (!team.getMember().getId().equals(member.getId())) {
+            throw new ApplicationException(ErrorCode.FORBIDDEN_EXCEPTION);
+        }
+
+        // Business Logic
+        teamRepository.delete(team);
+    }
+
+    public TeamRes getTeam(Long contestId, Long teamId) {
         // Validation
         contestRepository.findByIdAndDeletedAtIsNull(contestId)
                 .orElseThrow(() -> new ApplicationException(ErrorCode.CONTEST_NOT_FOUND_EXCEPTION));
@@ -44,8 +84,15 @@ public class TeamService {
                 .orElseThrow(() -> new ApplicationException(ErrorCode.TEAM_NOT_FOUND_EXCEPTION));
 
         // Business Logic
-        teamRepository.delete(team);
+        return TeamRes.of(team);
     }
 
+    public Page<TeamRes> getTeamList(Long contestId) {
+        // Validation
+        contestRepository.findByIdAndDeletedAtIsNull(contestId)
+                .orElseThrow(() -> new ApplicationException(ErrorCode.CONTEST_NOT_FOUND_EXCEPTION));
 
+        // Business Logic
+        return null;
+    }
 }
