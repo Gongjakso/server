@@ -93,6 +93,6 @@ public class TeamService {
                 .orElseThrow(() -> new ApplicationException(ErrorCode.CONTEST_NOT_FOUND_EXCEPTION));
 
         // Business Logic
-        return null;
+        return teamRepository.findPagination(contestId);
     }
 }
