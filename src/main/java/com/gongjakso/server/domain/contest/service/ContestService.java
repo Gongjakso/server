@@ -11,8 +11,8 @@ import com.gongjakso.server.domain.member.entity.Member;
 import com.gongjakso.server.domain.member.enumerate.MemberType;
 import com.gongjakso.server.global.exception.ApplicationException;
 import com.gongjakso.server.global.exception.ErrorCode;
-import com.gongjakso.server.global.security.PrincipalDetails;
 import com.gongjakso.server.global.util.s3.S3Client;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -24,13 +24,13 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 
 @Service
 @RequiredArgsConstructor
 public class ContestService {
     private final ContestRepository contestRepository;
-    private final ViewService viewService;
     private final S3Client s3Client;
 
     private  final String S3_CONTEST_DIR_NAME = "contest";
@@ -62,17 +62,11 @@ public class ContestService {
     }
 
     @Transactional
-    public ContestRes find(Long id, PrincipalDetails principalDetails, HttpServletRequest request, HttpServletResponse response){
+    public ContestRes find(Long id, HttpServletRequest request, HttpServletResponse response){
         //Vaildation
         Contest contest = contestRepository.findById(id).orElseThrow(()-> new ApplicationException(ErrorCode.NOT_FOUND_EXCEPTION));
         //Business
-        if(principalDetails != null){
-            //로그인
-            viewService.checkRedis(id, String.valueOf(principalDetails.getMember().getId()));
-        }else {
-            //비로그인
-            viewService.checkCookie(id,request,response);
-        }
+        updateView(id,request,response);
         //Response
         return ContestRes.of(contest);
     }
@@ -109,12 +103,36 @@ public class ContestService {
     }
 
     @Transactional
-    public ContestListRes search(String word, String arrange, Pageable pageable){
+    public ContestListRes search(String word, String sortAt, Pageable pageable){
         //Business
-        Page<Contest> contestPage = contestRepository.searchList(word, arrange, pageable);
+        Page<Contest> contestPage = contestRepository.searchList(word, sortAt, pageable);
         List<ContestCard> list = new ArrayList<>();
         contestPage.getContent().forEach(contest-> list.add(ContestCard.of(contest)));
         //Response
         return ContestListRes.of(list,contestPage.getNumber(),contestPage.getTotalElements(), contestPage.getTotalPages());
+    }
+
+    public void updateView(long contestId, HttpServletRequest request, HttpServletResponse response){
+        String uuid = null;
+        Cookie[] cookies = request.getCookies();
+
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if (cookie.getName().equals(COOKIE_NAME)) {
+                    uuid = cookie.getValue();
+                    break;
+                }
+            }
+        }
+
+        // 쿠키에 UUID가 없는 경우 새로운 UUID 생성
+        if (uuid == null) {
+            uuid = UUID.randomUUID().toString();
+            Cookie newCookie = new Cookie(COOKIE_NAME, uuid);
+            newCookie.setMaxAge(60 * 60 * 24); // 유효기간 : 1일
+            newCookie.setPath("/");
+            response.addCookie(newCookie);
+        }
+        contestRepository.updateView(contestId);
     }
 }

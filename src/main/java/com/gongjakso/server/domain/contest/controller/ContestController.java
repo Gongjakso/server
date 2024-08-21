@@ -33,18 +33,20 @@ public class ContestController {
         contestService.save(principalDetails.getMember(),image,contestReq);
         return ApplicationResponse.created();
     }
+
     @Operation(description = "공모전 정보 API")
     @GetMapping("/{contest_id}")
-    public ApplicationResponse<ContestRes> find(@AuthenticationPrincipal PrincipalDetails principalDetails,@PathVariable Long contest_id, HttpServletRequest request, HttpServletResponse response){
-        return ApplicationResponse.ok(contestService.find(contest_id,principalDetails,request,response));
+    public ApplicationResponse<ContestRes> find(@PathVariable Long contest_id, HttpServletRequest request, HttpServletResponse response){
+        return ApplicationResponse.ok(contestService.find(contest_id,request,response));
     }
+
     @Operation(description = "공모전 검색 API")
     @GetMapping("/search")
     public ApplicationResponse<ContestListRes> search(
             @RequestParam(name = "word", defaultValue = "공모전") String word,
-            @RequestParam(name = "arrange", defaultValue = "createdAt") String arrange,
+            @RequestParam(name = "sortAt", defaultValue = "createdAt") String sortAt,
             @PageableDefault(size = 12,page = 0) Pageable pageable){
-        return ApplicationResponse.ok(contestService.search(word,arrange,pageable));
+        return ApplicationResponse.ok(contestService.search(word,sortAt,pageable));
     }
 
     @Operation(description = "공모전 수정 API - 관리자만")

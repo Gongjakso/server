@@ -8,6 +8,6 @@ import org.springframework.data.jpa.repository.Query;
 import java.util.Optional;
 
 public interface ContestRepository extends JpaRepository<Contest, Long>, ContestRepositoryCustom {
-    @Query("update Contest c set c.view = :view")
-    void updateView(@Param("view") int view);
+    @Query("update Contest c set c.view = c.view + 1 where c.id = :contestId")
+    void updateView(@Param("contestId") long contestId);
 }

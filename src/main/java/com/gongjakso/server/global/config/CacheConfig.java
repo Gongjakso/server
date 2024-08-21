@@ -17,12 +17,6 @@ import java.time.Duration;
 @Configuration
 public class CacheConfig {
 
-    private final RedisConnectionFactory redisConnectionFactory;
-
-    public CacheConfig(RedisConnectionFactory redisConnectionFactory) {
-        this.redisConnectionFactory = redisConnectionFactory;
-    }
-
     @Bean
     public CacheManager cacheManager() {
         ConcurrentMapCacheManager cacheManager = new ConcurrentMapCacheManager();
@@ -33,16 +27,4 @@ public class CacheConfig {
         return cacheManager;
     }
 
-    @Bean
-    public CacheManager redisCacheManager() {
-        RedisCacheConfiguration cacheConfig = RedisCacheConfiguration.defaultCacheConfig()
-                .entryTtl(Duration.ofMinutes(60)) // 캐시 TTL 설정
-                .serializeKeysWith(RedisSerializationContext.SerializationPair.fromSerializer(new StringRedisSerializer()))
-                .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(new StringRedisSerializer()));
-
-        return RedisCacheManager.builder(redisConnectionFactory)
-                .cacheDefaults(cacheConfig)
-                .transactionAware()
-                .build();
-    }
 }
