@@ -50,6 +50,10 @@ public class Contest extends BaseTimeEntity {
         this.imgUrl= (imgUrl==null) ? this.imgUrl : imgUrl;
     }
 
+    public void updateView(Contest contest){
+        this.view = contest.getView() + 1;
+    }
+
     @Builder
     public Contest(String title,String body,String contestLink,String institution,LocalDate startedAt,LocalDate finishedAt,String imgUrl,int view){
         this.title=title;

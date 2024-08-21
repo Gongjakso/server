@@ -67,7 +67,7 @@ public class ContestService {
         Contest contest = contestRepository.findById(id).orElseThrow(()-> new ApplicationException(ErrorCode.NOT_FOUND_EXCEPTION));
         //Business
         //조회수 업데이트
-        updateView(id,request,response);
+        updateView(contest,request,response);
         //Response
         return ContestRes.of(contest);
     }
@@ -113,11 +113,11 @@ public class ContestService {
         return ContestListRes.of(list,contestPage.getNumber(),contestPage.getTotalElements(), contestPage.getTotalPages());
     }
 
-    public void updateView(long contestId, HttpServletRequest request, HttpServletResponse response) {
+    public void updateView(Contest contest, HttpServletRequest request, HttpServletResponse response) {
         boolean hasViewed = false;
         Cookie[] cookies = request.getCookies();
 
-        String COOKIE_NAME = "contest:view:";
+        String COOKIE_NAME = "contest_view";
         if (cookies != null) {
             for (Cookie cookie : cookies) {
                 if (cookie.getName().equals(COOKIE_NAME)) {
@@ -128,8 +128,7 @@ public class ContestService {
         }
 
         if (!hasViewed) {
-            contestRepository.updateView(contestId);
-
+            contest.updateView(contest);
             // 세션 쿠키 설정
             Cookie newCookie = new Cookie(COOKIE_NAME, "viewed");
             newCookie.setMaxAge(-1); // 브라우저 세션이 끝날 때까지 유효
