@@ -1,17 +1,12 @@
 package com.gongjakso.server.global.util.redis;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.redis.core.Cursor;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.ScanOptions;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Component;
 
-import java.nio.charset.StandardCharsets;
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
+
 
 @Component
 @RequiredArgsConstructor
@@ -53,30 +48,4 @@ public class RedisClient {
         redisTemplate.delete(key);
     }
 
-
-    /**
-     * Redis에서 key에 해당하는 값을 증가시키는 메소드
-     * @param key - 증가시킬 데이터의 key
-     */
-    public void incrementValue(String key) {
-        ValueOperations<String, Object> values = redisTemplate.opsForValue();
-        values.increment(key);
-    }
-
-    /**
-     * Redis에서 특정 패턴에 맞는 키들을 검색하는 메소드
-     * @param pattern - 검색할 키의 패턴
-     * @return - 패턴에 맞는 키들의 리스트
-     */
-    public List<String> scanKeys(String pattern) {
-        List<String> keys = new ArrayList<>();
-        ScanOptions scanOptions = ScanOptions.scanOptions().match(pattern).count(1000).build(); // 한 번에 1000개씩 검색
-        Cursor<byte[]> cursor = redisTemplate.getConnectionFactory().getConnection().scan(scanOptions);
-
-        while (cursor.hasNext()) {
-            keys.add(new String(cursor.next(), StandardCharsets.UTF_8));
-        }
-
-        return keys;
-    }
 }
