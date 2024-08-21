@@ -24,7 +24,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 
 @Service
@@ -33,7 +32,7 @@ public class ContestService {
     private final ContestRepository contestRepository;
     private final S3Client s3Client;
 
-    private  final String S3_CONTEST_DIR_NAME = "contest";
+    private final String S3_CONTEST_DIR_NAME = "contest";
 
 
     @Transactional
@@ -66,6 +65,7 @@ public class ContestService {
         //Vaildation
         Contest contest = contestRepository.findById(id).orElseThrow(()-> new ApplicationException(ErrorCode.NOT_FOUND_EXCEPTION));
         //Business
+        //조회수 업데이트
         updateView(id,request,response);
         //Response
         return ContestRes.of(contest);
@@ -112,27 +112,28 @@ public class ContestService {
         return ContestListRes.of(list,contestPage.getNumber(),contestPage.getTotalElements(), contestPage.getTotalPages());
     }
 
-    public void updateView(long contestId, HttpServletRequest request, HttpServletResponse response){
-        String uuid = null;
+    public void updateView(long contestId, HttpServletRequest request, HttpServletResponse response) {
+        boolean hasViewed = false;
         Cookie[] cookies = request.getCookies();
 
+        String COOKIE_NAME = "contest:view:";
         if (cookies != null) {
             for (Cookie cookie : cookies) {
                 if (cookie.getName().equals(COOKIE_NAME)) {
-                    uuid = cookie.getValue();
+                    hasViewed = true;
                     break;
                 }
             }
         }
 
-        // 쿠키에 UUID가 없는 경우 새로운 UUID 생성
-        if (uuid == null) {
-            uuid = UUID.randomUUID().toString();
-            Cookie newCookie = new Cookie(COOKIE_NAME, uuid);
-            newCookie.setMaxAge(60 * 60 * 24); // 유효기간 : 1일
+        if (!hasViewed) {
+            contestRepository.updateView(contestId);
+
+            // 세션 쿠키 설정
+            Cookie newCookie = new Cookie(COOKIE_NAME, "viewed");
+            newCookie.setMaxAge(-1); // 브라우저 세션이 끝날 때까지 유효
             newCookie.setPath("/");
             response.addCookie(newCookie);
         }
-        contestRepository.updateView(contestId);
     }
 }
