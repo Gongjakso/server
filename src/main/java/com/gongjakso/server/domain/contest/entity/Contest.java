@@ -51,7 +51,7 @@ public class Contest extends BaseTimeEntity {
     }
 
     @Builder
-    public Contest(String title,String body,String contestLink,String institution,LocalDate startedAt,LocalDate finishedAt,String imgUrl){
+    public Contest(String title,String body,String contestLink,String institution,LocalDate startedAt,LocalDate finishedAt,String imgUrl,int view){
         this.title=title;
         this.body=body;
         this.contestLink=contestLink;
@@ -59,5 +59,6 @@ public class Contest extends BaseTimeEntity {
         this.startedAt=startedAt;
         this.finishedAt=finishedAt;
         this.imgUrl=imgUrl;
+        this.view=view;
     }
 }

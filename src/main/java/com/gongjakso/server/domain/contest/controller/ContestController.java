@@ -36,7 +36,7 @@ public class ContestController {
 
     @Operation(description = "공모전 정보 API")
     @GetMapping("/{contest_id}")
-    public ApplicationResponse<ContestRes> find(@PathVariable Long contest_id, HttpServletRequest request, HttpServletResponse response){
+    public ApplicationResponse<ContestRes> find(@PathVariable(name = "contest_id") Long contest_id, HttpServletRequest request, HttpServletResponse response){
         return ApplicationResponse.ok(contestService.find(contest_id,request,response));
     }
 

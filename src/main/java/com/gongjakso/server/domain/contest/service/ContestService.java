@@ -56,6 +56,7 @@ public class ContestService {
                 .startedAt(contestReq.startedAt())
                 .finishedAt(contestReq.finishedAt())
                 .imgUrl(s3Url)
+                .view(0)
                 .build();
         contestRepository.save(contest);
     }
