@@ -4,6 +4,7 @@ import com.gongjakso.server.domain.contest.entity.Contest;
 import com.gongjakso.server.domain.contest.repository.ContestRepository;
 import com.gongjakso.server.domain.member.entity.Member;
 import com.gongjakso.server.domain.team.dto.request.TeamReq;
+import com.gongjakso.server.domain.team.dto.response.SimpleTeamRes;
 import com.gongjakso.server.domain.team.dto.response.TeamRes;
 import com.gongjakso.server.domain.team.entity.Team;
 import com.gongjakso.server.domain.team.repository.TeamRepository;
@@ -11,6 +12,7 @@ import com.gongjakso.server.global.exception.ApplicationException;
 import com.gongjakso.server.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -87,12 +89,12 @@ public class TeamService {
         return TeamRes.of(team);
     }
 
-    public Page<TeamRes> getTeamList(Long contestId) {
+    public Page<SimpleTeamRes> getTeamList(Long contestId, String province, String district, Pageable pageable) {
         // Validation
         contestRepository.findByIdAndDeletedAtIsNull(contestId)
                 .orElseThrow(() -> new ApplicationException(ErrorCode.CONTEST_NOT_FOUND_EXCEPTION));
 
         // Business Logic
-        return teamRepository.findPagination(contestId);
+        return teamRepository.findPagination(contestId, province, district, pageable);
     }
 }

@@ -8,11 +8,11 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import java.awt.print.Pageable;
 
 @RestController
 @RequiredArgsConstructor
@@ -60,6 +60,6 @@ public class TeamController {
                                               @RequestParam(value = "province", required = false) String province,
                                                 @RequestParam(value = "district", required = false) String district,
                                               @PageableDefault(size = 8) Pageable pageable) {
-        return ApplicationResponse.ok(teamService.getTeamList(contestId));
+        return ApplicationResponse.ok(teamService.getTeamList(contestId, province, district, pageable));
     }
 }

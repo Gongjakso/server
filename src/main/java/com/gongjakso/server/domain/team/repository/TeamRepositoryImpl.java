@@ -1,6 +1,7 @@
 package com.gongjakso.server.domain.team.repository;
 
-import com.gongjakso.server.domain.team.dto.response.TeamRes;
+import com.gongjakso.server.domain.team.dto.response.SimpleTeamRes;
+import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -16,9 +17,9 @@ public class TeamRepositoryImpl implements TeamRepositoryCustom {
 
     private final JPAQueryFactory queryFactory;
 
-    public Page<TeamRes> findPagination(String province, String district, Pageable pageable) {
-        List<TeamRes> content  = queryFactory
-            .select(new QTeamRes(
+    public Page<SimpleTeamRes> findPagination(Long contestId, String province, String district, Pageable pageable) {
+        List<SimpleTeamRes> content  = queryFactory
+            .select(Projections.constructor(SimpleTeamRes.class,
                 team.id,
                 team.title,
                 team.province,
@@ -27,6 +28,7 @@ public class TeamRepositoryImpl implements TeamRepositoryCustom {
             ))
             .from(team)
             .where(
+                team.contest.id.eq(contestId),
                 team.province.eq(province),
                 team.district.eq(district),
                 team.deletedAt.isNull()
