@@ -9,6 +9,8 @@ import com.gongjakso.server.global.common.ApplicationResponse;
 import com.gongjakso.server.global.security.PrincipalDetails;
 import io.lettuce.core.dynamic.annotation.Param;
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -33,8 +35,8 @@ public class ContestController {
     }
     @Operation(description = "공모전 정보 API")
     @GetMapping("/{contest_id}")
-    public ApplicationResponse<ContestRes> find(@PathVariable Long contest_id){
-        return ApplicationResponse.ok(contestService.find(contest_id));
+    public ApplicationResponse<ContestRes> find(@AuthenticationPrincipal PrincipalDetails principalDetails,@PathVariable Long contest_id, HttpServletRequest request, HttpServletResponse response){
+        return ApplicationResponse.ok(contestService.find(contest_id,principalDetails,request,response));
     }
     @Operation(description = "공모전 검색 API")
     @GetMapping("/search")

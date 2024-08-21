@@ -1,77 +1,105 @@
 package com.gongjakso.server.domain.contest.service;
 
+import com.gongjakso.server.domain.contest.entity.Contest;
 import com.gongjakso.server.domain.contest.repository.ContestRepository;
+import com.gongjakso.server.global.exception.ApplicationException;
+import com.gongjakso.server.global.exception.ErrorCode;
 import com.gongjakso.server.global.util.redis.RedisClient;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 public class ViewService {
-    private static final String VIEW_KEY = "contest:view:";
+    private static final String CONTEST_VIEW_KEY = "contest:view:";
+    private static final String CLIENT_VIEW_KEY = "contest:client:view:";
+    private static final String COOKIE_NAME = "contest:cookie:uuid";
 
     private final RedisClient redisClient;
     private final ContestRepository contestRepository;
 
-    // 조회수 체크 ( 로그인 ) - redis
-    public boolean checkView_Member(long id, long memberId){
-        String key = VIEW_KEY+id+":"+memberId;
+    @Cacheable(cacheNames = "view", cacheManager = "redisCacheManager")
+    // redis 조회수 중복 검사
+    public boolean checkRedis(long contestId, String clientId){
+        String key = CLIENT_VIEW_KEY+contestId+":"+clientId;
         String isViewed = redisClient.getValue(key);
 
         if(isViewed.isEmpty()){
             redisClient.setValue(key,"true", 60 * 24L);
-            incrementView(id);
+            incrementView(contestId);
             return true;
         }
         return false;
     }
-
-    // 조회수 체크 ( 비로그인 ) - cookie
-    public boolean checkView_Guest(long id, HttpServletRequest request, HttpServletResponse response){
-        String cookieName = "contest_"+id;
+    @Cacheable(cacheNames = "view", cacheManager = "redisCacheManager")
+    // 비로그인 cookie 검사
+    public boolean checkCookie(long contestId, HttpServletRequest request, HttpServletResponse response){
+        String uuid = null;
         Cookie[] cookies = request.getCookies();
 
         if (cookies != null) {
             for (Cookie cookie : cookies) {
-                if (cookie.getName().equals(cookieName)) {
-                    return false;
+                if (cookie.getName().equals(COOKIE_NAME)) {
+                    uuid = cookie.getValue();
+                    break;
                 }
             }
         }
 
-        Cookie newCookie = new Cookie(cookieName, "true");
-        newCookie.setMaxAge(60 * 60 * 24); // 1일 동안 유지
-        newCookie.setPath("/");
-        response.addCookie(newCookie);
+        // 쿠키에 UUID가 없는 경우 새로운 UUID 생성
+        if (uuid == null) {
+            uuid = UUID.randomUUID().toString();
+            Cookie newCookie = new Cookie(COOKIE_NAME, uuid);
+            newCookie.setMaxAge(60 * 60 * 24); // 유효기간 : 1일
+            newCookie.setPath("/");
+            response.addCookie(newCookie);
+        }
 
-        incrementView(id);
-        return true;
+        // redis 조회수 중복 검사
+        return checkRedis(contestId, uuid);
     }
 
-    // Redis에서 조회수 증가
+    // redis 조회수 증가
     private void incrementView(Long id) {
-        String redisKey = VIEW_KEY + id;
-        redisClient.incrementValue(redisKey);  // Redis의 INCR 명령 사용
+        String redisKey = CONTEST_VIEW_KEY + id;
+        redisClient.incrementValue(redisKey);
+        String idStr = redisKey.substring(CONTEST_VIEW_KEY.length());
+        System.out.println(idStr.split(":")[0]);
     }
-
+    @Cacheable(cacheNames = "view", cacheManager = "redisCacheManager")
     // 조회수 저장
     public void saveView() {
-//        for (Long id : contestRepository.findAllPostIds()) {
-//            String redisKey = VIEW_KEY + id;
-//            String viewCountStr = redisClient.getValue(redisKey);
-//
-//            if (!viewCountStr.isEmpty()) {
-//                int redisViewCount = Integer.parseInt(viewCountStr);
-//                Post post = postRepository.findById(id).orElseThrow();
-//                post.setViewCount(post.getViewCount() + redisViewCount);
-//                postRepository.save(post);
-//
-//                // Redis에서 값 초기화
-//                redisClient.deleteValue(redisKey);
-//            }
-//        }
+        // Redis에서 VIEW_KEY로 시작하는 모든 키 검색
+        List<String> keys = redisClient.scanKeys(CONTEST_VIEW_KEY + "*");
+
+        for (String redisKey : keys) {
+            String viewStr = redisClient.getValue(redisKey);
+
+            if (!viewStr.isEmpty()) {
+                int view= Integer.parseInt(viewStr);
+
+                Long contestId = extractContestId(redisKey);
+
+                Contest contest = contestRepository.findById(contestId).orElseThrow(()-> new ApplicationException(ErrorCode.NOT_FOUND_EXCEPTION));
+                contestRepository.updateView(contest.getView() + view);
+                contestRepository.save(contest);
+
+                // Redis에서 값 초기화
+                redisClient.deleteValue(redisKey);
+            }
+        }
+    }
+
+    private Long extractContestId(String redisKey) {
+        String idStr = redisKey.substring(CONTEST_VIEW_KEY.length());
+        System.out.println(idStr.split(":")[0]);
+        return Long.parseLong(idStr.split(":")[0]);
     }
 }
