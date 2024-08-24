@@ -43,4 +43,12 @@ public class ApplyController {
                 .orElseThrow(() -> new ApplicationException(ErrorCode.UNAUTHORIZED_EXCEPTION));
         return ApplicationResponse.ok(applyService.getMyApplies(member, pageable));
     }
+
+    @Operation(summary = "특정 지원자 지원서 가져오기", description = "특정 지원자의 지원서를 가져오는 API")
+    @GetMapping("/{apply_id}")
+    public ApplicationResponse<ApplyRes> getApply(@PathVariable("apply_id") Long applyId) {
+        Member member = memberRepository.findById(1L)
+                .orElseThrow(() -> new ApplicationException(ErrorCode.UNAUTHORIZED_EXCEPTION));
+        return ApplicationResponse.ok(applyService.getApply(member, applyId));
+    }
 }

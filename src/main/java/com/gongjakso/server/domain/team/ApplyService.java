@@ -14,6 +14,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+
+import java.util.Objects;
 import java.util.Optional;
 
 import static java.time.LocalDateTime.now;
@@ -66,5 +68,21 @@ public class ApplyService {
 
         //Response
         return ApplyRes.toPagination(apply);
+    }
+
+    public ApplyRes getApply(Member member, Long applyId) {
+        //Validation: member가 유효하지 않거나, 리더가 아니거나, 자신이 아닌 경우 예외 처리
+        Apply apply = applyRepository.findById(applyId)
+                .orElseThrow(() -> new ApplicationException(ErrorCode.NOT_FOUND_APPLY_EXCEPTION));
+
+        if(member == null || !Objects.equals(member.getId(), apply.getMember().getId())
+                /*|| !Objects.equals(member.getId(), apply.getTeam().getLeader().getId())
+                 */
+                ) {
+            throw new ApplicationException(ErrorCode.UNAUTHORIZED_EXCEPTION);
+        }
+
+        //Response
+        return ApplyRes.of(apply);
     }
 }
