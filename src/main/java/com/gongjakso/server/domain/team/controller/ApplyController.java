@@ -68,4 +68,13 @@ public class ApplyController {
                 .orElseThrow(() -> new ApplicationException(ErrorCode.UNAUTHORIZED_EXCEPTION));
         return ApplicationResponse.ok(applyService.viewApply(member, applyId));
     }
+
+    @Operation(summary = "지원 취소", description = "지원자가 지원 취소하는 API")
+    @DeleteMapping("/{apply_id}")
+    public ApplicationResponse<Void> cancelApply(@PathVariable("apply_id") Long applyId) {
+        Member member = memberRepository.findById(2L)
+                .orElseThrow(() -> new ApplicationException(ErrorCode.UNAUTHORIZED_EXCEPTION));
+        applyService.cancelApply(member, applyId);
+        return ApplicationResponse.ok();
+    }
 }

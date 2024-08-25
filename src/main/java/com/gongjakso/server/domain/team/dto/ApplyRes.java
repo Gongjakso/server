@@ -42,7 +42,9 @@ public record ApplyRes(
 
         String leaderName,
 
-        Boolean isViewed
+        Boolean isViewed,
+
+        LocalDateTime deleteAt
 
 ) {
     public static ApplyRes of(Apply apply) {
@@ -56,6 +58,7 @@ public record ApplyRes(
                 .status(apply.getStatus())
                 .part(apply.getPart())
                 .isViewed(apply.isViewed())
+                .deleteAt(apply.getDeletedAt())
                 .build();
     }
 

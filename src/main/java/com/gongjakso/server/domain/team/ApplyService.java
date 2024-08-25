@@ -140,4 +140,21 @@ public class ApplyService {
         //Response
         return ApplyRes.of(apply);
     }
+
+    public void cancelApply(Member member, Long applyId) {
+        //Validation: member나 Apply가 유효하지 않거나, 지원자 아닌 경우 예외 처리
+        if(member == null){
+            throw new ApplicationException(ErrorCode.UNAUTHORIZED_EXCEPTION);
+        }
+
+        Apply apply = applyRepository.findById(applyId)
+                .orElseThrow(() -> new ApplicationException(ErrorCode.NOT_FOUND_APPLY_EXCEPTION));
+
+        if(!Objects.equals(apply.getMember().getId(), member.getId())){
+            throw new ApplicationException(ErrorCode.UNAUTHORIZED_EXCEPTION);
+        }
+
+        //Business Logic
+        applyRepository.delete(apply);
+    }
 }
