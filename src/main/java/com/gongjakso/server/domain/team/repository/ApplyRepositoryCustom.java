@@ -9,4 +9,5 @@ public interface ApplyRepositoryCustom {
 
     Boolean existsByMemberAndTeam(Long memberId, Long teamId);
     Page<Apply> findByMemberAndPage(Member member, Pageable pageable);
+    Apply findApplyWithTeam(Long applyId);
 }

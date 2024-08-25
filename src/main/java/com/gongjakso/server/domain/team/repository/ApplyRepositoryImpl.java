@@ -52,5 +52,14 @@ public class ApplyRepositoryImpl implements ApplyRepositoryCustom {
         return new PageImpl<>(applyList, pageable, total != null ? total : 0L);
     }
 
+    @Override
+    public Apply findApplyWithTeam(Long applyId) {
+        return queryFactory
+                .select(apply)
+                .from(apply)
+                .join(apply.team).fetchJoin()
+                .where(apply.id.eq(applyId))
+                .fetchOne();
+    }
 
 }

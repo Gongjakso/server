@@ -5,6 +5,7 @@ import com.gongjakso.server.domain.member.repository.MemberRepository;
 import com.gongjakso.server.domain.team.ApplyService;
 import com.gongjakso.server.domain.team.dto.ApplyReq;
 import com.gongjakso.server.domain.team.dto.ApplyRes;
+import com.gongjakso.server.domain.team.dto.StatusReq;
 import com.gongjakso.server.global.common.ApplicationResponse;
 import com.gongjakso.server.global.exception.ApplicationException;
 import com.gongjakso.server.global.exception.ErrorCode;
@@ -27,7 +28,7 @@ public class ApplyController {
     private final ApplyService applyService;
     private final MemberRepository memberRepository;
 
-    @Operation(summary = "지원하기", description = "팀에 지원하는 API")
+    @Operation(summary = "지원하기 ", description = "팀에 지원하는 API")
     @PostMapping("/{team_id}")
     public ApplicationResponse<ApplyRes> apply(@PathVariable("team_id") Long teamId, @Valid @RequestBody ApplyReq req) {
         Member member = memberRepository.findById(1L)
@@ -50,5 +51,13 @@ public class ApplyController {
         Member member = memberRepository.findById(1L)
                 .orElseThrow(() -> new ApplicationException(ErrorCode.UNAUTHORIZED_EXCEPTION));
         return ApplicationResponse.ok(applyService.getApply(member, applyId));
+    }
+
+    @Operation(summary = "지원서 선발/미선발", description = "지원자를 선발/미선발하는 API")
+    @PatchMapping("/select/{apply_id}")
+    public ApplicationResponse<ApplyRes> selectApply(@PathVariable("apply_id") Long applyId, @RequestBody StatusReq req) {
+        Member member = memberRepository.findById(1L)
+                .orElseThrow(() -> new ApplicationException(ErrorCode.UNAUTHORIZED_EXCEPTION));
+        return ApplicationResponse.ok(applyService.selectApply(member, applyId, req));
     }
 }

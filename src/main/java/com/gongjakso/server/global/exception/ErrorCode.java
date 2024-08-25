@@ -41,6 +41,7 @@ public enum ErrorCode {
     OVER_APPLY_EXCEPTION(HttpStatus.NOT_FOUND,4007,"지원 파트 정원이 찼습니다."),
     INVALID_STACK_TYPE_EXCEPTION(HttpStatus.NOT_FOUND,4008,"기술 스택 없습니다"),
     FINISHED_TEAM_APPLY_EXCEPTION(HttpStatus.BAD_REQUEST,4009,"모집 기간이 마감된 팀입니다."),
+    LEADER_APPLY_EXCEPTION(HttpStatus.BAD_REQUEST,4010,"팀장은 지원할 수 없습니다."),
 
     //5000: Post Error
     NOT_POST_EXCEPTION(HttpStatus.BAD_REQUEST,5000,"공고를 더 이상 생성할 수 없습니다"),

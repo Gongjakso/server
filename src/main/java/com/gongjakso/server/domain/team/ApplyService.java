@@ -4,6 +4,7 @@ import com.gongjakso.server.domain.member.entity.Member;
 import com.gongjakso.server.domain.portfolio.entity.Portfolio;
 import com.gongjakso.server.domain.team.dto.ApplyReq;
 import com.gongjakso.server.domain.team.dto.ApplyRes;
+import com.gongjakso.server.domain.team.dto.StatusReq;
 import com.gongjakso.server.domain.team.entity.Apply;
 import com.gongjakso.server.domain.team.entity.Team;
 import com.gongjakso.server.domain.team.repository.ApplyRepository;
@@ -40,6 +41,10 @@ public class ApplyService {
             throw new ApplicationException(ErrorCode.FINISHED_TEAM_APPLY_EXCEPTION);
         }
 
+        if(team.getLeader().equals(member)) {
+            throw new ApplicationException(ErrorCode.LEADER_APPLY_EXCEPTION);
+        }
+
         if(applyRepository.existsByMemberAndTeam(member.getId(), team.getId())) {
             throw new ApplicationException(ErrorCode.ALREADY_APPLY_EXCEPTION);
         }
@@ -71,7 +76,7 @@ public class ApplyService {
     }
 
     public ApplyRes getApply(Member member, Long applyId) {
-        //Validation: member가 유효하지 않거나, 리더가 아니거나, 자신이 아닌 경우 예외 처리
+        //Validation: member나 Apply가 유효하지 않거나, 리더가 아니거나, 자신이 아닌 경우 예외 처리
         Apply apply = applyRepository.findById(applyId)
                 .orElseThrow(() -> new ApplicationException(ErrorCode.NOT_FOUND_APPLY_EXCEPTION));
 
@@ -85,4 +90,32 @@ public class ApplyService {
         //Response
         return ApplyRes.of(apply);
     }
+
+    public ApplyRes selectApply(Member member, Long applyId, StatusReq req){
+        //Validation: member나 Apply가 유효하지 않거나, 리더가 아닌 경우 예외 처리
+        if(member == null){
+            throw new ApplicationException(ErrorCode.UNAUTHORIZED_EXCEPTION);
+        }
+
+        Apply apply = applyRepository.findApplyWithTeam(applyId);
+        if(apply == null){
+            throw new ApplicationException(ErrorCode.NOT_FOUND_APPLY_EXCEPTION);
+        }
+
+        if(apply.getTeam().getLeader().getId() != member.getId()){
+            throw new ApplicationException(ErrorCode.UNAUTHORIZED_EXCEPTION);
+        }
+
+        //Business Logic
+        if (req != null) {
+            apply.select(req.status());
+        }
+
+        applyRepository.save(apply);
+
+        //Response
+        return ApplyRes.of(apply);
+    }
+
+
 }
