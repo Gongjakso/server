@@ -117,5 +117,27 @@ public class ApplyService {
         return ApplyRes.of(apply);
     }
 
+    public ApplyRes viewApply(Member member, Long applyId) {
+        //Validation: member나 Apply가 유효하지 않거나, 리더가 아닌 경우 예외 처리
+        if(member == null){
+            throw new ApplicationException(ErrorCode.UNAUTHORIZED_EXCEPTION);
+        }
 
+        Apply apply = applyRepository.findApplyWithTeam(applyId);
+        if(apply == null){
+            throw new ApplicationException(ErrorCode.NOT_FOUND_APPLY_EXCEPTION);
+        }
+
+        if(apply.getTeam().getLeader().getId() != member.getId()){
+            throw new ApplicationException(ErrorCode.UNAUTHORIZED_EXCEPTION);
+        }
+
+        //Business Logic
+        apply.setViewed(true);
+
+        applyRepository.save(apply);
+
+        //Response
+        return ApplyRes.of(apply);
+    }
 }

@@ -38,20 +38,15 @@ public record ApplyRes(
         @NotNull
         String part,
 
-        Long scrapCount,
-
-        Long remainingDays,
-
-        LocalDateTime startedAt,
-
-        LocalDateTime finishedAt,
-
         String teamName,
 
-        String leaderName
+        String leaderName,
+
+        Boolean isViewed
 
 ) {
     public static ApplyRes of(Apply apply) {
+        //teamName, leaderName 추가 필요
         return ApplyRes.builder()
                 .applyId(apply.getId())
                 .teamId(apply.getTeam().getId())
@@ -60,6 +55,7 @@ public record ApplyRes(
                 .body(apply.getBody())
                 .status(apply.getStatus())
                 .part(apply.getPart())
+                .isViewed(apply.isViewed())
                 .build();
     }
 

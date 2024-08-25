@@ -60,4 +60,12 @@ public class ApplyController {
                 .orElseThrow(() -> new ApplicationException(ErrorCode.UNAUTHORIZED_EXCEPTION));
         return ApplicationResponse.ok(applyService.selectApply(member, applyId, req));
     }
+
+    @Operation(summary = "지원서 열람", description = "지원서 열람 열람 여부 관리 API")
+    @PatchMapping("/view/{apply_id}")
+    public ApplicationResponse<ApplyRes> viewApply(@PathVariable("apply_id") Long applyId) {
+        Member member = memberRepository.findById(1L)
+                .orElseThrow(() -> new ApplicationException(ErrorCode.UNAUTHORIZED_EXCEPTION));
+        return ApplicationResponse.ok(applyService.viewApply(member, applyId));
+    }
 }

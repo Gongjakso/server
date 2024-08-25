@@ -45,6 +45,9 @@ public class Apply extends BaseTimeEntity {
         @Column(nullable = false, columnDefinition = "varchar(20)")
         private String part;
 
+        @Column(nullable = false, columnDefinition = "tinyint(1) default 0")
+        private boolean isViewed;
+
         @Builder
         public Apply(Team team, Member member, Portfolio portfolio, String body, ApplyStatus status, String part) {
                 this.team = team;
@@ -53,5 +56,14 @@ public class Apply extends BaseTimeEntity {
                 this.body = body;
                 this.status = status;
                 this.part = part;
+                this.isViewed = false;
+        }
+
+        public void select(ApplyStatus status) {
+                this.status = status;
+        }
+
+        public void setViewed(boolean isViewed) {
+                this.isViewed = isViewed;
         }
 }
