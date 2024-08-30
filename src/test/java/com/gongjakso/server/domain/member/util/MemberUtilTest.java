@@ -20,6 +20,19 @@ public class MemberUtilTest {
                 .build();
     }
 
+    public static Member buildMemberByType(MemberType memberType) {
+        return Member.builder()
+                .email("gongjakso@google.com")
+                .name("공작소")
+                .phone("010-1010-1010")
+                .memberType(memberType.toString())
+                .loginType(LoginType.KAKAO.toString())
+                .status("상태")
+                .major("전공")
+                .job("내 미래 꿈")
+                .build();
+    }
+
     public static Member buildMemberAndId(Long id) {
         return new Member(
                 id,
