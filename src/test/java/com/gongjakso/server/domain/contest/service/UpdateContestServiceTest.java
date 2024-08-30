@@ -1,6 +1,6 @@
 package com.gongjakso.server.domain.contest.service;
 
-import com.gongjakso.server.domain.contest.dto.request.ContestReq;
+import com.gongjakso.server.domain.contest.dto.request.UpdateContestDto;
 import com.gongjakso.server.domain.contest.entity.Contest;
 import com.gongjakso.server.domain.contest.repository.ContestRepository;
 import com.gongjakso.server.domain.contest.util.ContestUtilTest;
@@ -9,7 +9,6 @@ import com.gongjakso.server.domain.member.enumerate.MemberType;
 import com.gongjakso.server.domain.member.util.MemberUtilTest;
 import com.gongjakso.server.global.exception.ApplicationException;
 import com.gongjakso.server.global.util.s3.S3Client;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -18,12 +17,16 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.Optional;
+
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
-public class SaveContestServiceTest {
+public class UpdateContestServiceTest {
     @Mock
     ContestRepository contestRepository;
     @Mock
@@ -31,48 +34,29 @@ public class SaveContestServiceTest {
     @InjectMocks
     ContestService contestService;
 
-    private ContestReq contestReq;
-    private MultipartFile image;
-
-    @BeforeEach
-    void setup(){
-        contestReq = ContestUtilTest.buildContestReq();
-        image = mock(MultipartFile.class);
-    }
-
     @Test
-    @DisplayName("memberType = general일 경우 오류 테스트")
-    void checkGeneralMemberTypeTest(){
+    @DisplayName("memberType = general인 경우 공모전 업데이트 테스트")
+    void updateGeneralMemberTypeTest(){
         Member generalMember = MemberUtilTest.buildMemberByType(MemberType.GENERAL);
-        assertThatThrownBy(() -> contestService.save(generalMember, image, contestReq))
+        assertThatThrownBy(()-> contestService.update(generalMember,1L,null,null))
                 .isInstanceOf(ApplicationException.class);
-        verify(contestRepository,never()).save(any(Contest.class));
-        verify(s3Client,never()).upload(any(MultipartFile.class),anyString());
     }
 
     @Test
-    @DisplayName("memberType = admin일 경우 contest 저장 , 이미지 있음")
-    void saveContestTest(){
+    @DisplayName("memberType = admin인 경우 공모전 업데이트 테스트")
+    void updateAdminMemberTypeTest(){
         Member adminMember = MemberUtilTest.buildMemberByType(MemberType.ADMIN);
+        Contest contest = ContestUtilTest.buildContest();
+        MultipartFile image = mock(MultipartFile.class);
+        UpdateContestDto updateContestDto = ContestUtilTest.buildUpdateContestDto();
+        given(contestRepository.findById(1L)).willReturn(Optional.of(contest));
         given(image.isEmpty()).willReturn(false);
         given(s3Client.upload(image,"contest")).willReturn("https://s3.amazonaws.com/gongjakso-bucket/contest/image");
 
-        contestService.save(adminMember,image,contestReq);
+        contestService.update(adminMember,1L,image,updateContestDto);
 
         verify(s3Client).upload(image,"contest");
         verify(contestRepository).save(any(Contest.class));
+
     }
-
-    @Test
-    @DisplayName("memberType = admin일 경우 contest 저장, 이미지 없음")
-    void saveContestNoImageTest(){
-        Member adminMember = MemberUtilTest.buildMemberByType(MemberType.ADMIN);
-        given(image.isEmpty()).willReturn(false);
-
-        contestService.save(adminMember,image,contestReq);
-
-        verify(s3Client,never()).upload(any(MultipartFile.class),anyString());
-        verify(contestRepository).save(any(Contest.class));
-    }
-
 }
