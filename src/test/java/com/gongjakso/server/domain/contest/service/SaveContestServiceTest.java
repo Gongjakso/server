@@ -67,7 +67,7 @@ public class SaveContestServiceTest {
     @DisplayName("memberType = admin일 경우 contest 저장, 이미지 없음")
     void saveContestNoImageTest(){
         Member adminMember = MemberUtilTest.buildMemberByType(MemberType.ADMIN);
-        given(image.isEmpty()).willReturn(false);
+        given(image.isEmpty()).willReturn(true);
 
         contestService.save(adminMember,image,contestReq);
 

@@ -21,6 +21,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
@@ -45,12 +46,13 @@ public class DeleteContestServiceTest {
     @DisplayName("memberType = admin인 경우 공모전 삭제")
     void deleteAdminMemberTypeTest(){
         Member adminMember = MemberUtilTest.buildMemberByType(MemberType.ADMIN);
-        Contest contest = ContestUtilTest.buildContest();
+        Contest contest = mock(Contest.class);
         given(contestRepository.findById(1L)).willReturn(Optional.of(contest));
+        given(contest.getImgUrl()).willReturn("https://s3.amazonaws.com/gongjakso-bucket/contest/image");
 
         contestService.delete(adminMember,1L);
 
-        verify(s3Client).delete(anyString());
-        verify(contestRepository).delete(any(Contest.class));
+        verify(s3Client).delete("https://s3.amazonaws.com/gongjakso-bucket/contest/image");
+        verify(contestRepository).delete(contest);
     }
 }
