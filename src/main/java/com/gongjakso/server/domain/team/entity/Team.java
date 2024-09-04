@@ -5,15 +5,19 @@ import com.gongjakso.server.domain.member.entity.Member;
 import com.gongjakso.server.domain.team.dto.request.TeamReq;
 import com.gongjakso.server.domain.team.enumerate.MeetingMethod;
 import com.gongjakso.server.domain.team.enumerate.TeamStatus;
+import com.gongjakso.server.domain.team.vo.RecruitPart;
 import com.gongjakso.server.global.common.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.SQLDelete;
+import org.hibernate.type.SqlTypes;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Getter
 @Entity
@@ -59,6 +63,10 @@ public class Team extends BaseTimeEntity {
     @Column(name = "district", columnDefinition = "varchar(20)")
     private String district; // 시/군/구 (ex. 강남구)
 
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "recruit_part", columnDefinition = "json")
+    private List<RecruitPart> recruitPart;
+
     @Column(name = "recruit_finished_at", nullable = false, columnDefinition = "date")
     private LocalDate recruitFinishedAt;
 
@@ -96,6 +104,7 @@ public class Team extends BaseTimeEntity {
                 MeetingMethod meetingMethod,
                 String province,
                 String district,
+                List<RecruitPart> recruitPart,
                 LocalDate recruitFinishedAt,
                 LocalDate startedAt,
                 LocalDate finishedAt,
@@ -110,6 +119,7 @@ public class Team extends BaseTimeEntity {
         this.meetingMethod = meetingMethod;
         this.province = province;
         this.district = district;
+        this.recruitPart = recruitPart;
         this.recruitFinishedAt = recruitFinishedAt;
         this.startedAt = startedAt;
         this.finishedAt = finishedAt;
