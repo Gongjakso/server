@@ -7,12 +7,16 @@ import com.gongjakso.server.domain.contest.entity.Contest;
 import com.gongjakso.server.domain.member.entity.Member;
 import com.gongjakso.server.domain.team.entity.Team;
 import com.gongjakso.server.domain.team.enumerate.MeetingMethod;
+import com.gongjakso.server.domain.team.vo.RecruitPart;
+import com.gongjakso.server.global.common.Position;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Builder;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Builder
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
@@ -41,6 +45,9 @@ public record TeamReq(
     @Schema(description = "시/군/구", example = "강남구")
     String district,
 
+    @Schema(description = "지원 파트")
+    List<RecruitPartReq> recruitPart,
+
     @Schema(description = "모집 마감일", example = "2024-12-31")
     @JsonFormat(pattern = "yyyy-MM-dd")
     LocalDate recruitFinishedAt,
@@ -56,8 +63,31 @@ public record TeamReq(
     @Schema(description = "컨택 링크", example = "https://open.kakao.com/o/gongjakso")
     String channelLink
 ) {
+
+    @Builder
+    @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
+    public record RecruitPartReq(
+            @NotNull
+            @Schema(description = "파트 이름", example = "기획")
+            String position,
+
+            @NotNull
+            @Schema(description = "파트 인원", example = "1")
+            Integer recruitCount
+        ) {
+
+            public RecruitPart from() {
+                Position position = Position.convert(this.position);
+                return new RecruitPart(position, recruitCount, 0);
+            }
+        }
+
     public Team from(Member member, Contest contest) {
         MeetingMethod method = MeetingMethod.valueOf(meetingMethod);
+
+        List<RecruitPart> recruitPartList = recruitPart.stream()
+                .map(RecruitPartReq::from)
+                .toList();
 
         return new Team(
                 member,
@@ -68,6 +98,7 @@ public record TeamReq(
                 method,
                 province,
                 district,
+                recruitPartList,
                 recruitFinishedAt,
                 startedAt,
                 finishedAt,

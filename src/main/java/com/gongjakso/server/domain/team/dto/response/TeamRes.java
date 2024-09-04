@@ -1,14 +1,19 @@
 package com.gongjakso.server.domain.team.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import com.gongjakso.server.domain.team.entity.Team;
+import com.gongjakso.server.domain.team.vo.RecruitPart;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public record TeamRes(
     @Schema(description = "팀 ID", example = "1")
     Long id,
@@ -46,6 +51,9 @@ public record TeamRes(
     @Schema(description = "시/군/구", example = "강남구")
     String district,
 
+    @Schema(description = "지원 파트 및 관련 정보")
+    List<RecruitPartRes> recruitPart,
+
     @Schema(description = "모집 마감일", example = "2024-12-31")
     LocalDate recruitFinishedAt,
 
@@ -61,7 +69,35 @@ public record TeamRes(
     @Schema(description = "스크랩 수", example = "10")
     int scrapCount
 ) {
+
+    @Builder
+    @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
+    public record RecruitPartRes(
+        @Schema(description = "지원 파트", example = "기획")
+        String position,
+
+        @Schema(description = "모집 인원", example = "3")
+        Integer recruitCount,
+
+        @Schema(description = "합격 인원", example = "2")
+        Integer passCount
+    ) {
+
+        public static RecruitPartRes of(RecruitPart recruitPart) {
+            return RecruitPartRes.builder()
+                    .position(recruitPart.position().getKoreanName())
+                    .recruitCount(recruitPart.recruitCount())
+                    .passCount(recruitPart.passCount())
+                    .build();
+        }
+
+    }
+
     public static TeamRes of(Team team) {
+        List<RecruitPartRes> recruitPartRes = team.getRecruitPart().stream()
+                .map(RecruitPartRes::of)
+                .toList();
+
         return TeamRes.builder()
                 .id(team.getId())
                 .memberId(team.getMember().getId())
@@ -75,6 +111,7 @@ public record TeamRes(
                 .meetingMethod(team.getMeetingMethod().getDescription())
                 .province(team.getProvince())
                 .district(team.getDistrict())
+                .recruitPart(recruitPartRes)
                 .recruitFinishedAt(team.getRecruitFinishedAt())
                 .startedAt(team.getStartedAt())
                 .finishedAt(team.getFinishedAt())

@@ -24,7 +24,6 @@ public class Scrap extends BaseTimeEntity {
     @JoinColumn(name = "team_id", nullable = false)
     private Team team;
 
-
     @Builder
     public Scrap(Team team){
         this.team = team;
