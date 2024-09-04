@@ -67,7 +67,10 @@ public record TeamRes(
     String channelLink,
 
     @Schema(description = "스크랩 수", example = "10")
-    int scrapCount
+    int scrapCount,
+
+    @Schema(description = "조회 수", example = "100")
+    int viewCount
 ) {
 
     @Builder
@@ -94,9 +97,9 @@ public record TeamRes(
     }
 
     public static TeamRes of(Team team) {
-        List<RecruitPartRes> recruitPartRes = team.getRecruitPart().stream()
+        List<RecruitPartRes> recruitPartRes = (team.getRecruitPart() != null) ? team.getRecruitPart().stream()
                 .map(RecruitPartRes::of)
-                .toList();
+                .toList() : null;
 
         return TeamRes.builder()
                 .id(team.getId())

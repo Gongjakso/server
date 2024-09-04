@@ -8,6 +8,7 @@ import com.gongjakso.server.domain.member.util.MemberUtilTest;
 import com.gongjakso.server.domain.team.dto.request.TeamReq;
 import com.gongjakso.server.domain.team.dto.response.TeamRes;
 import com.gongjakso.server.domain.team.entity.Team;
+import com.gongjakso.server.domain.team.repository.ScrapRepository;
 import com.gongjakso.server.domain.team.repository.TeamRepository;
 import com.gongjakso.server.domain.team.util.TeamUtilTest;
 import org.junit.jupiter.api.BeforeEach;
@@ -31,9 +32,12 @@ class TeamServiceTest {
     @Mock
     private ContestRepository contestRepository;
 
+    @Mock
+    private ScrapRepository scrapRepository;
+
     @BeforeEach
     void setUp() {
-        teamService = new TeamService(teamRepository, contestRepository);
+        teamService = new TeamService(teamRepository, contestRepository, scrapRepository);
     }
 
     @Test

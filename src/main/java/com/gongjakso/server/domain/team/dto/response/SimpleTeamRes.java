@@ -2,6 +2,7 @@ package com.gongjakso.server.domain.team.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.gongjakso.server.domain.team.entity.Team;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 
@@ -20,7 +21,7 @@ public record SimpleTeamRes(
     Long memberId,
 
     @Schema(description = "멤버 이름", example = "홍길동")
-    Long memberName,
+    String memberName,
 
     @Schema(description = "모집 마감일", example = "2024-12-31")
     LocalDate recruitFinishedAt,
@@ -36,18 +37,29 @@ public record SimpleTeamRes(
     int dDay,
 
     @Schema(description = "스크랩 수", example = "10")
-    int scrapCount
+    int scrapCount,
+
+    @Schema(description = "조회 수", example = "10")
+    int viewCount
 ) {
 
-//    public SimpleTeamRes(Long id, String title, Long memberId, Long memberName, LocalDate recruitFinishedAt, LocalDate startedAt, LocalDate finishedAt, int scrapCount) {
-//        this.id = id;
-//        this.title = title;
-//        this.memberId = memberId;
-//        this.memberName = memberName;
-//        this.recruitFinishedAt = recruitFinishedAt;
-//        this.startedAt = startedAt;
-//        this.finishedAt = finishedAt;
-//        this.dDay = 10; //LocalDate.now() - recruitFinishedAt;
-//        this.scrapCount = scrapCount;
-//    }
+    public static SimpleTeamRes of(Team team) {
+        int dDay = 0;
+        if (team.getRecruitFinishedAt() != null) {
+            dDay = (int) java.time.temporal.ChronoUnit.DAYS.between(LocalDate.now(), team.getRecruitFinishedAt());
+        }
+
+        return SimpleTeamRes.builder()
+            .id(team.getId())
+            .title(team.getTitle())
+            .memberId(team.getMember().getId())
+            .memberName(team.getMember().getName())
+            .recruitFinishedAt(team.getRecruitFinishedAt())
+            .startedAt(team.getStartedAt())
+            .finishedAt(team.getFinishedAt())
+            .dDay(dDay)
+            .scrapCount(team.getScrapCount())
+            .viewCount(team.getViewCount())
+            .build();
+    }
 }

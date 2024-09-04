@@ -6,7 +6,10 @@ import com.gongjakso.server.domain.member.entity.Member;
 import com.gongjakso.server.domain.team.dto.request.TeamReq;
 import com.gongjakso.server.domain.team.dto.response.SimpleTeamRes;
 import com.gongjakso.server.domain.team.dto.response.TeamRes;
+import com.gongjakso.server.domain.team.entity.Scrap;
 import com.gongjakso.server.domain.team.entity.Team;
+import com.gongjakso.server.domain.team.enumerate.TeamStatus;
+import com.gongjakso.server.domain.team.repository.ScrapRepository;
 import com.gongjakso.server.domain.team.repository.TeamRepository;
 import com.gongjakso.server.global.exception.ApplicationException;
 import com.gongjakso.server.global.exception.ErrorCode;
@@ -16,6 +19,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -23,6 +28,7 @@ public class TeamService {
 
     private final TeamRepository teamRepository;
     private final ContestRepository contestRepository;
+    private final ScrapRepository scrapRepository;
 
     @Transactional
     public TeamRes createTeam(Member member, Long contestId, TeamReq teamReq) {
@@ -61,6 +67,73 @@ public class TeamService {
     }
 
     @Transactional
+    public TeamRes extendRecruit(Member member, Long contestId, Long teamId, LocalDate extendDate) {
+        // Validation
+        contestRepository.findByIdAndDeletedAtIsNull(contestId)
+                .orElseThrow(() -> new ApplicationException(ErrorCode.CONTEST_NOT_FOUND_EXCEPTION));
+        Team team = teamRepository.findByIdAndDeletedAtIsNull(teamId)
+                .orElseThrow(() -> new ApplicationException(ErrorCode.TEAM_NOT_FOUND_EXCEPTION));
+        if (!team.getContest().getId().equals(contestId)) {
+            throw new ApplicationException(ErrorCode.INVALID_VALUE_EXCEPTION);
+        }
+        if (!team.getMember().getId().equals(member.getId())) {
+            throw new ApplicationException(ErrorCode.FORBIDDEN_EXCEPTION);
+        }
+
+        // Business Logic
+        team.updateTeamStatus(TeamStatus.EXTENSION);
+        team.extendRecruitFinishedAt(extendDate);
+        Team updatedTeam = teamRepository.save(team);
+
+        // Response
+        return TeamRes.of(updatedTeam);
+    }
+
+    @Transactional
+    public TeamRes closeRecruit(Member member, Long contestId, Long teamId) {
+        // Validation
+        contestRepository.findByIdAndDeletedAtIsNull(contestId)
+                .orElseThrow(() -> new ApplicationException(ErrorCode.CONTEST_NOT_FOUND_EXCEPTION));
+        Team team = teamRepository.findByIdAndDeletedAtIsNull(teamId)
+                .orElseThrow(() -> new ApplicationException(ErrorCode.TEAM_NOT_FOUND_EXCEPTION));
+        if (!team.getContest().getId().equals(contestId)) {
+            throw new ApplicationException(ErrorCode.INVALID_VALUE_EXCEPTION);
+        }
+        if (!team.getMember().getId().equals(member.getId())) {
+            throw new ApplicationException(ErrorCode.FORBIDDEN_EXCEPTION);
+        }
+
+        // Business Logic
+        team.updateTeamStatus(TeamStatus.CLOSED);
+        Team updatedTeam = teamRepository.save(team);
+
+        // Response
+        return TeamRes.of(updatedTeam);
+    }
+
+    @Transactional
+    public TeamRes cancelRecruit(Member member, Long contestId, Long teamId) {
+        // Validation
+        contestRepository.findByIdAndDeletedAtIsNull(contestId)
+                .orElseThrow(() -> new ApplicationException(ErrorCode.CONTEST_NOT_FOUND_EXCEPTION));
+        Team team = teamRepository.findByIdAndDeletedAtIsNull(teamId)
+                .orElseThrow(() -> new ApplicationException(ErrorCode.TEAM_NOT_FOUND_EXCEPTION));
+        if (!team.getContest().getId().equals(contestId)) {
+            throw new ApplicationException(ErrorCode.INVALID_VALUE_EXCEPTION);
+        }
+        if (!team.getMember().getId().equals(member.getId())) {
+            throw new ApplicationException(ErrorCode.FORBIDDEN_EXCEPTION);
+        }
+
+        // Business Logic
+        team.updateTeamStatus(TeamStatus.CANCELED);
+        Team updatedTeam = teamRepository.save(team);
+
+        // Response
+        return TeamRes.of(updatedTeam);
+    }
+
+    @Transactional
     public void deleteTeam(Member member, Long contestId, Long teamId) {
         // Validation
         contestRepository.findByIdAndDeletedAtIsNull(contestId)
@@ -78,6 +151,7 @@ public class TeamService {
         teamRepository.delete(team);
     }
 
+    // TODO: 조회수 관련 로직 도입 및 @Transactional 도입 필요
     public TeamRes getTeam(Long contestId, Long teamId) {
         // Validation
         contestRepository.findByIdAndDeletedAtIsNull(contestId)
@@ -89,12 +163,62 @@ public class TeamService {
         return TeamRes.of(team);
     }
 
-    public Page<SimpleTeamRes> getTeamList(Long contestId, String province, String district, Pageable pageable) {
+    public Page<SimpleTeamRes> getTeamListWithContest(Long contestId, String province, String district, Pageable pageable) {
         // Validation
         contestRepository.findByIdAndDeletedAtIsNull(contestId)
                 .orElseThrow(() -> new ApplicationException(ErrorCode.CONTEST_NOT_FOUND_EXCEPTION));
 
+        // Business Logic & Response
+        return teamRepository.findPaginationWithContest(contestId, province, district, pageable);
+    }
+
+    // TODO: Full-text Search 개선 진행 예정
+    public Page<SimpleTeamRes> getTeamListWithoutContest(String province, String district, String keyword, Pageable pageable) {
+        // Business Logic & Response
+        return teamRepository.findPaginationWithoutContest(province, district, keyword, pageable);
+    }
+
+    public Page<SimpleTeamRes> getMyRecruitTeamList(Member member, Pageable pageable) {
+        // Business Logic & Response
+        return teamRepository.findRecruitPagination(member.getId(), pageable);
+    }
+
+    // TODO: 내가 참여한 팀 리스트 조회를 위해서는 Apply Entity 필요하므로 main branch merge 이후 추가 진행 예정
+    public Page<SimpleTeamRes> getMyApplyTeamList(Member member, Pageable pageable) {
+        // Business Logic & Response
+        return teamRepository.findApplyPagination(member.getId(), pageable);
+    }
+
+    @Transactional
+    public void scrapTeam(Member member, Long teamId) {
+        // Validation
+        Team team = teamRepository.findByIdAndDeletedAtIsNull(teamId)
+                .orElseThrow(() -> new ApplicationException(ErrorCode.TEAM_NOT_FOUND_EXCEPTION));
+
+
         // Business Logic
-        return teamRepository.findPagination(contestId, province, district, pageable);
+        Scrap scrap = scrapRepository.findScrapByMemberIdAndTeamId(member.getId(), team.getId()).orElse(null);
+
+        if(scrap == null) {
+            scrapRepository.save(Scrap.builder()
+                    .member(member)
+                    .team(team)
+                    .build());
+        }
+    }
+
+    @Transactional
+    public void cancelScrapTeam(Member member, Long teamId) {
+        // Validation
+        Team team = teamRepository.findByIdAndDeletedAtIsNull(teamId)
+                .orElseThrow(() -> new ApplicationException(ErrorCode.TEAM_NOT_FOUND_EXCEPTION));
+
+        // Business Logic
+        scrapRepository.deleteScrapByMemberIdAndTeamId(member.getId(), team.getId());
+    }
+
+    public Page<SimpleTeamRes> getScrapTeamList(Member member, Pageable pageable) {
+        // Business Logic & Response
+        return teamRepository.findScrapPagination(member.getId(), pageable);
     }
 }

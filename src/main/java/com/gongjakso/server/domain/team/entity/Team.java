@@ -82,6 +82,9 @@ public class Team extends BaseTimeEntity {
     @Column(name = "scrap_count", nullable = false, columnDefinition = "int")
     private int scrapCount;
 
+    @Column(name = "view_count", nullable = false, columnDefinition = "int")
+    private int viewCount;
+
     public void update(TeamReq teamReq) {
         this.title = (teamReq.title() != null) ? teamReq.title() : this.title;
         this.body = (teamReq.body() != null) ? teamReq.body() : this.body;
@@ -93,6 +96,14 @@ public class Team extends BaseTimeEntity {
         this.startedAt = (teamReq.startedAt() != null) ? teamReq.startedAt() : this.startedAt;
         this.finishedAt = (teamReq.finishedAt() != null) ? teamReq.finishedAt() : this.finishedAt;
         this.channelLink = (teamReq.channelLink() != null) ? teamReq.channelLink() : this.channelLink;
+    }
+
+    public void extendRecruitFinishedAt(LocalDate recruitFinishedAt) {
+        this.recruitFinishedAt = recruitFinishedAt;
+    }
+
+    public void updateTeamStatus(TeamStatus teamStatus) {
+        this.status = teamStatus;
     }
 
     @Builder
@@ -125,5 +136,6 @@ public class Team extends BaseTimeEntity {
         this.finishedAt = finishedAt;
         this.channelLink = channelLink;
         this.scrapCount = 0;
+        this.viewCount = 0;
     }
 }
