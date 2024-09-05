@@ -6,6 +6,7 @@ import org.springframework.cache.concurrent.ConcurrentMapCacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+
 @EnableCaching
 @Configuration
 public class CacheConfig {
@@ -19,4 +20,5 @@ public class CacheConfig {
 
         return cacheManager;
     }
+
 }

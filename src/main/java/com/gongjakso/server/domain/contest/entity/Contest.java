@@ -37,6 +37,8 @@ public class Contest extends BaseTimeEntity {
     private LocalDate finishedAt;
     @Column(name = "img_url",columnDefinition = "text")
     private String imgUrl;
+    @Column(name = "view",columnDefinition = "bigint")
+    private int view;
 
     public void update(UpdateContestDto contest,String imgUrl){
         this.title= (contest.title()==null) ? this.title : contest.title();
@@ -48,8 +50,12 @@ public class Contest extends BaseTimeEntity {
         this.imgUrl= (imgUrl==null) ? this.imgUrl : imgUrl;
     }
 
+    public void updateView(Contest contest){
+        this.view = contest.getView() + 1;
+    }
+
     @Builder
-    public Contest(String title,String body,String contestLink,String institution,LocalDate startedAt,LocalDate finishedAt,String imgUrl){
+    public Contest(String title,String body,String contestLink,String institution,LocalDate startedAt,LocalDate finishedAt,String imgUrl,int view){
         this.title=title;
         this.body=body;
         this.contestLink=contestLink;
@@ -57,5 +63,6 @@ public class Contest extends BaseTimeEntity {
         this.startedAt=startedAt;
         this.finishedAt=finishedAt;
         this.imgUrl=imgUrl;
+        this.view=view;
     }
 }
