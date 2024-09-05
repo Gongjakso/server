@@ -8,6 +8,7 @@ import com.gongjakso.server.global.common.ApplicationResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -42,5 +43,13 @@ public class PortfolioController {
         PortfolioRes portfolioRes = PortfolioRes.from(updatedPortfolio);
 
         return ApplicationResponse.ok(portfolioRes);
+    }
+
+    @Operation(description = "포트폴리오 삭제 API")
+    @DeleteMapping("/{portfolio_id}")
+    public ApplicationResponse<Void> deletePortfolio(@PathVariable("portfolio_id") Long portfolioId) {
+        portfolioService.deletePortfolio(portfolioId);
+
+        return ApplicationResponse.ok();
     }
 }

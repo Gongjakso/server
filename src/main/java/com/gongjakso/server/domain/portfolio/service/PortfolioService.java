@@ -89,13 +89,13 @@ public class PortfolioService {
     @Transactional
     public Portfolio searchPortfolio(Long portfolioId) {
         return portfolioRepository.findById(portfolioId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 ID를 가진 포트폴리오가 없습니다: " + portfolioId));
+                .orElseThrow(() -> new IllegalArgumentException("해당 ID를 가진 포트폴리오가 없습니다. : " + portfolioId));
     }
 
     @Transactional
     public Portfolio updatePortfolio(Long portfolioId, PortfolioReq portfolioReq) {
         Portfolio portfolio = portfolioRepository.findById(portfolioId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 ID를 가진 포트폴리오가 없습니다: " + portfolioId));
+                .orElseThrow(() -> new IllegalArgumentException("해당 ID를 가진 포트폴리오가 없습니다. : " + portfolioId));
 
         PortfolioData currentData = portfolio.getPortfolioData();
 
@@ -169,5 +169,12 @@ public class PortfolioService {
         portfolio.update(updatedData);
 
         return portfolioRepository.save(portfolio);
+    }
+
+    @Transactional
+    public void deletePortfolio(Long portfolioId) {
+        Portfolio portfolio = portfolioRepository.findById(portfolioId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 ID를 가진 포트폴리오가 없습니다. : " + portfolioId));
+        portfolioRepository.delete(portfolio);
     }
 }
