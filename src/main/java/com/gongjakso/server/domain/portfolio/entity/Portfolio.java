@@ -32,4 +32,8 @@ public class Portfolio extends BaseTimeEntity {
     public Portfolio(PortfolioData portfolioData) {
         this.portfolioData = portfolioData;
     }
+
+    public void update(PortfolioData updatedData) {
+        this.portfolioData = updatedData;
+    }
 }

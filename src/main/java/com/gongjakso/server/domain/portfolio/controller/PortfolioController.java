@@ -1,6 +1,7 @@
 package com.gongjakso.server.domain.portfolio.controller;
 
 import com.gongjakso.server.domain.portfolio.dto.request.PortfolioReq;
+import com.gongjakso.server.domain.portfolio.dto.response.PortfolioRes;
 import com.gongjakso.server.domain.portfolio.entity.Portfolio;
 import com.gongjakso.server.domain.portfolio.service.PortfolioService;
 import com.gongjakso.server.global.common.ApplicationResponse;
@@ -10,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -31,5 +33,14 @@ public class PortfolioController {
     @GetMapping("/{portfolio_id}")
     public ApplicationResponse<Portfolio> searchPortfolio(@PathVariable("portfolio_id") Long portfolioId) {
         return ApplicationResponse.ok(portfolioService.searchPortfolio(portfolioId));
+    }
+
+    @Operation(description = "포트폴리오 수정 API")
+    @PutMapping("/{portfolio_id}")
+    public ApplicationResponse<PortfolioRes> updatePortfolio(@PathVariable("portfolio_id") Long portfolioId, @Valid @RequestBody PortfolioReq portfolioReq) {
+        Portfolio updatedPortfolio = portfolioService.updatePortfolio(portfolioId, portfolioReq);
+        PortfolioRes portfolioRes = PortfolioRes.from(updatedPortfolio);
+
+        return ApplicationResponse.ok(portfolioRes);
     }
 }

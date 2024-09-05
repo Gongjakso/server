@@ -91,4 +91,83 @@ public class PortfolioService {
         return portfolioRepository.findById(portfolioId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 ID를 가진 포트폴리오가 없습니다: " + portfolioId));
     }
+
+    @Transactional
+    public Portfolio updatePortfolio(Long portfolioId, PortfolioReq portfolioReq) {
+        Portfolio portfolio = portfolioRepository.findById(portfolioId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 ID를 가진 포트폴리오가 없습니다: " + portfolioId));
+
+        PortfolioData currentData = portfolio.getPortfolioData();
+
+        List<PortfolioData.Education> updatedEducationList = (portfolioReq.educationList() != null)
+                ? portfolioReq.educationList().stream()
+                .map(education -> new PortfolioData.Education(
+                        education.school(),
+                        education.grade(),
+                        education.isActive()
+                ))
+                .toList()
+                : currentData.educationList();
+
+        List<PortfolioData.Work> updatedWorkList = (portfolioReq.workList() != null)
+                ? portfolioReq.workList().stream()
+                .map(work -> new PortfolioData.Work(
+                        work.company(),
+                        work.partition(),
+                        work.enteredAt(),
+                        work.exitedAt(),
+                        work.isActive(),
+                        work.detail()
+                ))
+                .toList()
+                : currentData.workList();
+
+        List<PortfolioData.Activity> updatedActivityList = (portfolioReq.activityList() != null)
+                ? portfolioReq.activityList().stream()
+                .map(activity -> new PortfolioData.Activity(
+                        activity.name(),
+                        activity.isActive()
+                ))
+                .toList()
+                : currentData.activityList();
+
+        List<PortfolioData.Award> updatedAwardList = (portfolioReq.awardList() != null)
+                ? portfolioReq.awardList().stream()
+                .map(award -> new PortfolioData.Award(
+                        award.contestName(),
+                        award.awardName(),
+                        award.awardDate()
+                ))
+                .toList()
+                : currentData.awardList();
+
+        List<PortfolioData.Certificate> updatedCertificateList = (portfolioReq.certificateList() != null)
+                ? portfolioReq.certificateList().stream()
+                .map(certificate -> new PortfolioData.Certificate(
+                        certificate.name(),
+                        certificate.rating(),
+                        certificate.certificationDate()
+                ))
+                .toList()
+                : currentData.certificateList();
+
+        List<PortfolioData.Sns> updatedSnsList = (portfolioReq.snsList() != null)
+                ? portfolioReq.snsList().stream()
+                .map(sns -> new PortfolioData.Sns(sns.snsLink()))
+                .toList()
+                : currentData.snsList();
+
+        PortfolioData updatedData = new PortfolioData(
+                updatedEducationList,
+                updatedWorkList,
+                updatedActivityList,
+                updatedAwardList,
+                updatedCertificateList,
+                updatedSnsList
+        );
+
+        portfolio.update(updatedData);
+
+        return portfolioRepository.save(portfolio);
+    }
 }
