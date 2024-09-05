@@ -7,6 +7,8 @@ import com.gongjakso.server.global.common.ApplicationResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -23,5 +25,11 @@ public class PortfolioController {
     @PostMapping("")
     public ApplicationResponse<Portfolio> registerPortfolio(@Valid @RequestBody PortfolioReq portfolioReq) {
         return ApplicationResponse.ok(portfolioService.registerPortfolio(portfolioReq));
+    }
+
+    @Operation(description = "포트폴리오 상세 조회 API")
+    @GetMapping("/{portfolio_id}")
+    public ApplicationResponse<Portfolio> searchPortfolio(@PathVariable("portfolio_id") Long portfolioId) {
+        return ApplicationResponse.ok(portfolioService.searchPortfolio(portfolioId));
     }
 }
