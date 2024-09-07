@@ -1,6 +1,7 @@
 package com.gongjakso.server.domain.portfolio.service;
 
 import com.gongjakso.server.domain.portfolio.dto.request.PortfolioReq;
+import com.gongjakso.server.domain.portfolio.dto.response.PortfolioRes;
 import com.gongjakso.server.domain.portfolio.entity.Portfolio;
 import com.gongjakso.server.domain.portfolio.vo.PortfolioData;
 import com.gongjakso.server.domain.portfolio.vo.PortfolioData.Award;
@@ -93,7 +94,7 @@ public class PortfolioService {
     }
 
     @Transactional
-    public Portfolio updatePortfolio(Long portfolioId, PortfolioReq portfolioReq) {
+    public PortfolioRes updatePortfolio(Long portfolioId, PortfolioReq portfolioReq) {
         Portfolio portfolio = portfolioRepository.findById(portfolioId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 ID를 가진 포트폴리오가 없습니다. : " + portfolioId));
 
@@ -167,8 +168,9 @@ public class PortfolioService {
         );
 
         portfolio.update(updatedData);
+        Portfolio updatedPortfolio = portfolioRepository.save(portfolio);
 
-        return portfolioRepository.save(portfolio);
+        return PortfolioRes.from(updatedPortfolio);
     }
 
     @Transactional

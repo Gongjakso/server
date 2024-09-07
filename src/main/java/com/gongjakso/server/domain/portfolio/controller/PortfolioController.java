@@ -39,10 +39,7 @@ public class PortfolioController {
     @Operation(description = "포트폴리오 수정 API")
     @PutMapping("/{portfolio_id}")
     public ApplicationResponse<PortfolioRes> updatePortfolio(@PathVariable("portfolio_id") Long portfolioId, @Valid @RequestBody PortfolioReq portfolioReq) {
-        Portfolio updatedPortfolio = portfolioService.updatePortfolio(portfolioId, portfolioReq);
-        PortfolioRes portfolioRes = PortfolioRes.from(updatedPortfolio);
-
-        return ApplicationResponse.ok(portfolioRes);
+        return ApplicationResponse.ok(portfolioService.updatePortfolio(portfolioId, portfolioReq));
     }
 
     @Operation(description = "포트폴리오 삭제 API")
