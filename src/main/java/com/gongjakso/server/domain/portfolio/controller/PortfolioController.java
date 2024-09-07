@@ -32,8 +32,8 @@ public class PortfolioController {
 
     @Operation(description = "포트폴리오 상세 조회 API")
     @GetMapping("/{portfolio_id}")
-    public ApplicationResponse<Portfolio> searchPortfolio(@PathVariable("portfolio_id") Long portfolioId) {
-        return ApplicationResponse.ok(portfolioService.searchPortfolio(portfolioId));
+    public ApplicationResponse<Portfolio> getPortfolio(@PathVariable("portfolio_id") Long portfolioId) {
+        return ApplicationResponse.ok(portfolioService.getPortfolio(portfolioId));
     }
 
     @Operation(description = "포트폴리오 수정 API")

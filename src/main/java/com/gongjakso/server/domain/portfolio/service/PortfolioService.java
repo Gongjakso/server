@@ -87,7 +87,7 @@ public class PortfolioService {
     }
 
     @Transactional
-    public Portfolio searchPortfolio(Long portfolioId) {
+    public Portfolio getPortfolio(Long portfolioId) {
         return portfolioRepository.findById(portfolioId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 ID를 가진 포트폴리오가 없습니다. : " + portfolioId));
     }
