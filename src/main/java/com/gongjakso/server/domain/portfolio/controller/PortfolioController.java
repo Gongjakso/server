@@ -26,13 +26,13 @@ public class PortfolioController {
 
     @Operation(description = "포트폴리오 등록 API")
     @PostMapping("")
-    public ApplicationResponse<Portfolio> registerPortfolio(@Valid @RequestBody PortfolioReq portfolioReq) {
+    public ApplicationResponse<PortfolioRes> registerPortfolio(@Valid @RequestBody PortfolioReq portfolioReq) {
         return ApplicationResponse.ok(portfolioService.registerPortfolio(portfolioReq));
     }
 
     @Operation(description = "포트폴리오 상세 조회 API")
     @GetMapping("/{portfolio_id}")
-    public ApplicationResponse<Portfolio> getPortfolio(@PathVariable("portfolio_id") Long portfolioId) {
+    public ApplicationResponse<PortfolioRes> getPortfolio(@PathVariable("portfolio_id") Long portfolioId) {
         return ApplicationResponse.ok(portfolioService.getPortfolio(portfolioId));
     }
 

@@ -24,7 +24,7 @@ public class PortfolioService {
     private final PortfolioRepository portfolioRepository;
 
     @Transactional
-    public Portfolio registerPortfolio(PortfolioReq portfolioReq) {
+    public PortfolioRes registerPortfolio(PortfolioReq portfolioReq) {
         List<Education> educationList = portfolioReq.educationList() != null
                 ? portfolioReq.educationList().stream()
                 .map(education -> new Education(
@@ -84,13 +84,17 @@ public class PortfolioService {
                 .portfolioData(portfolioData)
                 .build();
 
-        return portfolioRepository.save(portfolio);
+        Portfolio savedPortfolio = portfolioRepository.save(portfolio);
+
+        return PortfolioRes.from(savedPortfolio);
     }
 
     @Transactional
-    public Portfolio getPortfolio(Long portfolioId) {
-        return portfolioRepository.findById(portfolioId)
+    public PortfolioRes getPortfolio(Long portfolioId) {
+        Portfolio portfolio = portfolioRepository.findById(portfolioId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 ID를 가진 포트폴리오가 없습니다. : " + portfolioId));
+
+        return PortfolioRes.from(portfolio);
     }
 
     @Transactional
