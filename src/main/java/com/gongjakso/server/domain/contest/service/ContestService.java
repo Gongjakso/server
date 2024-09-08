@@ -12,6 +12,9 @@ import com.gongjakso.server.domain.member.enumerate.MemberType;
 import com.gongjakso.server.global.exception.ApplicationException;
 import com.gongjakso.server.global.exception.ErrorCode;
 import com.gongjakso.server.global.util.s3.S3Client;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -29,7 +32,7 @@ public class ContestService {
     private final ContestRepository contestRepository;
     private final S3Client s3Client;
 
-    private  final String S3_CONTEST_DIR_NAME = "contest";
+    private final String S3_CONTEST_DIR_NAME = "contest";
 
 
     @Transactional
@@ -53,14 +56,18 @@ public class ContestService {
                 .startedAt(contestReq.startedAt())
                 .finishedAt(contestReq.finishedAt())
                 .imgUrl(s3Url)
+                .view(0)
                 .build();
         contestRepository.save(contest);
     }
 
     @Transactional
-    public ContestRes find(Long id){
+    public ContestRes find(Long id, HttpServletRequest request, HttpServletResponse response){
         //Vaildation
         Contest contest = contestRepository.findById(id).orElseThrow(()-> new ApplicationException(ErrorCode.NOT_FOUND_EXCEPTION));
+        //Business
+        //조회수 업데이트
+        updateView(contest,request,response);
         //Response
         return ContestRes.of(contest);
     }
@@ -97,12 +104,36 @@ public class ContestService {
     }
 
     @Transactional
-    public ContestListRes search(String word, String arrange, Pageable pageable){
+    public ContestListRes search(String word, String sortAt, Pageable pageable){
         //Business
-        Page<Contest> contestPage = contestRepository.searchList(word, arrange, pageable);
+        Page<Contest> contestPage = contestRepository.searchList(word, sortAt, pageable);
         List<ContestCard> list = new ArrayList<>();
-        contestPage.getContent().forEach(contest-> list.add(ContestCard.of(contest,1)));
+        contestPage.getContent().forEach(contest-> list.add(ContestCard.of(contest)));
         //Response
         return ContestListRes.of(list,contestPage.getNumber(),contestPage.getTotalElements(), contestPage.getTotalPages());
+    }
+
+    public void updateView(Contest contest, HttpServletRequest request, HttpServletResponse response) {
+        boolean hasViewed = false;
+        Cookie[] cookies = request.getCookies();
+
+        String COOKIE_NAME = "contest_view";
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if (cookie.getName().equals(COOKIE_NAME)) {
+                    hasViewed = true;
+                    break;
+                }
+            }
+        }
+
+        if (!hasViewed) {
+            contest.updateView(contest);
+            // 세션 쿠키 설정
+            Cookie newCookie = new Cookie(COOKIE_NAME, "viewed");
+            newCookie.setMaxAge(-1); // 브라우저 세션이 끝날 때까지 유효
+            newCookie.setPath("/");
+            response.addCookie(newCookie);
+        }
     }
 }

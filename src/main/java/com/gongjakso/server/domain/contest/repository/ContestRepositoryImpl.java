@@ -24,12 +24,12 @@ public class ContestRepositoryImpl implements ContestRepositoryCustom{
     //최신순으로 정렬
     //제목,본문 기준으로 검색
     @Override
-    public Page<Contest> searchList(String word, String arrange, Pageable pageable) {
+    public Page<Contest> searchList(String word, String sortAt, Pageable pageable) {
         List<Contest> contestList = queryFactory
                 .selectDistinct(contest)
                 .from(contest)
                 .where(wordEq(word))
-                .orderBy(arg(arrange))
+                .orderBy(arg(sortAt))
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();
@@ -42,10 +42,10 @@ public class ContestRepositoryImpl implements ContestRepositoryCustom{
         return new PageImpl<>(contestList,pageable,total);
     }
 
-    private OrderSpecifier<?> arg(String arrange){
-//        if("A".equals(arrange)){
-//            return //조회순
-//        }
+    private OrderSpecifier<?> arg(String sortAt){
+        if("VIEW".equals(sortAt)){
+            return contest.view.asc();//조회순
+        }
         return contest.createdAt.desc(); //최신순
     }
 
