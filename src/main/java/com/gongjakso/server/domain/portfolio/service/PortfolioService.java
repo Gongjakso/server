@@ -1,5 +1,8 @@
 package com.gongjakso.server.domain.portfolio.service;
 
+import static com.gongjakso.server.domain.member.entity.QMember.member;
+
+import com.gongjakso.server.domain.member.entity.Member;
 import com.gongjakso.server.domain.portfolio.dto.request.PortfolioReq;
 import com.gongjakso.server.domain.portfolio.dto.response.PortfolioRes;
 import com.gongjakso.server.domain.portfolio.entity.Portfolio;
@@ -11,6 +14,9 @@ import com.gongjakso.server.domain.portfolio.vo.PortfolioData.Education;
 import com.gongjakso.server.domain.portfolio.vo.PortfolioData.Sns;
 import com.gongjakso.server.domain.portfolio.vo.PortfolioData.Work;
 import com.gongjakso.server.domain.portfolio.repository.PortfolioRepository;
+import com.gongjakso.server.global.exception.ApplicationException;
+import com.gongjakso.server.global.exception.ErrorCode;
+import com.gongjakso.server.global.security.PrincipalDetails;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -102,7 +108,7 @@ public class PortfolioService {
     @Transactional
     public PortfolioRes getPortfolio(Long portfolioId) {
         Portfolio portfolio = portfolioRepository.findById(portfolioId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 ID를 가진 포트폴리오가 없습니다. : " + portfolioId));
+                .orElseThrow(() -> new ApplicationException(ErrorCode.PORTFOLIO_NOT_FOUND_EXCEPTION));
 
         return PortfolioRes.from(portfolio);
     }
@@ -110,7 +116,7 @@ public class PortfolioService {
     @Transactional
     public PortfolioRes updatePortfolio(Long portfolioId, PortfolioReq portfolioReq) {
         Portfolio portfolio = portfolioRepository.findById(portfolioId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 ID를 가진 포트폴리오가 없습니다. : " + portfolioId));
+                .orElseThrow(() -> new ApplicationException(ErrorCode.PORTFOLIO_NOT_FOUND_EXCEPTION));
 
         PortfolioData updatedPortfolioData = convertToPortfolioData(portfolioReq);
         portfolio.update(updatedPortfolioData);
@@ -122,7 +128,7 @@ public class PortfolioService {
     @Transactional
     public void deletePortfolio(Long portfolioId) {
         Portfolio portfolio = portfolioRepository.findById(portfolioId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 ID를 가진 포트폴리오가 없습니다. : " + portfolioId));
+                .orElseThrow(() -> new ApplicationException(ErrorCode.PORTFOLIO_NOT_FOUND_EXCEPTION));
         portfolioRepository.delete(portfolio);
     }
 }

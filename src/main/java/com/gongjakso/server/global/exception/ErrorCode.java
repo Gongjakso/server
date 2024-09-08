@@ -33,9 +33,13 @@ public enum ErrorCode {
 
     // 5000: Team Error
     TEAM_NOT_FOUND_EXCEPTION(HttpStatus.NOT_FOUND, 5000, "존재하지 않는 팀입니다."),
-    INVALID_POSITION_EXCEPTION(HttpStatus.BAD_REQUEST, 5001, "올바르지 않은 포지션입니다.");
+    INVALID_POSITION_EXCEPTION(HttpStatus.BAD_REQUEST, 5001, "올바르지 않은 포지션입니다."),
 
     // 6000: Portfolio Error
+    PORTFOLIO_NOT_FOUND_EXCEPTION(HttpStatus.NOT_FOUND, 6000, "포트폴리오를 찾을 수 없습니다."),
+    PORTFOLIO_SAVE_FAILED_EXCEPTION(HttpStatus.INTERNAL_SERVER_ERROR, 6001, "포트폴리오 저장에 실패했습니다."),
+    PORTFOLIO_UPDATE_FAILED_EXCEPTION(HttpStatus.INTERNAL_SERVER_ERROR, 6002, "포트폴리오 수정에 실패했습니다."),
+    INVALID_PORTFOLIO_REQUEST_EXCEPTION(HttpStatus.BAD_REQUEST, 6003, "유효하지 않은 포트폴리오 요청입니다.");
 
     private final HttpStatus httpStatus;
     private final Integer code;
