@@ -95,9 +95,13 @@ public class PortfolioService {
     }
 
     @Transactional
-    public PortfolioRes registerPortfolio(PortfolioReq portfolioReq) {
+    public PortfolioRes registerPortfolio(Member member, PortfolioReq portfolioReq) {
+        if (member == null) {
+            throw new ApplicationException(ErrorCode.UNAUTHORIZED_EXCEPTION);
+        }
         PortfolioData portfolioData = convertToPortfolioData(portfolioReq);
         Portfolio portfolio = Portfolio.builder()
+                .member(member)
                 .portfolioData(portfolioData)
                 .build();
         Portfolio savedPortfolio = portfolioRepository.save(portfolio);
@@ -106,18 +110,23 @@ public class PortfolioService {
     }
 
     @Transactional
-    public PortfolioRes getPortfolio(Long portfolioId) {
+    public PortfolioRes getPortfolio(Member member, Long portfolioId) {
         Portfolio portfolio = portfolioRepository.findById(portfolioId)
                 .orElseThrow(() -> new ApplicationException(ErrorCode.PORTFOLIO_NOT_FOUND_EXCEPTION));
+        if (!portfolio.getMember().getId().equals(member.getId())) {
+            throw new ApplicationException(ErrorCode.FORBIDDEN_EXCEPTION);
+        }
 
         return PortfolioRes.from(portfolio);
     }
 
     @Transactional
-    public PortfolioRes updatePortfolio(Long portfolioId, PortfolioReq portfolioReq) {
+    public PortfolioRes updatePortfolio(Member member, Long portfolioId, PortfolioReq portfolioReq) {
         Portfolio portfolio = portfolioRepository.findById(portfolioId)
                 .orElseThrow(() -> new ApplicationException(ErrorCode.PORTFOLIO_NOT_FOUND_EXCEPTION));
-
+        if (!portfolio.getMember().getId().equals(member.getId())) {
+            throw new ApplicationException(ErrorCode.FORBIDDEN_EXCEPTION);
+        }
         PortfolioData updatedPortfolioData = convertToPortfolioData(portfolioReq);
         portfolio.update(updatedPortfolioData);
         Portfolio updatedPortfolio = portfolioRepository.save(portfolio);
@@ -126,9 +135,12 @@ public class PortfolioService {
     }
 
     @Transactional
-    public void deletePortfolio(Long portfolioId) {
+    public void deletePortfolio(Member member, Long portfolioId) {
         Portfolio portfolio = portfolioRepository.findById(portfolioId)
                 .orElseThrow(() -> new ApplicationException(ErrorCode.PORTFOLIO_NOT_FOUND_EXCEPTION));
+        if (!portfolio.getMember().getId().equals(member.getId())) {
+            throw new ApplicationException(ErrorCode.FORBIDDEN_EXCEPTION);
+        }
         portfolioRepository.delete(portfolio);
     }
 }

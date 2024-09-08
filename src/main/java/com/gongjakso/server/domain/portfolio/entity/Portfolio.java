@@ -1,5 +1,6 @@
 package com.gongjakso.server.domain.portfolio.entity;
 
+import com.gongjakso.server.domain.member.entity.Member;
 import com.gongjakso.server.domain.portfolio.vo.PortfolioData;
 import com.gongjakso.server.global.common.BaseTimeEntity;
 import jakarta.persistence.*;
@@ -24,12 +25,17 @@ public class Portfolio extends BaseTimeEntity {
     @Column(name = "portfolio_id", nullable = false, columnDefinition = "bigint")
     private Long id;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "member_id")
+    private Member member;
+
     @Column(name = "portfolio_data", columnDefinition = "json")
     @JdbcTypeCode(SqlTypes.JSON)
     private PortfolioData portfolioData;
 
     @Builder
-    public Portfolio(PortfolioData portfolioData) {
+    public Portfolio(Member member, PortfolioData portfolioData) {
+        this.member = member;
         this.portfolioData = portfolioData;
     }
 
