@@ -32,7 +32,7 @@ public class Apply extends BaseTimeEntity {
         private Member member;
 
         @OneToOne(fetch = FetchType.LAZY)
-        @JoinColumn(name = "id", columnDefinition = "bigint")
+        @JoinColumn(name = "portfolio_id", columnDefinition = "bigint")
         private Portfolio portfolio;
 
         @Column(nullable = false, columnDefinition = "varchar(500)")
@@ -63,7 +63,7 @@ public class Apply extends BaseTimeEntity {
                 this.status = status;
         }
 
-        public void setViewed(boolean isViewed) {
-                this.isViewed = isViewed;
+        public void setViewed() {
+                this.isViewed = true;
         }
 }

@@ -7,9 +7,10 @@ import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Builder;
-import org.springframework.data.domain.Page;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.Period;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder
@@ -38,6 +39,14 @@ public record ApplyRes(
         @NotNull
         String part,
 
+        int scrapCount,
+
+        int remainingDays,
+
+        LocalDate startedAt,
+
+        LocalDate finishedAt,
+
         String teamName,
 
         String leaderName,
@@ -48,31 +57,22 @@ public record ApplyRes(
 
 ) {
     public static ApplyRes of(Apply apply) {
-        //teamName, leaderName 추가 필요
         return ApplyRes.builder()
                 .applyId(apply.getId())
                 .teamId(apply.getTeam().getId())
+                .teamName(apply.getTeam().getTitle())
                 .memberId(apply.getMember().getId())
+                .leaderName(apply.getTeam().getMember().getName())
                 .portfolioId(apply.getPortfolio() != null ? apply.getPortfolio().getId() : null)
                 .body(apply.getBody())
                 .status(apply.getStatus())
                 .part(apply.getPart())
                 .isViewed(apply.isViewed())
                 .deleteAt(apply.getDeletedAt())
+                .scrapCount(apply.getTeam().getScrapCount())
+                .startedAt(apply.getTeam().getStartedAt())
+                .finishedAt(apply.getTeam().getFinishedAt())
+                .remainingDays(Period.between(LocalDate.now(), apply.getTeam().getFinishedAt()).getDays())
                 .build();
-    }
-
-
-    // 스크랩 수, 남은 날짜, 팀 시작일, 팀 종료일, 팀 이름, 팀 리더 이름 추가 필요
-    public static Page<ApplyRes> toPagination(Page<Apply> applyPage) {
-        return applyPage.map(apply -> ApplyRes.builder()
-                .applyId(apply.getId())
-                .teamId(apply.getTeam().getId())
-                .memberId(apply.getMember().getId())
-                .portfolioId(apply.getPortfolio() != null ? apply.getPortfolio().getId() : null)
-                .body(apply.getBody())
-                .status(apply.getStatus())
-                .part(apply.getPart())
-                .build());
     }
 }

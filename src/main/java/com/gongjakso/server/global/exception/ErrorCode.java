@@ -38,20 +38,13 @@ public enum ErrorCode {
     INVALID_POSITION_EXCEPTION(HttpStatus.BAD_REQUEST, 5001, "올바르지 않은 포지션입니다."),
 
     // 6000: Portfolio Error
+    PORTFOLIO_NOT_FOUND_EXCEPTION(HttpStatus.NOT_FOUND, 6000, "존재하지 않는 포트폴리오입니다."),
 
     //7000: Apply Error
-    NOT_APPLY_EXCEPTION(HttpStatus.BAD_REQUEST,7000,"지원 기간 지났습니다"),
-    NOT_FOUND_POST_EXCEPTION(HttpStatus.NOT_FOUND,7001,"존재하지 않는 글입니다."),
-    NOT_FOUND_APPLY_EXCEPTION(HttpStatus.NOT_FOUND,7002,"존재하지 않는 지원서입니다."),
-    ALREADY_APPLY_EXCEPTION(HttpStatus.BAD_REQUEST,7003,"이미 지원했습니다."),
-    ALREADY_DECISION_EXCEPION(HttpStatus.BAD_REQUEST,7004,"이미 지원 결정했습니다."),
-    NOT_RECRUITING_EXCEPION(HttpStatus.BAD_REQUEST,7005,"이 공고는 모집 중이 아닙니다."),
-    NOT_FOUND_CATEGORY_EXCEPTION(HttpStatus.NOT_FOUND,7006,"카테고리가 없습니다"),
-    OVER_APPLY_EXCEPTION(HttpStatus.NOT_FOUND,7007,"지원 파트 정원이 찼습니다."),
-    INVALID_STACK_TYPE_EXCEPTION(HttpStatus.NOT_FOUND,7008,"기술 스택 없습니다"),
-    FINISHED_TEAM_APPLY_EXCEPTION(HttpStatus.BAD_REQUEST,7009,"모집 기간이 마감된 팀입니다."),
-    NOT_FOUND_PORTFOLIO_EXCEPTION(HttpStatus.NOT_FOUND,7010,"존재하지 않는 포트폴리오입니다."),
-    LEADER_APPLY_EXCEPTION(HttpStatus.BAD_REQUEST,7011,"팀장은 지원할 수 없습니다.");
+    APPLY_PERIOD_EXPIRED_EXCEPTION(HttpStatus.BAD_REQUEST,7000,"지원 기간이 지났습니다"),
+    APPLY_NOT_FOUND_EXCEPTION(HttpStatus.NOT_FOUND,7002,"존재하지 않는 지원서입니다."),
+    APPLY_ALREADY_EXISTS_EXCEPTION(HttpStatus.BAD_REQUEST, 7003, "이미 지원했습니다."),
+    APPLY_LEADER_NOT_ALLOWED_EXCEPTION(HttpStatus.BAD_REQUEST, 7011, "팀장은 지원할 수 없습니다.");
 
     private final HttpStatus httpStatus;
     private final Integer code;

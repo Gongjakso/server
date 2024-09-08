@@ -1,7 +1,6 @@
 package com.gongjakso.server.domain.team.repository;
 
 import com.gongjakso.server.domain.team.dto.response.SimpleTeamRes;
-import com.gongjakso.server.domain.team.entity.QTeam;
 import com.gongjakso.server.domain.team.entity.Team;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -23,7 +22,6 @@ public class TeamRepositoryImpl implements TeamRepositoryCustom {
     private final JPAQueryFactory queryFactory;
 
     public Optional<Team> findTeamById(Long id) {
-        QTeam team = QTeam.team;
         return Optional.ofNullable(queryFactory
                 .selectFrom(team)
                 .where(team.id.eq(id)
