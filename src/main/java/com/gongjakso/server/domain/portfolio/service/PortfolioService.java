@@ -1,22 +1,13 @@
 package com.gongjakso.server.domain.portfolio.service;
 
-import static com.gongjakso.server.domain.member.entity.QMember.member;
-
 import com.gongjakso.server.domain.member.entity.Member;
 import com.gongjakso.server.domain.portfolio.dto.request.PortfolioReq;
 import com.gongjakso.server.domain.portfolio.dto.response.PortfolioRes;
 import com.gongjakso.server.domain.portfolio.entity.Portfolio;
 import com.gongjakso.server.domain.portfolio.vo.PortfolioData;
-import com.gongjakso.server.domain.portfolio.vo.PortfolioData.Award;
-import com.gongjakso.server.domain.portfolio.vo.PortfolioData.Activity;
-import com.gongjakso.server.domain.portfolio.vo.PortfolioData.Certificate;
-import com.gongjakso.server.domain.portfolio.vo.PortfolioData.Education;
-import com.gongjakso.server.domain.portfolio.vo.PortfolioData.Sns;
-import com.gongjakso.server.domain.portfolio.vo.PortfolioData.Work;
 import com.gongjakso.server.domain.portfolio.repository.PortfolioRepository;
 import com.gongjakso.server.global.exception.ApplicationException;
 import com.gongjakso.server.global.exception.ErrorCode;
-import com.gongjakso.server.global.security.PrincipalDetails;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -109,7 +100,6 @@ public class PortfolioService {
         return PortfolioRes.from(savedPortfolio);
     }
 
-    @Transactional
     public PortfolioRes getPortfolio(Member member, Long portfolioId) {
         Portfolio portfolio = portfolioRepository.findByIdAndDeletedAtIsNull(portfolioId)
                 .orElseThrow(() -> new ApplicationException(ErrorCode.PORTFOLIO_NOT_FOUND_EXCEPTION));
