@@ -128,6 +128,9 @@ public class PortfolioService {
     public void deletePortfolio(Member member, Long portfolioId) {
         Portfolio portfolio = portfolioRepository.findById(portfolioId)
                 .orElseThrow(() -> new ApplicationException(ErrorCode.PORTFOLIO_NOT_FOUND_EXCEPTION));
+        if (portfolio.getDeletedAt() != null) {
+            throw new ApplicationException(ErrorCode.ALREADY_DELETE_EXCEPTION);
+        }
         if (!portfolio.getMember().getId().equals(member.getId())) {
             throw new ApplicationException(ErrorCode.FORBIDDEN_EXCEPTION);
         }
