@@ -21,14 +21,12 @@ public enum ErrorCode {
     FORBIDDEN_EXCEPTION(HttpStatus.FORBIDDEN, 2005, "인가되지 않는 요청입니다."),
     ALREADY_EXIST_EXCEPTION(HttpStatus.BAD_REQUEST, 2006, "이미 존재하는 리소스입니다."),
 
-
     // 3000: Auth Error
     KAKAO_TOKEN_EXCEPTION(HttpStatus.INTERNAL_SERVER_ERROR, 3000, "토큰 발급에서 오류가 발생했습니다."),
     KAKAO_USER_EXCEPTION(HttpStatus.INTERNAL_SERVER_ERROR, 3001, "카카오 프로필 정보를 가져오는 과정에서 오류가 발생했습니디."),
     WRONG_TOKEN_EXCEPTION(HttpStatus.UNAUTHORIZED, 3002, "유효하지 않은 토큰입니다."),
     LOGOUT_TOKEN_EXCEPTION(HttpStatus.UNAUTHORIZED, 3003, "로그아웃된 토큰입니다"),
     WRONG_TOKEN(HttpStatus.UNAUTHORIZED, 3004, "유효하지 않은 토큰입니다."),
-
 
     // 4000: Contest Error
     CONTEST_NOT_FOUND_EXCEPTION(HttpStatus.NOT_FOUND, 4000, "존재하지 않는 공모전입니다."),
@@ -38,7 +36,10 @@ public enum ErrorCode {
     INVALID_POSITION_EXCEPTION(HttpStatus.BAD_REQUEST, 5001, "올바르지 않은 포지션입니다."),
 
     // 6000: Portfolio Error
-    PORTFOLIO_NOT_FOUND_EXCEPTION(HttpStatus.NOT_FOUND, 6000, "존재하지 않는 포트폴리오입니다."),
+    PORTFOLIO_NOT_FOUND_EXCEPTION(HttpStatus.NOT_FOUND, 6000, "포트폴리오를 찾을 수 없습니다."),
+    PORTFOLIO_SAVE_FAILED_EXCEPTION(HttpStatus.INTERNAL_SERVER_ERROR, 6001, "포트폴리오 저장에 실패했습니다."),
+    PORTFOLIO_UPDATE_FAILED_EXCEPTION(HttpStatus.INTERNAL_SERVER_ERROR, 6002, "포트폴리오 수정에 실패했습니다."),
+    INVALID_PORTFOLIO_REQUEST_EXCEPTION(HttpStatus.BAD_REQUEST, 6003, "유효하지 않은 포트폴리오 요청입니다."),
 
     //7000: Apply Error
     APPLY_PERIOD_EXPIRED_EXCEPTION(HttpStatus.BAD_REQUEST,7000,"지원 기간이 지났습니다"),
