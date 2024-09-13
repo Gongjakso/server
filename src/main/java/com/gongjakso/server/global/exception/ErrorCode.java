@@ -44,9 +44,9 @@ public enum ErrorCode {
 
     //7000: Apply Error
     APPLY_PERIOD_EXPIRED_EXCEPTION(HttpStatus.BAD_REQUEST,7000,"지원 기간이 지났습니다"),
-    APPLY_NOT_FOUND_EXCEPTION(HttpStatus.NOT_FOUND,7002,"존재하지 않는 지원서입니다."),
-    APPLY_ALREADY_EXISTS_EXCEPTION(HttpStatus.BAD_REQUEST, 7003, "이미 지원했습니다."),
-    APPLY_LEADER_NOT_ALLOWED_EXCEPTION(HttpStatus.BAD_REQUEST, 7011, "팀장은 지원할 수 없습니다.");
+    APPLY_NOT_FOUND_EXCEPTION(HttpStatus.NOT_FOUND,7001,"존재하지 않는 지원서입니다."),
+    APPLY_ALREADY_EXISTS_EXCEPTION(HttpStatus.BAD_REQUEST, 7002, "이미 지원했습니다."),
+    APPLY_LEADER_NOT_ALLOWED_EXCEPTION(HttpStatus.BAD_REQUEST, 7003, "팀장은 지원할 수 없습니다.");
 
     private final HttpStatus httpStatus;
     private final Integer code;
