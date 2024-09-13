@@ -1,9 +1,8 @@
-package com.gongjakso.server.domain.team.controller;
+package com.gongjakso.server.domain.apply.controller;
 
-import com.gongjakso.server.domain.member.repository.MemberRepository;
-import com.gongjakso.server.domain.team.ApplyService;
-import com.gongjakso.server.domain.team.dto.ApplyReq;
-import com.gongjakso.server.domain.team.dto.ApplyRes;
+import com.gongjakso.server.domain.apply.service.ApplyService;
+import com.gongjakso.server.domain.apply.dto.request.ApplyReq;
+import com.gongjakso.server.domain.apply.dto.response.ApplyRes;
 import com.gongjakso.server.domain.team.dto.StatusReq;
 import com.gongjakso.server.global.common.ApplicationResponse;
 import com.gongjakso.server.global.security.PrincipalDetails;
@@ -21,11 +20,10 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/v2/apply")
 @RequiredArgsConstructor
-@Tag(name = "Apply", description = "지원 관련 API 리스트")
+@Tag(name = "Apply", description = "지원 관련 API")
 public class ApplyController {
 
     private final ApplyService applyService;
-    private final MemberRepository memberRepository;
 
     @Operation(summary = "지원하기", description = "팀에 지원하는 API")
     @PostMapping("/{team_id}")

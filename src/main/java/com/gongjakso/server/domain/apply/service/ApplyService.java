@@ -51,7 +51,6 @@ public class ApplyService {
         }
 
         //Business Logic
-
         Portfolio portfolio = null;
 
         if (!applyReq.isPrivate()) {
