@@ -1,4 +1,4 @@
-package com.gongjakso.server.domain.team.enumerate;
+package com.gongjakso.server.domain.apply.enumerate;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

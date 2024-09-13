@@ -1,8 +1,8 @@
-package com.gongjakso.server.domain.team.dto;
+package com.gongjakso.server.domain.apply.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.gongjakso.server.domain.team.entity.Apply;
-import com.gongjakso.server.domain.team.enumerate.ApplyStatus;
+import com.gongjakso.server.domain.apply.entity.Apply;
+import com.gongjakso.server.domain.apply.enumerate.ApplyStatus;
 import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -27,6 +27,9 @@ public record ApplyRes(
 
         @Nullable
         Long portfolioId,
+
+        @Nullable
+        String portfolioTitle,
 
         @Size(max = 500)
         String body,
@@ -63,7 +66,8 @@ public record ApplyRes(
                 .teamName(apply.getTeam().getTitle())
                 .memberId(apply.getMember().getId())
                 .leaderName(apply.getTeam().getMember().getName())
-                .portfolioId(apply.getPortfolio() != null ? apply.getPortfolio().getId() : null)
+                .portfolioId(apply.getPortfolioInfo().getPortfolio() != null ? apply.getPortfolioInfo().getPortfolio().getId() : null)
+                .portfolioTitle(apply.getPortfolioInfo().getPortfolio() != null ? apply.getPortfolioInfo().getPortfolio().getTitle() : null)
                 .body(apply.getBody())
                 .status(apply.getStatus())
                 .part(apply.getPart())

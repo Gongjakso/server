@@ -1,8 +1,8 @@
-package com.gongjakso.server.domain.team.repository;
+package com.gongjakso.server.domain.apply.repository;
 
 import com.gongjakso.server.domain.member.entity.Member;
-import com.gongjakso.server.domain.team.dto.ApplyRes;
-import com.gongjakso.server.domain.team.entity.Apply;
+import com.gongjakso.server.domain.apply.dto.response.ApplyRes;
+import com.gongjakso.server.domain.apply.entity.Apply;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -12,7 +12,7 @@ import org.springframework.data.domain.Pageable;
 import java.util.List;
 import java.util.Optional;
 
-import static com.gongjakso.server.domain.team.entity.QApply.apply;
+import static com.gongjakso.server.domain.apply.entity.QApply.apply;
 
 @RequiredArgsConstructor
 public class ApplyRepositoryImpl implements ApplyRepositoryCustom {
@@ -22,10 +22,11 @@ public class ApplyRepositoryImpl implements ApplyRepositoryCustom {
     public Page<ApplyRes> findByMemberAndPage(Member member, Pageable pageable) {
         List<Apply> applyList = queryFactory
                 .selectFrom(apply)
+                .leftJoin(apply.team).fetchJoin()
+                .leftJoin(apply.member).fetchJoin()
+                .leftJoin(apply.portfolioInfo.portfolio).fetchJoin()
+                .leftJoin(apply.team.member).fetchJoin()
                 .where(apply.member.eq(member), apply.deletedAt.isNull())
-                .join(apply.team).fetchJoin()
-                .join(apply.member).fetchJoin()
-                .join(apply.portfolio).fetchJoin()
                 .orderBy(apply.createdAt.desc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
@@ -44,11 +45,14 @@ public class ApplyRepositoryImpl implements ApplyRepositoryCustom {
         return new PageImpl<>(content, pageable, total != null ? total : 0L);
     }
 
-    public Optional<Apply> findApplyWithTeam(Long applyId) {
+    public Optional<Apply> findApplyDetails(Long applyId) {
         return Optional.ofNullable(queryFactory
                 .select(apply)
                 .from(apply)
-                .join(apply.team).fetchJoin()
+                .leftJoin(apply.member).fetchJoin()
+                .leftJoin(apply.team).fetchJoin()
+                .leftJoin(apply.team.member).fetchJoin()
+                .leftJoin(apply.portfolioInfo.portfolio).fetchJoin()
                 .where(apply.id.eq(applyId), apply.deletedAt.isNull())
                 .fetchOne());
     }

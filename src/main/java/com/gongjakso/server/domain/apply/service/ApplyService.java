@@ -1,14 +1,14 @@
-package com.gongjakso.server.domain.team;
+package com.gongjakso.server.domain.apply.service;
 
 import com.gongjakso.server.domain.member.entity.Member;
 import com.gongjakso.server.domain.portfolio.entity.Portfolio;
 import com.gongjakso.server.domain.portfolio.repository.PortfolioRepository;
-import com.gongjakso.server.domain.team.dto.ApplyReq;
-import com.gongjakso.server.domain.team.dto.ApplyRes;
+import com.gongjakso.server.domain.apply.dto.request.ApplyReq;
+import com.gongjakso.server.domain.apply.dto.response.ApplyRes;
 import com.gongjakso.server.domain.team.dto.StatusReq;
-import com.gongjakso.server.domain.team.entity.Apply;
+import com.gongjakso.server.domain.apply.entity.Apply;
 import com.gongjakso.server.domain.team.entity.Team;
-import com.gongjakso.server.domain.team.repository.ApplyRepository;
+import com.gongjakso.server.domain.apply.repository.ApplyRepository;
 import com.gongjakso.server.domain.team.repository.TeamRepository;
 import com.gongjakso.server.global.exception.ApplicationException;
 import com.gongjakso.server.global.exception.ErrorCode;
@@ -18,7 +18,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.chrono.ChronoLocalDate;
-import java.util.Objects;
 
 import static java.time.LocalDateTime.now;
 
@@ -31,7 +30,7 @@ public class ApplyService {
     private final TeamRepository teamRepository;
 
     public ApplyRes apply(Member member, Long teamId, ApplyReq applyReq) {
-        //Validation: member, teamId, 지원 가능 기간인지, 리더가 지원하는지, 이미 지원했는지 유효성 검사
+        //Validation: member, teamId, 지원 가능 기간인지, 리더가 지원하는지, 이미 지원했는지, 본인의 포트폴리오인지 유효성 검사
         if(member == null) {
             throw new ApplicationException(ErrorCode.UNAUTHORIZED_EXCEPTION);
         }
@@ -52,8 +51,19 @@ public class ApplyService {
         }
 
         //Business Logic
-        Portfolio portfolio = portfolioRepository.findById(applyReq.portfolioId())
-                .orElseThrow(() -> new ApplicationException(ErrorCode.PORTFOLIO_NOT_FOUND_EXCEPTION));
+
+        Portfolio portfolio = null;
+
+        if (!applyReq.isPrivate()) {
+            if (applyReq.portfolioId() == null) {
+                throw new ApplicationException(ErrorCode.PORTFOLIO_NOT_FOUND_EXCEPTION);
+            }
+            portfolio = portfolioRepository.findById(applyReq.portfolioId())
+                    .orElseThrow(() -> new ApplicationException(ErrorCode.PORTFOLIO_NOT_FOUND_EXCEPTION));
+            if(!portfolio.getMember().getId().equals(member.getId())) {
+                throw new ApplicationException(ErrorCode.PORTFOLIO_UNAUTHORIZED_EXCEPTION);
+            }
+        }
 
         Apply apply = ApplyReq.toEntity(applyReq, team, member, portfolio);
 
@@ -78,12 +88,12 @@ public class ApplyService {
 
     public ApplyRes getApply(Member member, Long applyId) {
         //Validation: Apply가 유효하지 않거나, 리더가 아니거나, 자신이 아닌 경우 예외 처리
-        Apply apply = applyRepository.findApplyWithTeam(applyId)
+        Apply apply = applyRepository.findApplyDetails(applyId)
                 .orElseThrow(() -> new ApplicationException(ErrorCode.APPLY_NOT_FOUND_EXCEPTION));
 
-        if(member == null || !Objects.equals(member.getId(), apply.getMember().getId())
-                || !Objects.equals(member.getId(), apply.getTeam().getMember().getId())
-                ) {
+        if (member == null
+                || !member.getId().equals(apply.getTeam().getMember().getId())
+                && !member.getId().equals(apply.getMember().getId())) {
             throw new ApplicationException(ErrorCode.UNAUTHORIZED_EXCEPTION);
         }
 
@@ -93,9 +103,9 @@ public class ApplyService {
 
     public ApplyRes selectApply(Member member, Long applyId, StatusReq req){
         //Validation: Apply가 유효하지 않거나, 리더가 아닌 경우 예외 처리
-        Apply apply = applyRepository.findApplyWithTeam(applyId).orElseThrow(() -> new ApplicationException(ErrorCode.APPLY_NOT_FOUND_EXCEPTION));
+        Apply apply = applyRepository.findApplyDetails(applyId).orElseThrow(() -> new ApplicationException(ErrorCode.APPLY_NOT_FOUND_EXCEPTION));
 
-        if(member == null || !Objects.equals( apply.getTeam().getMember().getId(), member.getId())){
+        if(member == null || !member.getId().equals(apply.getTeam().getMember().getId())){
             throw new ApplicationException(ErrorCode.UNAUTHORIZED_EXCEPTION);
         }
 
@@ -111,10 +121,10 @@ public class ApplyService {
     }
 
     public ApplyRes viewApply(Member member, Long applyId) {
-        //Validation: Apply가 유효하지 않거나, 리더가 아닌 경우 예외 처리
-        Apply apply = applyRepository.findApplyWithTeam(applyId).orElseThrow(() -> new ApplicationException(ErrorCode.APPLY_NOT_FOUND_EXCEPTION));
+        //Validation: Apply가 유효하지 않거나, 지원자나 리더가 아닌 경우 예외 처리
+        Apply apply = applyRepository.findApplyDetails(applyId).orElseThrow(() -> new ApplicationException(ErrorCode.APPLY_NOT_FOUND_EXCEPTION));
 
-        if(member==null || !Objects.equals(apply.getTeam().getMember().getId(), member.getId())){
+        if(member==null || !member.getId().equals(apply.getTeam().getMember().getId())){
             throw new ApplicationException(ErrorCode.UNAUTHORIZED_EXCEPTION);
         }
 
@@ -132,7 +142,7 @@ public class ApplyService {
         Apply apply = applyRepository.findByIdAndDeletedAtIsNull(applyId)
                 .orElseThrow(() -> new ApplicationException(ErrorCode.APPLY_NOT_FOUND_EXCEPTION));
 
-        if(member == null || !Objects.equals(apply.getMember().getId(), member.getId())){
+        if(member == null || !member.getId().equals(apply.getMember().getId())){
             throw new ApplicationException(ErrorCode.UNAUTHORIZED_EXCEPTION);
         }
 

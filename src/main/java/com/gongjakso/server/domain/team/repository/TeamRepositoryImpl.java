@@ -12,7 +12,7 @@ import org.springframework.data.domain.Pageable;
 import java.util.List;
 import java.util.Optional;
 
-import static com.gongjakso.server.domain.team.entity.QApply.apply;
+import static com.gongjakso.server.domain.apply.entity.QApply.apply;
 import static com.gongjakso.server.domain.team.entity.QScrap.scrap;
 import static com.gongjakso.server.domain.team.entity.QTeam.team;
 
@@ -24,6 +24,7 @@ public class TeamRepositoryImpl implements TeamRepositoryCustom {
     public Optional<Team> findTeamById(Long id) {
         return Optional.ofNullable(queryFactory
                 .selectFrom(team)
+                .join(team.member).fetchJoin()
                 .where(team.id.eq(id)
                         .and(team.deletedAt.isNull()))
                 .fetchOne());

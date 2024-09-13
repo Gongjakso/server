@@ -1,8 +1,8 @@
-package com.gongjakso.server.domain.team.entity;
+package com.gongjakso.server.domain.apply.entity;
 
 import com.gongjakso.server.domain.member.entity.Member;
-import com.gongjakso.server.domain.portfolio.entity.Portfolio;
-import com.gongjakso.server.domain.team.enumerate.ApplyStatus;
+import com.gongjakso.server.domain.team.entity.Team;
+import com.gongjakso.server.domain.apply.enumerate.ApplyStatus;
 import com.gongjakso.server.global.common.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -31,9 +31,8 @@ public class Apply extends BaseTimeEntity {
         @JoinColumn(name="member_id", nullable = false, columnDefinition = "bigint")
         private Member member;
 
-        @OneToOne(fetch = FetchType.LAZY)
-        @JoinColumn(name = "portfolio_id", columnDefinition = "bigint")
-        private Portfolio portfolio;
+        @Embedded
+        private PortfolioInfo portfolioInfo;
 
         @Column(nullable = false, columnDefinition = "varchar(500)")
         private String body;
@@ -49,10 +48,10 @@ public class Apply extends BaseTimeEntity {
         private boolean isViewed;
 
         @Builder
-        public Apply(Team team, Member member, Portfolio portfolio, String body, ApplyStatus status, String part) {
+        public Apply(Team team, Member member, PortfolioInfo portfolioInfo, String body, ApplyStatus status, String part) {
                 this.team = team;
                 this.member = member;
-                this.portfolio = portfolio;
+                this.portfolioInfo = portfolioInfo;
                 this.body = body;
                 this.status = status;
                 this.part = part;

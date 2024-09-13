@@ -1,6 +1,6 @@
-package com.gongjakso.server.domain.team.repository;
+package com.gongjakso.server.domain.apply.repository;
 
-import com.gongjakso.server.domain.team.entity.Apply;
+import com.gongjakso.server.domain.apply.entity.Apply;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
