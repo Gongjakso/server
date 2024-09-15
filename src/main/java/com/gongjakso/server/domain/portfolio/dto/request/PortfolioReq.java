@@ -1,6 +1,7 @@
 package com.gongjakso.server.domain.portfolio.dto.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.Size;
 import java.time.LocalDate;
 import java.util.List;
@@ -8,6 +9,7 @@ import lombok.Builder;
 
 @Builder
 public record PortfolioReq (
+        @Nullable
         String portfolioName,
         List<Education> educationList,
         List<Work> workList,
