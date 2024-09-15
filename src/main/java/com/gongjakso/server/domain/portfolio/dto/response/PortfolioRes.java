@@ -10,6 +10,7 @@ import java.util.List;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record PortfolioRes (
         Long id,
+        String portfolioName,
         List<PortfolioData.Education> educationList,
         List<PortfolioData.Work> workList,
         List<PortfolioData.Activity> activityList,
@@ -21,6 +22,7 @@ public record PortfolioRes (
         PortfolioData portfolioData = portfolio.getPortfolioData();
         return new PortfolioRes(
                 portfolio.getId(),
+                portfolioData.portfolioName(),
                 portfolioData.educationList(),
                 portfolioData.workList(),
                 portfolioData.activityList(),
