@@ -22,6 +22,12 @@ public class PortfolioService {
 
     // PortfolioReq -> PortfolioData 변환
     private PortfolioData convertToPortfolioData(PortfolioReq portfolioReq) {
+        String portfolioName = portfolioReq.portfolioName();
+        if (portfolioName == null || portfolioName.isEmpty()) {
+            long existingPortfolioCount = portfolioRepository.countByDeletedAtIsNull();
+            portfolioName = "포트폴리오 " + (existingPortfolioCount + 1);
+        }
+
         List<PortfolioData.Education> educationList = portfolioReq.educationList() != null
                 ? portfolioReq.educationList().stream()
                 .map(education -> new PortfolioData.Education(
@@ -82,7 +88,7 @@ public class PortfolioService {
                 .toList()
                 : List.of();
 
-        return new PortfolioData(educationList, workList, activityList, awardList, certificateList, snsList);
+        return new PortfolioData(portfolioName, educationList, workList, activityList, awardList, certificateList, snsList);
     }
 
     @Transactional
