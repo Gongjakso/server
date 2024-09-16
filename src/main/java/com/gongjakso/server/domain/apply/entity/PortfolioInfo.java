@@ -1,10 +1,7 @@
 package com.gongjakso.server.domain.apply.entity;
 
 import com.gongjakso.server.domain.portfolio.entity.Portfolio;
-import jakarta.persistence.Embeddable;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToOne;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -17,7 +14,7 @@ import lombok.NoArgsConstructor;
 @Builder
 public class PortfolioInfo {
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "portfolio_id", columnDefinition = "bigint")
     private Portfolio portfolio;
 

@@ -10,5 +10,5 @@ public enum ApplyStatus {
     ACCEPTED("합격"),
     REJECTED("불합격");
 
-    private final String status;
+    private final String description;
 }

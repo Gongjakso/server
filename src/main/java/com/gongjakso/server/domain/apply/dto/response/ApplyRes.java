@@ -2,7 +2,6 @@ package com.gongjakso.server.domain.apply.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.gongjakso.server.domain.apply.entity.Apply;
-import com.gongjakso.server.domain.apply.enumerate.ApplyStatus;
 import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -36,7 +35,7 @@ public record ApplyRes(
 
         @Size(max = 20)
         @NotNull
-        ApplyStatus status,
+        String status,
 
         @Size(max = 20)
         @NotNull
@@ -69,7 +68,7 @@ public record ApplyRes(
                 .portfolioId(apply.getPortfolioInfo().getPortfolio() != null ? apply.getPortfolioInfo().getPortfolio().getId() : null)
                 .portfolioTitle(apply.getPortfolioInfo().getPortfolio() != null ? apply.getPortfolioInfo().getPortfolio().getTitle() : null)
                 .body(apply.getBody())
-                .status(apply.getStatus())
+                .status(apply.getStatus().getDescription())
                 .part(apply.getPart())
                 .isViewed(apply.isViewed())
                 .deleteAt(apply.getDeletedAt())

@@ -26,7 +26,12 @@ public class ApplyRepositoryImpl implements ApplyRepositoryCustom {
                 .leftJoin(apply.member).fetchJoin()
                 .leftJoin(apply.portfolioInfo.portfolio).fetchJoin()
                 .leftJoin(apply.team.member).fetchJoin()
-                .where(apply.member.eq(member), apply.deletedAt.isNull())
+                .where(apply.member.eq(member),
+                        apply.deletedAt.isNull(),
+                        apply.team.deletedAt.isNull(),
+                        apply.member.deletedAt.isNull(),
+                        apply.team.member.deletedAt.isNull(),
+                        apply.portfolioInfo.portfolio.deletedAt.isNull())
                 .orderBy(apply.createdAt.desc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
@@ -39,7 +44,12 @@ public class ApplyRepositoryImpl implements ApplyRepositoryCustom {
         Long total = queryFactory
                 .select(apply.count())
                 .from(apply)
-                .where(apply.member.eq(member), apply.deletedAt.isNull())
+                .where(apply.member.eq(member),
+                        apply.deletedAt.isNull(),
+                        apply.team.deletedAt.isNull(),
+                        apply.member.deletedAt.isNull(),
+                        apply.team.member.deletedAt.isNull(),
+                        apply.portfolioInfo.portfolio.deletedAt.isNull())
                 .fetchOne();
 
         return new PageImpl<>(content, pageable, total != null ? total : 0L);
@@ -53,7 +63,12 @@ public class ApplyRepositoryImpl implements ApplyRepositoryCustom {
                 .leftJoin(apply.team).fetchJoin()
                 .leftJoin(apply.team.member).fetchJoin()
                 .leftJoin(apply.portfolioInfo.portfolio).fetchJoin()
-                .where(apply.id.eq(applyId), apply.deletedAt.isNull())
+                .where(apply.id.eq(applyId),
+                        apply.deletedAt.isNull(),
+                        apply.team.deletedAt.isNull(),
+                        apply.member.deletedAt.isNull(),
+                        apply.team.member.deletedAt.isNull(),
+                        apply.portfolioInfo.portfolio.deletedAt.isNull())
                 .fetchOne());
     }
 
