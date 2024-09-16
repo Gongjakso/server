@@ -2,10 +2,12 @@ package com.gongjakso.server.domain.portfolio.controller;
 
 import com.gongjakso.server.domain.portfolio.dto.request.PortfolioReq;
 import com.gongjakso.server.domain.portfolio.dto.response.PortfolioRes;
+import com.gongjakso.server.domain.portfolio.dto.response.SimplePortfolioRes;
 import com.gongjakso.server.domain.portfolio.service.PortfolioService;
 import com.gongjakso.server.global.common.ApplicationResponse;
 import com.gongjakso.server.global.security.PrincipalDetails;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -18,9 +20,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("api/v2/mypage/portfolio")
+@Tag(name = "Portfolio", description = "포트폴리오 관련 API")
 public class PortfolioController {
 
     private final PortfolioService portfolioService;
@@ -54,5 +59,11 @@ public class PortfolioController {
         portfolioService.deletePortfolio(principalDetails.getMember(), portfolioId);
 
         return ApplicationResponse.ok();
+    }
+
+    @Operation(description = "내 포트폴리오 리스트 조회 API")
+    @GetMapping("/my")
+    public ApplicationResponse<List<SimplePortfolioRes>> getMyPortfolios(@AuthenticationPrincipal PrincipalDetails principalDetails) {
+        return ApplicationResponse.ok(portfolioService.getMyPortfolios(principalDetails.getMember()));
     }
 }
