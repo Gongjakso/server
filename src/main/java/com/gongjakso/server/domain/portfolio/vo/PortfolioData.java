@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 public record PortfolioData (
+        String portfolioName,
         List<Education> educationList,
         List<Work> workList,
         List<Activity> activityList,
@@ -17,6 +18,7 @@ public record PortfolioData (
             Boolean isActive
     ) {
     }
+
     public record Work (
             String company,
             String partition,
@@ -26,23 +28,27 @@ public record PortfolioData (
             String detail
     ) {
     }
+
     public record Activity (
             String name,
             Boolean isActive
     ) {
     }
+
     public record Award (
             String contestName,
             String awardName,
             LocalDate awardDate
     ) {
     }
+
     public record Certificate (
             String name,
             String rating,
             LocalDate certificationDate
     ) {
     }
+
     public record Sns (
             String snsLink
     ) {
