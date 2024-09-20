@@ -25,9 +25,6 @@ public class Portfolio extends BaseTimeEntity {
     @Column(name = "portfolio_id", nullable = false, columnDefinition = "bigint")
     private Long id;
 
-    @Column(name = "title", nullable = false, columnDefinition = "varchar(50)")
-    private String title;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
     private Member member;
