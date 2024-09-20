@@ -12,7 +12,7 @@ public record SimplePortfolioRes(
     public static SimplePortfolioRes of(Portfolio portfolio) {
         return new SimplePortfolioRes(
                 portfolio.getId(),
-                portfolio.getPortfolioData().portfolioName(),
+                portfolio.getPortfolioName(),
                 portfolio.getModifiedAt()
         );
     }

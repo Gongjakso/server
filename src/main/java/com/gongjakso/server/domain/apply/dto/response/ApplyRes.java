@@ -68,7 +68,7 @@ public record ApplyRes(
                 .memberId(apply.getMember().getId())
                 .leaderName(apply.getTeam().getMember().getName())
                 .portfolioId(apply.getPortfolioInfo().getPortfolio() != null ? apply.getPortfolioInfo().getPortfolio().getId() : null)
-                .portfolioName(apply.getPortfolioInfo().getPortfolio() != null ? apply.getPortfolioInfo().getPortfolio().getPortfolioData().portfolioName() : null)
+                .portfolioName(apply.getPortfolioInfo().getPortfolio() != null ? apply.getPortfolioInfo().getPortfolio().getPortfolioName() : null)
                 .isPrivate(apply.getPortfolioInfo().isPrivate())
                 .body(apply.getBody())
                 .status(apply.getStatus().getDescription())
