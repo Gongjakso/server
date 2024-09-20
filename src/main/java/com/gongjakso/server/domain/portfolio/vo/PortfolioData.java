@@ -4,7 +4,6 @@ import java.time.LocalDate;
 import java.util.List;
 
 public record PortfolioData (
-        String portfolioName,
         List<Education> educationList,
         List<Work> workList,
         List<Activity> activityList,
@@ -15,7 +14,7 @@ public record PortfolioData (
     public record Education (
             String school,
             String grade,
-            Boolean isActive
+            String state
     ) {
     }
 

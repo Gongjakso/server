@@ -25,6 +25,9 @@ public class Portfolio extends BaseTimeEntity {
     @Column(name = "portfolio_id", nullable = false, columnDefinition = "bigint")
     private Long id;
 
+    @Column(name = "portfolio_name", nullable = false, columnDefinition = "varchar(50)")
+    private String portfolioName;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
     private Member member;
@@ -34,12 +37,17 @@ public class Portfolio extends BaseTimeEntity {
     private PortfolioData portfolioData;
 
     @Builder
-    public Portfolio(Member member, PortfolioData portfolioData) {
+    public Portfolio(Member member, String portfolioName, PortfolioData portfolioData) {
         this.member = member;
+        this.portfolioName = portfolioName;
         this.portfolioData = portfolioData;
     }
 
-    public void update(PortfolioData updatedData) {
+    public void updateName(String updatedName) {
+        this.portfolioName = updatedName;
+    }
+
+    public void updateData(PortfolioData updatedData) {
         this.portfolioData = updatedData;
     }
 }

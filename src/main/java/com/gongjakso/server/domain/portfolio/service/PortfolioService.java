@@ -21,20 +21,23 @@ public class PortfolioService {
 
     private final PortfolioRepository portfolioRepository;
 
-    // PortfolioReq -> PortfolioData 변환
-    private PortfolioData convertToPortfolioData(PortfolioReq portfolioReq) {
-        String portfolioName = portfolioReq.portfolioName();
+    // PortfolioName 생성 로직을 분리
+    private String generatePortfolioName(String portfolioName) {
         if (portfolioName == null || portfolioName.isEmpty()) {
             long existingPortfolioCount = portfolioRepository.countByDeletedAtIsNull();
-            portfolioName = "포트폴리오 " + (existingPortfolioCount + 1);
+            return "포트폴리오 " + (existingPortfolioCount + 1);
         }
+        return portfolioName;
+    }
 
+    // PortfolioReq -> PortfolioData 변환
+    private PortfolioData convertToPortfolioData(PortfolioReq portfolioReq) {
         List<PortfolioData.Education> educationList = portfolioReq.educationList() != null
                 ? portfolioReq.educationList().stream()
                 .map(education -> new PortfolioData.Education(
                         education.school(),
                         education.grade(),
-                        education.isActive()
+                        education.state()
                 ))
                 .toList()
                 : List.of();
@@ -89,7 +92,7 @@ public class PortfolioService {
                 .toList()
                 : List.of();
 
-        return new PortfolioData(portfolioName, educationList, workList, activityList, awardList, certificateList, snsList);
+        return new PortfolioData(educationList, workList, activityList, awardList, certificateList, snsList);
     }
 
     @Transactional
@@ -97,11 +100,16 @@ public class PortfolioService {
         if (member == null) {
             throw new ApplicationException(ErrorCode.UNAUTHORIZED_EXCEPTION);
         }
+
+        String portfolioName = generatePortfolioName(portfolioReq.portfolioName());
         PortfolioData portfolioData = convertToPortfolioData(portfolioReq);
+
         Portfolio portfolio = Portfolio.builder()
                 .member(member)
+                .portfolioName(portfolioName)
                 .portfolioData(portfolioData)
                 .build();
+
         Portfolio savedPortfolio = portfolioRepository.save(portfolio);
 
         return PortfolioRes.from(savedPortfolio);
@@ -124,8 +132,15 @@ public class PortfolioService {
         if (!portfolio.getMember().getId().equals(member.getId())) {
             throw new ApplicationException(ErrorCode.FORBIDDEN_EXCEPTION);
         }
+
+        if (portfolioReq.portfolioName() != null) {
+            String portfolioName = generatePortfolioName(portfolioReq.portfolioName());
+            portfolio.updateName(portfolioName);
+        }
+
         PortfolioData updatedPortfolioData = convertToPortfolioData(portfolioReq);
-        portfolio.update(updatedPortfolioData);
+        portfolio.updateData(updatedPortfolioData);
+
         Portfolio updatedPortfolio = portfolioRepository.save(portfolio);
 
         return PortfolioRes.from(updatedPortfolio);
