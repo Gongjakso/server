@@ -6,13 +6,13 @@ import java.time.LocalDateTime;
 
 public record SimplePortfolioRes(
         Long PortfolioId,
-        String PortfolioTitle,
+        String PortfolioName,
         LocalDateTime modifiedAt
 ) {
     public static SimplePortfolioRes of(Portfolio portfolio) {
         return new SimplePortfolioRes(
                 portfolio.getId(),
-                portfolio.getTitle(),
+                portfolio.getPortfolioData().portfolioName(),
                 portfolio.getModifiedAt()
         );
     }
