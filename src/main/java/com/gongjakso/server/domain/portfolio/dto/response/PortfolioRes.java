@@ -22,7 +22,7 @@ public record PortfolioRes (
         PortfolioData portfolioData = portfolio.getPortfolioData();
         return new PortfolioRes(
                 portfolio.getId(),
-                portfolioData.portfolioName(),
+                portfolio.getPortfolioName(),
                 portfolioData.educationList(),
                 portfolioData.workList(),
                 portfolioData.activityList(),

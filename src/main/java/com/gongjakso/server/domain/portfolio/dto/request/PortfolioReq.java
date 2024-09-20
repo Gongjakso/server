@@ -21,7 +21,7 @@ public record PortfolioReq (
     public record Education (
             String school,
             String grade,
-            Boolean isActive
+            String state
     ) {
     }
 
