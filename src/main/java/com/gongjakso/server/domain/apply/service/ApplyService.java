@@ -49,10 +49,7 @@ public class ApplyService {
         //Business Logic
         Portfolio portfolio = null;
 
-        if (!applyReq.isPrivate()) {
-            if (applyReq.portfolioId() == null) {
-                throw new ApplicationException(ErrorCode.PORTFOLIO_NOT_FOUND_EXCEPTION);
-            }
+        if (applyReq.portfolioId() != null) {
             portfolio = portfolioRepository.findById(applyReq.portfolioId())
                     .orElseThrow(() -> new ApplicationException(ErrorCode.PORTFOLIO_NOT_FOUND_EXCEPTION));
             if(!portfolio.getMember().getId().equals(member.getId())) {

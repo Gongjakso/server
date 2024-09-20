@@ -40,9 +40,7 @@ public record ApplyReq(
         String part
 ) {
     public static Apply toEntity(ApplyReq req, Team team, Member member, @Nullable Portfolio portfolio) {
-        PortfolioInfo portfolioInfo = portfolio != null
-                ? PortfolioInfo.ofPortfolio(portfolio)
-                : PortfolioInfo.ofPrivate();
+        PortfolioInfo portfolioInfo = PortfolioInfo.ofPortfolio(portfolio, req.isPrivate());
 
         return Apply.builder()
                 .team(team)

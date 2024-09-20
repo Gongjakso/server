@@ -30,6 +30,8 @@ public record ApplyRes(
         @Nullable
         String portfolioTitle,
 
+        Boolean isPrivate,
+
         @Size(max = 500)
         String body,
 
@@ -67,6 +69,7 @@ public record ApplyRes(
                 .leaderName(apply.getTeam().getMember().getName())
                 .portfolioId(apply.getPortfolioInfo().getPortfolio() != null ? apply.getPortfolioInfo().getPortfolio().getId() : null)
                 .portfolioTitle(apply.getPortfolioInfo().getPortfolio() != null ? apply.getPortfolioInfo().getPortfolio().getTitle() : null)
+                .isPrivate(apply.getPortfolioInfo().isPrivate())
                 .body(apply.getBody())
                 .status(apply.getStatus().getDescription())
                 .part(apply.getPart())
