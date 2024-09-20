@@ -69,6 +69,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/v1/auth/**").permitAll()
                         .requestMatchers("/api/v1/member/**").authenticated()
                         .requestMatchers("/api/v1/contest/{contest_id}/team/**").authenticated()
+                        .requestMatchers("/api/v2/apply/**").authenticated()
                         // 이외의 모든 요청은 인증 정보 필요
                         .anyRequest().permitAll());
 

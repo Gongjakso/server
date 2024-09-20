@@ -10,8 +10,9 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
+import java.util.Optional;
 
-import static com.gongjakso.server.domain.team.entity.QApply.apply;
+import static com.gongjakso.server.domain.apply.entity.QApply.apply;
 import static com.gongjakso.server.domain.team.entity.QScrap.scrap;
 import static com.gongjakso.server.domain.team.entity.QTeam.team;
 
@@ -19,6 +20,15 @@ import static com.gongjakso.server.domain.team.entity.QTeam.team;
 public class TeamRepositoryImpl implements TeamRepositoryCustom {
 
     private final JPAQueryFactory queryFactory;
+
+    public Optional<Team> findTeamById(Long id) {
+        return Optional.ofNullable(queryFactory
+                .selectFrom(team)
+                .join(team.member).fetchJoin()
+                .where(team.id.eq(id)
+                        .and(team.deletedAt.isNull()))
+                .fetchOne());
+    }
 
     public Page<SimpleTeamRes> findPaginationWithContest(Long contestId, String province, String district, Pageable pageable) {
         BooleanBuilder builder = new BooleanBuilder();
@@ -31,30 +41,30 @@ public class TeamRepositoryImpl implements TeamRepositoryCustom {
         }
 
         List<Team> teamList  = queryFactory
-            .select(team)
-            .from(team)
-            .where(
-                team.contest.id.eq(contestId),
-                team.deletedAt.isNull(),
-                builder
-            )
-            .orderBy(team.createdAt.desc())
-            .offset(pageable.getOffset())
-            .limit(pageable.getPageSize())
-            .fetch();
+                .select(team)
+                .from(team)
+                .where(
+                        team.contest.id.eq(contestId),
+                        team.deletedAt.isNull(),
+                        builder
+                )
+                .orderBy(team.createdAt.desc())
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
 
         List<SimpleTeamRes> content = teamList.stream()
-            .map(SimpleTeamRes::of)
-            .toList();
+                .map(SimpleTeamRes::of)
+                .toList();
 
         Long total = queryFactory.select(team.count())
-            .from(team)
-            .where(
-                team.province.eq(province),
-                team.district.eq(district),
-                team.deletedAt.isNull()
-            )
-            .fetchOne();
+                .from(team)
+                .where(
+                        team.province.eq(province),
+                        team.district.eq(district),
+                        team.deletedAt.isNull()
+                )
+                .fetchOne();
 
         return new PageImpl<>(content, pageable, (total != null) ? total : 0);
     }
@@ -73,83 +83,83 @@ public class TeamRepositoryImpl implements TeamRepositoryCustom {
         }
 
         List<Team> teamList = queryFactory
-            .select(team)
-            .from(team)
-            .where(team.deletedAt.isNull()
-                    .and(builder))
-            .orderBy(team.createdAt.desc())
-            .offset(pageable.getOffset())
-            .limit(pageable.getPageSize())
-            .fetch();
+                .select(team)
+                .from(team)
+                .where(team.deletedAt.isNull()
+                        .and(builder))
+                .orderBy(team.createdAt.desc())
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
 
         List<SimpleTeamRes> content = teamList.stream()
                 .map(SimpleTeamRes::of)
                 .toList();
 
         Long total = queryFactory.select(team.count())
-            .from(team)
-            .where(
-                team.province.eq(province),
-                team.district.eq(district),
-                team.title.containsIgnoreCase(keyword),
-                team.deletedAt.isNull()
-            )
-            .fetchOne();
+                .from(team)
+                .where(
+                        team.province.eq(province),
+                        team.district.eq(district),
+                        team.title.containsIgnoreCase(keyword),
+                        team.deletedAt.isNull()
+                )
+                .fetchOne();
 
         return new PageImpl<>(content, pageable, (total != null) ? total : 0);
     }
 
     public Page<SimpleTeamRes> findRecruitPagination(Long memberId, Pageable pageable) {
         List<Team> teamList = queryFactory
-            .select(team)
-            .from(team)
-            .where(
-                team.member.id.eq(memberId),
-                team.deletedAt.isNull()
-            )
-            .orderBy(team.createdAt.desc())
-            .offset(pageable.getOffset())
-            .limit(pageable.getPageSize())
-            .fetch();
+                .select(team)
+                .from(team)
+                .where(
+                        team.member.id.eq(memberId),
+                        team.deletedAt.isNull()
+                )
+                .orderBy(team.createdAt.desc())
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
 
         List<SimpleTeamRes> content = teamList.stream()
-            .map(SimpleTeamRes::of)
-            .toList();
+                .map(SimpleTeamRes::of)
+                .toList();
 
         Long total = queryFactory.select(team.count())
-            .from(team)
-            .where(
-                team.member.id.eq(memberId),
-                team.deletedAt.isNull()
-            )
-            .fetchOne();
+                .from(team)
+                .where(
+                        team.member.id.eq(memberId),
+                        team.deletedAt.isNull()
+                )
+                .fetchOne();
 
         return new PageImpl<>(content, pageable, (total != null) ? total : 0);
     }
 
     public Page<SimpleTeamRes> findApplyPagination(Long memberId, Pageable pageable) {
         List<Team> teamList = queryFactory
-            .select(team)
-            .from(team)
-            .innerJoin(apply).on(apply.team.id.eq(team.id).and(apply.deletedAt.isNull()))
-            .where(
-                team.deletedAt.isNull()
-            )
-            .orderBy(team.createdAt.desc())
-            .offset(pageable.getOffset())
-            .limit(pageable.getPageSize())
-            .fetch();
+                .select(team)
+                .from(team)
+                .innerJoin(apply).on(apply.team.id.eq(team.id).and(apply.deletedAt.isNull()))
+                .where(
+                        team.deletedAt.isNull()
+                )
+                .orderBy(team.createdAt.desc())
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
 
         List<SimpleTeamRes> content = teamList.stream()
-            .map(SimpleTeamRes::of)
-            .toList();
+                .map(SimpleTeamRes::of)
+                .toList();
 
         Long total = queryFactory.select(team.count())
-            .from(team)
-            .where(
-                team.deletedAt.isNull()
-            )
-            .fetchOne();
+                .from(team)
+                .where(
+                        team.deletedAt.isNull()
+                )
+                .fetchOne();
 
         return new PageImpl<>(content, pageable, (total != null) ? total : 0);
     }
@@ -162,27 +172,27 @@ public class TeamRepositoryImpl implements TeamRepositoryCustom {
                 .fetch();
 
         List<Team> teamList = queryFactory
-            .select(team)
-            .from(team)
-            .where(
-                team.id.in(teamIdList),
-                team.deletedAt.isNull()
-            )
-            .orderBy(team.createdAt.desc())
-            .offset(pageable.getOffset())
-            .limit(pageable.getPageSize())
-            .fetch();
+                .select(team)
+                .from(team)
+                .where(
+                        team.id.in(teamIdList),
+                        team.deletedAt.isNull()
+                )
+                .orderBy(team.createdAt.desc())
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
 
         List<SimpleTeamRes> content = teamList.stream()
-            .map(SimpleTeamRes::of)
-            .toList();
+                .map(SimpleTeamRes::of)
+                .toList();
 
         Long total = queryFactory.select(team.count())
-            .from(team)
-            .where(
-                team.deletedAt.isNull()
-            )
-            .fetchOne();
+                .from(team)
+                .where(
+                        team.deletedAt.isNull()
+                )
+                .fetchOne();
 
         return new PageImpl<>(content, pageable, (total != null) ? total : 0);
     }

@@ -3,6 +3,7 @@ package com.gongjakso.server.domain.portfolio.service;
 import com.gongjakso.server.domain.member.entity.Member;
 import com.gongjakso.server.domain.portfolio.dto.request.PortfolioReq;
 import com.gongjakso.server.domain.portfolio.dto.response.PortfolioRes;
+import com.gongjakso.server.domain.portfolio.dto.response.SimplePortfolioRes;
 import com.gongjakso.server.domain.portfolio.entity.Portfolio;
 import com.gongjakso.server.domain.portfolio.vo.PortfolioData;
 import com.gongjakso.server.domain.portfolio.repository.PortfolioRepository;
@@ -141,5 +142,12 @@ public class PortfolioService {
             throw new ApplicationException(ErrorCode.FORBIDDEN_EXCEPTION);
         }
         portfolioRepository.delete(portfolio);
+    }
+
+    public List<SimplePortfolioRes> getMyPortfolios(Member member) {
+        List<Portfolio> portfolioList = portfolioRepository.findByMemberAndDeletedAtIsNull(member);
+        return portfolioList.stream()
+                .map(SimplePortfolioRes::of)
+                .toList();
     }
 }
