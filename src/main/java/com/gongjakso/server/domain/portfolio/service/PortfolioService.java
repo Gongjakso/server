@@ -10,9 +10,13 @@ import com.gongjakso.server.domain.portfolio.repository.PortfolioRepository;
 import com.gongjakso.server.global.exception.ApplicationException;
 import com.gongjakso.server.global.exception.ErrorCode;
 import java.util.List;
+
+import com.gongjakso.server.global.util.s3.S3Client;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @Transactional(readOnly = true)
@@ -20,6 +24,9 @@ import org.springframework.transaction.annotation.Transactional;
 public class PortfolioService {
 
     private final PortfolioRepository portfolioRepository;
+    private final S3Client s3Client;
+    private final String S3_PORTFOLIO_DIR_NAME = "portfolio";
+
 
     // PortfolioName 생성 로직을 분리
     private String generatePortfolioName(String portfolioName) {
@@ -104,11 +111,7 @@ public class PortfolioService {
         String portfolioName = generatePortfolioName(portfolioReq.portfolioName());
         PortfolioData portfolioData = convertToPortfolioData(portfolioReq);
 
-        Portfolio portfolio = Portfolio.builder()
-                .member(member)
-                .portfolioName(portfolioName)
-                .portfolioData(portfolioData)
-                .build();
+        Portfolio portfolio = new Portfolio(member,portfolioName,portfolioData);
 
         Portfolio savedPortfolio = portfolioRepository.save(portfolio);
 
@@ -164,5 +167,28 @@ public class PortfolioService {
         return portfolioList.stream()
                 .map(SimplePortfolioRes::of)
                 .toList();
+    }
+
+    @Transactional
+    public void saveExistPortfolio(Member member, MultipartFile image, String notionUri){
+        //등록된 파일이나 노션 링크 있는지 확인
+        //Validation
+        Boolean isExist = portfolioRepository.existsExistPortfolioByMember(member);
+        if (!isExist){
+            throw new ApplicationException(ErrorCode.ALREADY_EXIST_EXCEPTION);
+        }
+        if(image.isEmpty() && notionUri.isEmpty()){
+            throw new ApplicationException(ErrorCode.PORTFOLIO_SAVE_FAILED_EXCEPTION);
+        }
+        //Business
+        String s3Url = null;
+        if (image != null && !image.isEmpty()) {
+            s3Url = s3Client.upload(image, S3_PORTFOLIO_DIR_NAME);
+        }
+        if (notionUri.isEmpty()){
+            notionUri=null;
+        }
+        Portfolio portfolio = new Portfolio(member,s3Url,notionUri);
+        portfolioRepository.save(portfolio);
     }
 }

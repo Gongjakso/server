@@ -12,6 +12,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.type.SqlTypes;
+import org.springframework.data.redis.connection.ReactiveGeoCommands;
 
 @Getter
 @Entity
@@ -36,12 +37,26 @@ public class Portfolio extends BaseTimeEntity {
     @JdbcTypeCode(SqlTypes.JSON)
     private PortfolioData portfolioData;
 
-    @Builder
+    @Column(name = "file_uri",columnDefinition = "text")
+    private String fileUri;
+
+    @Column(name = "notion_uri",columnDefinition = "text")
+    private String notionUri;
+
+    @Builder(builderMethodName = "portfolioBuilder")
     public Portfolio(Member member, String portfolioName, PortfolioData portfolioData) {
         this.member = member;
         this.portfolioName = portfolioName;
         this.portfolioData = portfolioData;
     }
+
+    @Builder(builderMethodName = "existPortfolioBuilder")
+    public Portfolio(Member member, String fileUri, String notionUri){
+        this.member = member;
+        this.fileUri = fileUri;
+        this.notionUri = notionUri;
+    }
+
 
     public void updateName(String updatedName) {
         this.portfolioName = updatedName;

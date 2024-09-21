@@ -1,5 +1,7 @@
 package com.gongjakso.server.domain.portfolio.controller;
 
+import com.gongjakso.server.domain.contest.dto.request.UpdateContestDto;
+import com.gongjakso.server.domain.contest.dto.response.ContestRes;
 import com.gongjakso.server.domain.portfolio.dto.request.PortfolioReq;
 import com.gongjakso.server.domain.portfolio.dto.response.PortfolioRes;
 import com.gongjakso.server.domain.portfolio.dto.response.SimplePortfolioRes;
@@ -11,14 +13,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -65,5 +61,12 @@ public class PortfolioController {
     @GetMapping("/my")
     public ApplicationResponse<List<SimplePortfolioRes>> getMyPortfolios(@AuthenticationPrincipal PrincipalDetails principalDetails) {
         return ApplicationResponse.ok(portfolioService.getMyPortfolios(principalDetails.getMember()));
+    }
+
+    @Operation(description = "포트폴리오 파일 및 링크 업로드 API")
+    @PostMapping("/exist-protfolio")
+    public ApplicationResponse<Void> update(@AuthenticationPrincipal PrincipalDetails principalDetails, @RequestPart(required = false) MultipartFile image, @RequestPart(required = false) String notionUri){
+        portfolioService.saveExistPortfolio(principalDetails.getMember(),image,notionUri);
+        return ApplicationResponse.ok();
     }
 }
