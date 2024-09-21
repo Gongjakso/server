@@ -111,11 +111,18 @@ public class TeamController {
         return ApplicationResponse.ok(teamService.getMyRecruitTeamList(principalDetails.getMember(), pageable));
     }
 
-    @Operation(summary = "내가 참여한 팀 리스트 조회 API", description = "공모전에 상관없이 내가 참여한 팀 리스트를 조회하는 API (오프셋 기반 페이지네이션)")
+    @Operation(summary = "내가 지원한 팀 리스트 조회 API", description = "공모전에 상관없이 내가 참여한 팀 리스트를 조회하는 API (오프셋 기반 페이지네이션)")
     @GetMapping("/team/my-apply")
     public ApplicationResponse<Page<SimpleTeamRes>> getMyApplyTeamList(@AuthenticationPrincipal PrincipalDetails principalDetails,
-                                                    @PageableDefault(size = 8) Pageable pageable) {
+                                                                       @PageableDefault(size = 8) Pageable pageable) {
         return ApplicationResponse.ok(teamService.getMyApplyTeamList(principalDetails.getMember(), pageable));
+    }
+
+    @Operation(summary = "내가 참여한 팀 리스트 조회 API", description = "공모전에 상관없이 내가 참여한 팀 리스트를 조회하는 API (오프셋 기반 페이지네이션)")
+    @GetMapping("/team/my-participate")
+    public ApplicationResponse<Page<SimpleTeamRes>> getMyParticipateTeamList(@AuthenticationPrincipal PrincipalDetails principalDetails,
+                                                    @PageableDefault(size = 8) Pageable pageable) {
+        return ApplicationResponse.ok(teamService.getMyParticipateTeamList(principalDetails.getMember(), pageable));
     }
 
     @Operation(summary = "특정 팀 스크랩하기", description = "특정 팀을 스크랩하는 API")

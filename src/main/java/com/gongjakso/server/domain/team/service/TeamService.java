@@ -201,10 +201,14 @@ public class TeamService {
         return teamRepository.findRecruitPagination(member.getId(), pageable);
     }
 
-    // TODO: 내가 참여한 팀 리스트 조회를 위해서는 Apply Entity 필요하므로 main branch merge 이후 추가 진행 예정
     public Page<SimpleTeamRes> getMyApplyTeamList(Member member, Pageable pageable) {
         // Business Logic & Response
         return teamRepository.findApplyPagination(member.getId(), pageable);
+    }
+
+    public Page<SimpleTeamRes> getMyParticipateTeamList(Member member, Pageable pageable) {
+        // Business Logic & Response
+        return teamRepository.findParticipatePagination(member.getId(), pageable);
     }
 
     @Transactional
