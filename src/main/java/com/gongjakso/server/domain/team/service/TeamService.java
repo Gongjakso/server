@@ -1,5 +1,7 @@
 package com.gongjakso.server.domain.team.service;
 
+import com.gongjakso.server.domain.apply.entity.Apply;
+import com.gongjakso.server.domain.apply.repository.ApplyRepository;
 import com.gongjakso.server.domain.contest.entity.Contest;
 import com.gongjakso.server.domain.contest.repository.ContestRepository;
 import com.gongjakso.server.domain.member.entity.Member;
@@ -20,6 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -29,6 +32,7 @@ public class TeamService {
     private final TeamRepository teamRepository;
     private final ContestRepository contestRepository;
     private final ScrapRepository scrapRepository;
+    private final ApplyRepository applyRepository;
 
     @Transactional
     public TeamRes createTeam(Member member, Long contestId, TeamReq teamReq) {
@@ -41,7 +45,7 @@ public class TeamService {
         Team savedTeam = teamRepository.save(team);
 
         // Response
-        return TeamRes.of(savedTeam);
+        return TeamRes.of(savedTeam, "LEADER");
     }
 
     @Transactional
@@ -63,7 +67,7 @@ public class TeamService {
         Team updatedTeam = teamRepository.save(team);
 
         // Response
-        return TeamRes.of(updatedTeam);
+        return TeamRes.of(updatedTeam, "LEADER");
     }
 
     @Transactional
@@ -86,7 +90,7 @@ public class TeamService {
         Team updatedTeam = teamRepository.save(team);
 
         // Response
-        return TeamRes.of(updatedTeam);
+        return TeamRes.of(updatedTeam, "LEADER");
     }
 
     @Transactional
@@ -108,7 +112,7 @@ public class TeamService {
         Team updatedTeam = teamRepository.save(team);
 
         // Response
-        return TeamRes.of(updatedTeam);
+        return TeamRes.of(updatedTeam, "LEADER");
     }
 
     @Transactional
@@ -130,7 +134,7 @@ public class TeamService {
         Team updatedTeam = teamRepository.save(team);
 
         // Response
-        return TeamRes.of(updatedTeam);
+        return TeamRes.of(updatedTeam, "LEADER");
     }
 
     @Transactional
@@ -152,7 +156,7 @@ public class TeamService {
     }
 
     // TODO: 조회수 관련 로직 도입 및 @Transactional 도입 필요
-    public TeamRes getTeam(Long contestId, Long teamId) {
+    public TeamRes getTeam(Member member, Long contestId, Long teamId) {
         // Validation
         contestRepository.findByIdAndDeletedAtIsNull(contestId)
                 .orElseThrow(() -> new ApplicationException(ErrorCode.CONTEST_NOT_FOUND_EXCEPTION));
@@ -162,8 +166,19 @@ public class TeamService {
             throw new ApplicationException(ErrorCode.TEAM_NOT_FOUND_EXCEPTION);
         }
 
+        List<Member> appliers = applyRepository.findByTeamIdAndDeletedAtIsNull(teamId).stream()
+                .map(Apply::getMember)
+                .toList();
+
+        String teamRole = "GENERAL";
+        if(member != null && team.getMember().getId().equals(member.getId())){
+            teamRole = "LEADER";
+        }else if(member != null && appliers.stream().anyMatch(applier -> applier.getId().equals(member.getId()))){
+            teamRole = "APPLIER";
+        }
+
         // Business Logic
-        return TeamRes.of(team);
+        return TeamRes.of(team, teamRole);
     }
 
     public Page<SimpleTeamRes> getTeamListWithContest(Long contestId, String province, String district, Pageable pageable) {

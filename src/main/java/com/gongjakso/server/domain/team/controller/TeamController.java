@@ -80,9 +80,10 @@ public class TeamController {
 
     @Operation(summary = "팀 조회 API", description = "특정 공모전에 해당하는 팀을 조회하는 API")
     @GetMapping("/contest/{contest_id}/team/{team_id}")
-    public ApplicationResponse<TeamRes> getTeam(@PathVariable(value = "contest_id") Long contestId,
+    public ApplicationResponse<TeamRes> getTeam(@AuthenticationPrincipal PrincipalDetails principalDetails,
+                                                @PathVariable(value = "contest_id") Long contestId,
                                                 @PathVariable(value = "team_id") Long teamId) {
-        return ApplicationResponse.ok(teamService.getTeam(contestId, teamId));
+        return ApplicationResponse.ok(teamService.getTeam(principalDetails == null ? null : principalDetails.getMember(), contestId, teamId));
     }
 
     @Operation(summary = "팀 리스트 조회 API", description = "특정 공모전에 해당하는 팀 리스트를 조회하는 API (오프셋 기반 페이지네이션)")
