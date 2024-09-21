@@ -11,17 +11,20 @@ import java.time.LocalDate;
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record SimpleTeamRes(
+    @Schema(description = "공모전 ID", example = "1")
+    Long contestId,
+
     @Schema(description = "팀 ID", example = "1")
     Long id,
 
     @Schema(description = "팀 제목", example = "광화문광장 숏폼 공모전 참여자 모집")
     String title,
 
-    @Schema(description = "멤버 ID", example = "1")
-    Long memberId,
+    @Schema(description = "팀장 ID", example = "1")
+    Long leaderId,
 
-    @Schema(description = "멤버 이름", example = "홍길동")
-    String memberName,
+    @Schema(description = "팀장 이름", example = "홍길동")
+    String leaderName,
 
     @Schema(description = "모집 마감일", example = "2024-12-31")
     LocalDate recruitFinishedAt,
@@ -50,10 +53,11 @@ public record SimpleTeamRes(
         }
 
         return SimpleTeamRes.builder()
+            .contestId(team.getContest().getId())
             .id(team.getId())
             .title(team.getTitle())
-            .memberId(team.getMember().getId())
-            .memberName(team.getMember().getName())
+            .leaderId(team.getMember().getId())
+            .leaderName(team.getMember().getName())
             .recruitFinishedAt(team.getRecruitFinishedAt())
             .startedAt(team.getStartedAt())
             .finishedAt(team.getFinishedAt())
