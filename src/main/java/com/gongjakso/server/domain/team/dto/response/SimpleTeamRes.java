@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -28,6 +29,9 @@ public record SimpleTeamRes(
 
     @Schema(description = "팀 상태", example = "모집 중|모집 연장|모집 취소|모집 마감|활동 중|활동 종료")
     String status,
+
+    @Schema(description = "지원 파트 정보 - 내가 지원한 팀에서는 지원한 포지션 하나만 반환")
+    List<String> recruitPart,
 
     @Schema(description = "모집 마감일", example = "2024-12-31")
     LocalDate recruitFinishedAt,
@@ -55,6 +59,10 @@ public record SimpleTeamRes(
             dDay = (int) java.time.temporal.ChronoUnit.DAYS.between(LocalDate.now(), team.getRecruitFinishedAt());
         }
 
+        List<String> recruitPartList = (team.getRecruitPart() != null) ? team.getRecruitPart().stream()
+                .map(recruitPart -> recruitPart.position().getKoreanName())
+                .toList() : null;
+
         return SimpleTeamRes.builder()
             .id(team.getId())
             .title(team.getTitle())
@@ -62,6 +70,7 @@ public record SimpleTeamRes(
             .leaderName(team.getMember().getName())
             .contestId(team.getContest().getId())
             .status(team.getStatus().getDescription())
+            .recruitPart(recruitPartList)
             .recruitFinishedAt(team.getRecruitFinishedAt())
             .startedAt(team.getStartedAt())
             .finishedAt(team.getFinishedAt())
