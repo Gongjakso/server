@@ -69,6 +69,9 @@ public record TeamRes(
     @Schema(description = "컨택 링크", example = "https://open.kakao.com/o/gongjakso")
     String channelLink,
 
+    @Schema(description = "공모전 공고 링크", example = "https://www.ictfestival.or.kr/")
+    String contestLink,
+
     @Schema(description = "스크랩 수", example = "10")
     int scrapCount,
 
@@ -123,6 +126,7 @@ public record TeamRes(
                 .startedAt(team.getStartedAt())
                 .finishedAt(team.getFinishedAt())
                 .channelLink(team.getChannelLink())
+                .contestLink(team.getContest().getContestLink())
                 .scrapCount(team.getScrapCount())
                 .build();
     }
