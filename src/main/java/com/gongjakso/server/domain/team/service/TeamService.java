@@ -213,7 +213,7 @@ public class TeamService {
     }
 
     @Transactional
-    public void scrapTeam(Member member, Long teamId) {
+    public ScrapRes scrapTeam(Member member, Long teamId) {
         // Validation
         Team team = teamRepository.findByIdAndDeletedAtIsNull(teamId)
                 .orElseThrow(() -> new ApplicationException(ErrorCode.TEAM_NOT_FOUND_EXCEPTION));
@@ -228,16 +228,32 @@ public class TeamService {
                     .team(team)
                     .build());
         }
+
+        team.updateScrapCount(team.getScrapCount() + 1);
+        Team updateTeam = teamRepository.save(team);
+
+        // Response
+        return ScrapRes.builder()
+                .scrapCount(updateTeam.getScrapCount())
+                .build();
     }
 
     @Transactional
-    public void cancelScrapTeam(Member member, Long teamId) {
+    public ScrapRes cancelScrapTeam(Member member, Long teamId) {
         // Validation
         Team team = teamRepository.findByIdAndDeletedAtIsNull(teamId)
                 .orElseThrow(() -> new ApplicationException(ErrorCode.TEAM_NOT_FOUND_EXCEPTION));
 
         // Business Logic
         scrapRepository.deleteScrapByMemberIdAndTeamId(member.getId(), team.getId());
+
+        team.updateScrapCount(team.getScrapCount() - 1);
+        Team updateTeam = teamRepository.save(team);
+
+        // Response
+        return ScrapRes.builder()
+                .scrapCount(updateTeam.getScrapCount())
+                .build();
     }
 
     public Page<SimpleTeamRes> getScrapTeamList(Member member, Pageable pageable) {

@@ -109,6 +109,10 @@ public class Team extends BaseTimeEntity {
         this.status = teamStatus;
     }
 
+    public void updateScrapCount(int scrapCount) {
+        this.scrapCount = scrapCount;
+    }
+
     @Builder
     public Team(Member member,
                 Contest contest,
