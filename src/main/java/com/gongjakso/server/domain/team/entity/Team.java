@@ -124,7 +124,7 @@ public class Team extends BaseTimeEntity {
         this.contest = contest;
         this.title = title;
         this.body = body;
-        this.status = TeamStatus.ACTIVE;
+        this.status = TeamStatus.RECRUITING;
         this.totalCount = totalCount;
         this.passCount = 0;
         this.meetingMethod = meetingMethod;

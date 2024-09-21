@@ -33,10 +33,10 @@ public class TeamRepositoryImpl implements TeamRepositoryCustom {
     public Page<SimpleTeamRes> findPaginationWithContest(Long contestId, String province, String district, Pageable pageable) {
         BooleanBuilder builder = new BooleanBuilder();
 
-        if(province != null) {
+        if(province != null && !province.isEmpty()) {
             builder.and(team.province.eq(province));
         }
-        if(district != null) {
+        if(district != null && !district.isEmpty()) {
             builder.and(team.district.eq(district));
         }
 
@@ -60,6 +60,7 @@ public class TeamRepositoryImpl implements TeamRepositoryCustom {
         Long total = queryFactory.select(team.count())
                 .from(team)
                 .where(
+                        team.contest.id.eq(contestId),
                         team.deletedAt.isNull(),
                         builder
                 )
@@ -71,13 +72,13 @@ public class TeamRepositoryImpl implements TeamRepositoryCustom {
     public Page<SimpleTeamRes> findPaginationWithoutContest(String province, String district, String keyword, Pageable pageable) {
         BooleanBuilder builder = new BooleanBuilder();
 
-        if(province != null) {
+        if(province != null && !province.isEmpty()) {
             builder.and(team.province.eq(province));
         }
-        if(district != null) {
+        if(district != null && !district.isEmpty()) {
             builder.and(team.district.eq(district));
         }
-        if (keyword != null) {
+        if (keyword != null && !keyword.isEmpty()) {
             builder.and(team.title.containsIgnoreCase(keyword).or(team.body.containsIgnoreCase(keyword)));
         }
 
@@ -98,7 +99,6 @@ public class TeamRepositoryImpl implements TeamRepositoryCustom {
         Long total = queryFactory.select(team.count())
                 .from(team)
                 .where(
-                        team.title.containsIgnoreCase(keyword),
                         team.deletedAt.isNull(),
                         builder
                 )
