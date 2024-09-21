@@ -259,6 +259,6 @@ public class TeamService {
         Team updatedTeam = teamRepository.save(team);
 
         // Response
-        return TeamRes.of(updatedTeam);
+        return TeamRes.of(updatedTeam, "LEADER");
     }
 }
