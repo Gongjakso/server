@@ -170,20 +170,20 @@ public class PortfolioService {
     }
 
     @Transactional
-    public void saveExistPortfolio(Member member, MultipartFile image, String notionUri){
+    public void saveExistPortfolio(Member member, MultipartFile file, String notionUri){
         //등록된 파일이나 노션 링크 있는지 확인
         //Validation
         Boolean isExist = portfolioRepository.existsExistPortfolioByMember(member);
         if (isExist){
             throw new ApplicationException(ErrorCode.ALREADY_EXIST_EXCEPTION);
         }
-        if(image.isEmpty() && notionUri.isEmpty()){
+        if(file.isEmpty() && notionUri.isEmpty()){
             throw new ApplicationException(ErrorCode.PORTFOLIO_SAVE_FAILED_EXCEPTION);
         }
         //Business
         String s3Url = null;
-        if (image != null && !image.isEmpty()) {
-            s3Url = s3Client.upload(image, S3_PORTFOLIO_DIR_NAME);
+        if (file != null && !file.isEmpty()) {
+            s3Url = s3Client.upload(file, S3_PORTFOLIO_DIR_NAME);
         }
         Portfolio portfolio = new Portfolio(member,generatePortfolioName(null),s3Url,notionUri);
         portfolioRepository.save(portfolio);
@@ -202,7 +202,7 @@ public class PortfolioService {
     }
 
     @Transactional
-    public void updateExistPortfolio(Member member, Long id, MultipartFile image, String notionUri){
+    public void updateExistPortfolio(Member member, Long id, MultipartFile file, String notionUri){
         //등록된 파일이나 노션 링크 있는지 확인
         //Validation
         Portfolio portfolio = portfolioRepository.findById(id).orElseThrow(()-> new ApplicationException(ErrorCode.PORTFOLIO_NOT_FOUND_EXCEPTION));
@@ -211,11 +211,11 @@ public class PortfolioService {
         }
         //Business
         String s3Url = null;
-        if (image != null && !image.isEmpty()) {
+        if (file != null && !file.isEmpty()) {
             if(portfolio.getFileUri()!=null && !portfolio.getFileUri().isEmpty()){
                 s3Client.delete(portfolio.getFileUri());
             }
-            s3Url = s3Client.upload(image, S3_PORTFOLIO_DIR_NAME);
+            s3Url = s3Client.upload(file, S3_PORTFOLIO_DIR_NAME);
         }
         portfolio.updatePortfolioUri(portfolio,s3Url,notionUri);
         portfolioRepository.save(portfolio);
