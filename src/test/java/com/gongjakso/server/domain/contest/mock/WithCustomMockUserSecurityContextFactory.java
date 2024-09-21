@@ -18,7 +18,7 @@ public class WithCustomMockUserSecurityContextFactory implements
         String email = annotation.email();
 
         Authentication auth = new UsernamePasswordAuthenticationToken(email, "",
-                List.of(new SimpleGrantedAuthority("ROLE_USER")));
+                List.of(new SimpleGrantedAuthority("ADMIN")));
 
         SecurityContext context = SecurityContextHolder.getContext();
         context.setAuthentication(auth);

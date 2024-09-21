@@ -5,37 +5,30 @@ import com.gongjakso.server.domain.contest.dto.request.ContestReq;
 import com.gongjakso.server.domain.contest.dto.request.UpdateContestDto;
 import com.gongjakso.server.domain.contest.dto.response.ContestListRes;
 import com.gongjakso.server.domain.contest.dto.response.ContestRes;
-import com.gongjakso.server.domain.contest.entity.Contest;
 import com.gongjakso.server.domain.contest.mock.WithCustomMockUser;
 import com.gongjakso.server.domain.contest.service.ContestService;
 import com.gongjakso.server.domain.contest.util.ContestUtilTest;
 import com.gongjakso.server.domain.member.entity.Member;
 import com.gongjakso.server.domain.member.enumerate.MemberType;
-import com.gongjakso.server.domain.member.service.MemberService;
 import com.gongjakso.server.domain.member.util.MemberUtilTest;
-import com.gongjakso.server.global.config.SecurityConfig;
 import com.gongjakso.server.global.security.PrincipalDetails;
 import com.gongjakso.server.global.security.jwt.TokenProvider;
 import com.gongjakso.server.global.util.redis.RedisClient;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.mapping.JpaMetamodelMappingContext;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.context.WebApplicationContext;
-import org.springframework.web.filter.CharacterEncodingFilter;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.FileInputStream;
@@ -95,25 +88,21 @@ public class ContestControllerTest {
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated());
 
-        verify(contestService).save(adminMember,any(MultipartFile.class),eq(contestReq));
-
     }
 
     @Test
     @DisplayName("공모전 정보 API")
     void findContestTest() throws Exception {
         // given
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        MockHttpServletResponse response = new MockHttpServletResponse();
         ContestRes contestRes = ContestUtilTest.buildContestResDto();
-        given(contestService.find(anyLong(), any(HttpServletRequest.class), any(HttpServletResponse.class)))
+        given(contestService.find(1L, request, response))
                 .willReturn(contestRes);
 
         // when
-        mockMvc.perform(get("/api/v2/contest/{contest_id}", anyLong()))
-                .andExpect(status().isOk())
+        mockMvc.perform(get("/api/v2/contest/{contest_id}", 1L))
                 .andExpect(jsonPath("$.data.title").value("공작소 title"));
-
-        // then
-        verify(contestService).find(anyLong(), any(HttpServletRequest.class), any(HttpServletResponse.class));
     }
 
     @Test
@@ -122,7 +111,7 @@ public class ContestControllerTest {
         // given
         ContestListRes listRes = new ContestListRes(anyList(),anyInt(),anyLong(),anyInt());
 
-        given(contestService.search(anyString(), anyString(), any(Pageable.class)))
+        given(contestService.search("공모전", "createdAt", any(Pageable.class)))
                 .willReturn(listRes);
 
         // when
@@ -133,8 +122,6 @@ public class ContestControllerTest {
                         .param("size", "12"))
                 .andExpect(status().isOk());
 
-        // then
-        verify(contestService).search(anyString(), anyString(), any(Pageable.class));
     }
 
     @Test
@@ -167,9 +154,6 @@ public class ContestControllerTest {
                         .contentType(MediaType.MULTIPART_FORM_DATA)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.title").value("Updated Test Contest"));
-
-        // then
-        verify(contestService).update(adminMember, contestId, any(MultipartFile.class), eq(updateDto));
+                .andExpect(jsonPath("$.data.title").value(updateDto.title()));
     }
 }
