@@ -19,5 +19,7 @@ public interface TeamRepositoryCustom {
 
     Page<SimpleTeamRes> findApplyPagination(Long memberId, Pageable pageable);
 
+    Page<SimpleTeamRes> findParticipatePagination(Long memberId, Pageable pageable);
+
     Page<SimpleTeamRes> findScrapPagination(Long memberId, Pageable pageable);
 }

@@ -2,6 +2,7 @@ package com.gongjakso.server.domain.team.repository;
 
 import com.gongjakso.server.domain.team.dto.response.SimpleTeamRes;
 import com.gongjakso.server.domain.team.entity.Team;
+import com.gongjakso.server.domain.team.enumerate.TeamStatus;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
@@ -9,6 +10,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -136,11 +138,45 @@ public class TeamRepositoryImpl implements TeamRepositoryCustom {
     }
 
     public Page<SimpleTeamRes> findApplyPagination(Long memberId, Pageable pageable) {
+        List<TeamStatus> teamStatusList = Arrays.asList(TeamStatus.ACTIVE, TeamStatus.FINISHED);
+
         List<Team> teamList = queryFactory
                 .select(team)
                 .from(team)
                 .innerJoin(apply).on(apply.team.id.eq(team.id).and(apply.deletedAt.isNull()))
                 .where(
+                        team.status.in(teamStatusList),
+                        team.deletedAt.isNull()
+                )
+                .orderBy(team.createdAt.desc())
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
+
+        List<SimpleTeamRes> content = teamList.stream()
+                .map(SimpleTeamRes::of)
+                .toList();
+
+        Long total = queryFactory.select(team.count())
+                .from(team)
+                .where(
+                        team.status.in(teamStatusList),
+                        team.deletedAt.isNull()
+                )
+                .fetchOne();
+
+        return new PageImpl<>(content, pageable, (total != null) ? total : 0);
+    }
+
+    public Page<SimpleTeamRes> findParticipatePagination(Long memberId, Pageable pageable) {
+        List<TeamStatus> teamStatusList = Arrays.asList(TeamStatus.RECRUITING, TeamStatus.EXTENSION, TeamStatus.CANCELED, TeamStatus.CLOSED);
+
+        List<Team> teamList = queryFactory
+                .select(team)
+                .from(team)
+                .innerJoin(apply).on(apply.team.id.eq(team.id).and(apply.deletedAt.isNull()))
+                .where(
+                        team.status.in(teamStatusList),
                         team.deletedAt.isNull()
                 )
                 .orderBy(team.createdAt.desc())
