@@ -63,6 +63,9 @@ public record TeamReq(
     @JsonFormat(pattern = "yyyy-MM-dd")
     LocalDate finishedAt,
 
+    @Schema(description = "컨택 방법", example = "오픈카톡 = true | 구글폼 = false")
+    boolean channelMethod,
+
     @Schema(description = "컨택 링크", example = "https://open.kakao.com/o/gongjakso")
     String channelLink
 ) {
@@ -105,6 +108,7 @@ public record TeamReq(
                 recruitFinishedAt,
                 startedAt,
                 finishedAt,
+                channelMethod,
                 channelLink);
     }
 }
