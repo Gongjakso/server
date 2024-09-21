@@ -158,6 +158,9 @@ public class TeamService {
                 .orElseThrow(() -> new ApplicationException(ErrorCode.CONTEST_NOT_FOUND_EXCEPTION));
         Team team = teamRepository.findByIdAndDeletedAtIsNull(teamId)
                 .orElseThrow(() -> new ApplicationException(ErrorCode.TEAM_NOT_FOUND_EXCEPTION));
+        if(!team.getContest().getId().equals(contestId)) {
+            throw new ApplicationException(ErrorCode.TEAM_NOT_FOUND_EXCEPTION);
+        }
 
         // Business Logic
         return TeamRes.of(team);

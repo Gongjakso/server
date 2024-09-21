@@ -10,6 +10,7 @@ import com.gongjakso.server.domain.team.enumerate.MeetingMethod;
 import com.gongjakso.server.domain.team.vo.RecruitPart;
 import com.gongjakso.server.global.common.Position;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -39,9 +40,11 @@ public record TeamReq(
     @NotEmpty
     String meetingMethod,
 
+    @Nullable
     @Schema(description = "시/도", example = "서울특별시")
     String province,
 
+    @Nullable
     @Schema(description = "시/군/구", example = "강남구")
     String district,
 
