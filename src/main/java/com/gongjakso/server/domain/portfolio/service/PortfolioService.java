@@ -2,6 +2,7 @@ package com.gongjakso.server.domain.portfolio.service;
 
 import com.gongjakso.server.domain.member.entity.Member;
 import com.gongjakso.server.domain.portfolio.dto.request.PortfolioReq;
+import com.gongjakso.server.domain.portfolio.dto.response.ExistPortfolioRes;
 import com.gongjakso.server.domain.portfolio.dto.response.PortfolioRes;
 import com.gongjakso.server.domain.portfolio.dto.response.SimplePortfolioRes;
 import com.gongjakso.server.domain.portfolio.entity.Portfolio;
@@ -15,7 +16,6 @@ import com.gongjakso.server.global.util.s3.S3Client;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.multipart.MultipartFile;
 
 @Service
@@ -185,10 +185,47 @@ public class PortfolioService {
         if (image != null && !image.isEmpty()) {
             s3Url = s3Client.upload(image, S3_PORTFOLIO_DIR_NAME);
         }
-        if (notionUri.isEmpty()){
-            notionUri=null;
-        }
         Portfolio portfolio = new Portfolio(member,s3Url,notionUri);
         portfolioRepository.save(portfolio);
     }
+
+    @Transactional
+    public void deleteExistPortfolio(Member member, Long id){
+        Portfolio portfolio = portfolioRepository.findById(id).orElseThrow(()-> new ApplicationException(ErrorCode.NOT_FOUND_EXCEPTION));
+        if(!member.getId().equals(portfolio.getMember().getId())){
+            throw new ApplicationException(ErrorCode.UNAUTHORIZED_EXCEPTION);
+        }
+        if(portfolio.getFileUri() != null){
+            s3Client.delete(portfolio.getFileUri());
+        }
+        portfolioRepository.delete(portfolio);
+    }
+
+    @Transactional
+    public void updateExistPortfolio(Member member, Long id, MultipartFile image, String notionUri){
+        //등록된 파일이나 노션 링크 있는지 확인
+        //Validation
+        Portfolio portfolio = portfolioRepository.findById(id).orElseThrow(()-> new ApplicationException(ErrorCode.NOT_FOUND_EXCEPTION));
+        if(!member.getId().equals(portfolio.getMember().getId())){
+            throw new ApplicationException(ErrorCode.UNAUTHORIZED_EXCEPTION);
+        }
+        //Business
+        String s3Url = null;
+        if (image != null && !image.isEmpty()) {
+            s3Client.delete(portfolio.getFileUri());
+            s3Url = s3Client.upload(image, S3_PORTFOLIO_DIR_NAME);
+        }
+        portfolio.updateExistPortfolio(portfolio,s3Url,notionUri);
+        portfolioRepository.save(portfolio);
+    }
+
+    public ExistPortfolioRes findExistPorfolio(Member member, Long id){
+        //Validation
+        Portfolio portfolio = portfolioRepository.findById(id).orElseThrow(()-> new ApplicationException(ErrorCode.NOT_FOUND_EXCEPTION));
+        if (!portfolio.getMember().getId().equals(member.getId())) {
+            throw new ApplicationException(ErrorCode.FORBIDDEN_EXCEPTION);
+        }
+        return new ExistPortfolioRes(portfolio.getFileUri(),portfolio.getNotionUri());
+    }
+
 }

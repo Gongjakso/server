@@ -1,5 +1,6 @@
 package com.gongjakso.server.domain.portfolio.entity;
 
+import com.gongjakso.server.domain.contest.dto.request.UpdateContestDto;
 import com.gongjakso.server.domain.member.entity.Member;
 import com.gongjakso.server.domain.portfolio.vo.PortfolioData;
 import com.gongjakso.server.global.common.BaseTimeEntity;
@@ -55,6 +56,10 @@ public class Portfolio extends BaseTimeEntity {
         this.member = member;
         this.fileUri = fileUri;
         this.notionUri = notionUri;
+    }
+    public void updateExistPortfolio(Portfolio portfolio, String fileUri, String notionUri) {
+        this.fileUri = (fileUri == null) ? this.fileUri : portfolio.getFileUri();
+        this.notionUri = (notionUri == null) ? this.notionUri : portfolio.getNotionUri();
     }
 
 

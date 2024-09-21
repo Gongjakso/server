@@ -1,8 +1,7 @@
 package com.gongjakso.server.domain.portfolio.controller;
 
-import com.gongjakso.server.domain.contest.dto.request.UpdateContestDto;
-import com.gongjakso.server.domain.contest.dto.response.ContestRes;
 import com.gongjakso.server.domain.portfolio.dto.request.PortfolioReq;
+import com.gongjakso.server.domain.portfolio.dto.response.ExistPortfolioRes;
 import com.gongjakso.server.domain.portfolio.dto.response.PortfolioRes;
 import com.gongjakso.server.domain.portfolio.dto.response.SimplePortfolioRes;
 import com.gongjakso.server.domain.portfolio.service.PortfolioService;
@@ -65,8 +64,30 @@ public class PortfolioController {
 
     @Operation(description = "포트폴리오 파일 및 링크 업로드 API")
     @PostMapping("/exist-protfolio")
-    public ApplicationResponse<Void> update(@AuthenticationPrincipal PrincipalDetails principalDetails, @RequestPart(required = false) MultipartFile image, @RequestPart(required = false) String notionUri){
+    public ApplicationResponse<Void> updateExistPortfolio(@AuthenticationPrincipal PrincipalDetails principalDetails, @RequestPart(required = false) MultipartFile image, @RequestPart(required = false) String notionUri){
         portfolioService.saveExistPortfolio(principalDetails.getMember(),image,notionUri);
         return ApplicationResponse.ok();
     }
+
+    @Operation(description = "포트폴리오 파일 및 링크 업로드 삭제 API")
+    @PostMapping("/exist-protfolio/{portfolio_id}")
+    public ApplicationResponse<Void> deleteExistPortfolio(@AuthenticationPrincipal PrincipalDetails principalDetails,@PathVariable("portfolio_id") Long portfolioId){
+        portfolioService.deleteExistPortfolio(principalDetails.getMember(),portfolioId);
+        return ApplicationResponse.ok();
+    }
+
+    @Operation(description = "포트폴리오 파일 및 링크 업로드 업데이트 API")
+    @PostMapping("/exist-protfolio/{portfolio_id}")
+    public ApplicationResponse<Void> updateExistPortfolio(@AuthenticationPrincipal PrincipalDetails principalDetails,@PathVariable("portfolio_id") Long portfolioId, @RequestPart(required = false) MultipartFile image, @RequestPart(required = false) String notionUri){
+        portfolioService.updateExistPortfolio(principalDetails.getMember(),portfolioId,image,notionUri);
+        return ApplicationResponse.ok();
+    }
+
+    @Operation(description = "포트폴리오 파일 및 링크 업로드 가져오기 API")
+    @PostMapping("/exist-protfolio/{portfolio_id}")
+    public ApplicationResponse<ExistPortfolioRes> findExistPortfolio(@AuthenticationPrincipal PrincipalDetails principalDetails, @PathVariable("portfolio_id") Long portfolioId, @RequestPart(required = false) MultipartFile image, @RequestPart(required = false) String notionUri){
+        return ApplicationResponse.ok(portfolioService.findExistPorfolio(principalDetails.getMember(),portfolioId));
+    }
+
+
 }
