@@ -70,7 +70,10 @@ public record TeamRes(
     int scrapCount,
 
     @Schema(description = "조회 수", example = "100")
-    int viewCount
+    int viewCount,
+
+    @Schema(description = "사용자 역할", example = "LEADER")
+    String teamRole
 ) {
 
     @Builder
@@ -96,7 +99,7 @@ public record TeamRes(
 
     }
 
-    public static TeamRes of(Team team) {
+    public static TeamRes of(Team team, String teamRole) {
         List<RecruitPartRes> recruitPartRes = (team.getRecruitPart() != null) ? team.getRecruitPart().stream()
                 .map(RecruitPartRes::of)
                 .toList() : null;
@@ -120,6 +123,7 @@ public record TeamRes(
                 .finishedAt(team.getFinishedAt())
                 .channelLink(team.getChannelLink())
                 .scrapCount(team.getScrapCount())
+                .teamRole(teamRole)
                 .build();
     }
 }
