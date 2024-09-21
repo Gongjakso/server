@@ -166,7 +166,7 @@ public class TeamService {
             throw new ApplicationException(ErrorCode.TEAM_NOT_FOUND_EXCEPTION);
         }
 
-        List<Member> appliers = applyRepository.findByTeamId(teamId).stream()
+        List<Member> appliers = applyRepository.findByTeamIdAndDeletedAtIsNull(teamId).stream()
                 .map(Apply::getMember)
                 .toList();
 
