@@ -6,6 +6,7 @@ import com.gongjakso.server.domain.contest.entity.Contest;
 import com.gongjakso.server.domain.contest.repository.ContestRepository;
 import com.gongjakso.server.domain.member.entity.Member;
 import com.gongjakso.server.domain.team.dto.request.TeamReq;
+import com.gongjakso.server.domain.team.dto.response.ScrapRes;
 import com.gongjakso.server.domain.team.dto.response.SimpleTeamRes;
 import com.gongjakso.server.domain.team.dto.response.TeamRes;
 import com.gongjakso.server.domain.team.entity.Scrap;
@@ -240,6 +241,24 @@ public class TeamService {
         return teamRepository.findScrapPagination(member.getId(), pageable);
     }
 
+    public ScrapRes checkScrapTeam(Member member, Long teamId) {
+        // Validation
+        Team team = teamRepository.findByIdAndDeletedAtIsNull(teamId)
+                .orElseThrow(() -> new ApplicationException(ErrorCode.TEAM_NOT_FOUND_EXCEPTION));
+
+        // Business Logic
+        Scrap scrap = scrapRepository.findScrapByMemberIdAndTeamId(member.getId(), team.getId())
+                .orElse(null);
+
+        // Response
+        return (scrap != null)
+                ? ScrapRes.builder()
+                    .isScrap(true).build()
+                : ScrapRes.builder()
+                    .isScrap(false).build();
+    }
+
+    @Transactional
     public TeamRes changeTeamStatus(Member member, Long contestId, Long teamId, String status) {
         // Validation
         contestRepository.findByIdAndDeletedAtIsNull(contestId)

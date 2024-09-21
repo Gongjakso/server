@@ -1,6 +1,7 @@
 package com.gongjakso.server.domain.team.controller;
 
 import com.gongjakso.server.domain.team.dto.request.TeamReq;
+import com.gongjakso.server.domain.team.dto.response.ScrapRes;
 import com.gongjakso.server.domain.team.dto.response.SimpleTeamRes;
 import com.gongjakso.server.domain.team.dto.response.TeamRes;
 import com.gongjakso.server.domain.team.service.TeamService;
@@ -139,6 +140,13 @@ public class TeamController {
     public ApplicationResponse<Page<SimpleTeamRes>> getScrapTeamList(@AuthenticationPrincipal PrincipalDetails principalDetails,
                                                   @PageableDefault(size = 8) Pageable pageable) {
         return ApplicationResponse.ok(teamService.getScrapTeamList(principalDetails.getMember(), pageable));
+    }
+
+    @Operation(summary = "팀 스크랩 여부 조회 API", description = "해당 팀을 스크랩했는지 여부를 확인하는 API")
+    @GetMapping("/team/{team_id}/scrap/check")
+    public ApplicationResponse<ScrapRes> checkScrapTeam(@AuthenticationPrincipal PrincipalDetails principalDetails,
+                                                        @PathVariable(value = "team_id") Long teamId) {
+        return ApplicationResponse.ok(teamService.checkScrapTeam(principalDetails.getMember(), teamId));
     }
 
     @Operation(summary = "팀 활동 상태 변경 API", description = "팀의 활동 상태를 변경한다.")
