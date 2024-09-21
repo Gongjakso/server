@@ -34,6 +34,7 @@ public enum ErrorCode {
     // 5000: Team Error
     TEAM_NOT_FOUND_EXCEPTION(HttpStatus.NOT_FOUND, 5000, "존재하지 않는 팀입니다."),
     INVALID_POSITION_EXCEPTION(HttpStatus.BAD_REQUEST, 5001, "올바르지 않은 포지션입니다."),
+    INVALID_TEAM_STATUS_EXCEPTION(HttpStatus.BAD_REQUEST, 5002, "올바르지 않은 팀 상태입니다."),
 
     // 6000: Portfolio Error
     PORTFOLIO_NOT_FOUND_EXCEPTION(HttpStatus.NOT_FOUND, 6000, "포트폴리오를 찾을 수 없습니다."),

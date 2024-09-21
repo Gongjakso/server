@@ -224,4 +224,26 @@ public class TeamService {
         // Business Logic & Response
         return teamRepository.findScrapPagination(member.getId(), pageable);
     }
+
+    public TeamRes changeTeamStatus(Member member, Long contestId, Long teamId, String status) {
+        // Validation
+        contestRepository.findByIdAndDeletedAtIsNull(contestId)
+                .orElseThrow(() -> new ApplicationException(ErrorCode.CONTEST_NOT_FOUND_EXCEPTION));
+        Team team = teamRepository.findByIdAndDeletedAtIsNull(teamId)
+                .orElseThrow(() -> new ApplicationException(ErrorCode.TEAM_NOT_FOUND_EXCEPTION));
+        if (!team.getContest().getId().equals(contestId)) {
+            throw new ApplicationException(ErrorCode.INVALID_VALUE_EXCEPTION);
+        }
+        if (!team.getMember().getId().equals(member.getId())) {
+            throw new ApplicationException(ErrorCode.FORBIDDEN_EXCEPTION);
+        }
+        TeamStatus teamStatus = TeamStatus.checkActiveORFinished(status);
+
+        // Business Logic
+        team.updateTeamStatus(teamStatus);
+        Team updatedTeam = teamRepository.save(team);
+
+        // Response
+        return TeamRes.of(updatedTeam);
+    }
 }

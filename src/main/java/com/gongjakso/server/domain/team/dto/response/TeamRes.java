@@ -18,11 +18,11 @@ public record TeamRes(
     @Schema(description = "팀 ID", example = "1")
     Long id,
 
-    @Schema(description = "멤버 ID", example = "1")
-    Long memberId,
+    @Schema(description = "팀장 ID", example = "1")
+    Long leaderId,
 
-    @Schema(description = "멤버 이름", example = "홍길동")
-    String memberName,
+    @Schema(description = "팀장 이름", example = "홍길동")
+    String leaderName,
 
     @Schema(description = "공모전 ID", example = "1")
     Long contestId,
@@ -35,6 +35,9 @@ public record TeamRes(
 
     @Schema(description = "팀 내용", example = "광화문광장 숏폼 공모전 참여자 모집합니다.")
     String body,
+
+    @Schema(description = "팀 상태", example = "모집 중|모집 연장|모집 취소|모집 마감|활동 중|활동 종료")
+    String status,
 
     @Schema(description = "총 인원", example = "5")
     int totalCount,
@@ -103,12 +106,13 @@ public record TeamRes(
 
         return TeamRes.builder()
                 .id(team.getId())
-                .memberId(team.getMember().getId())
-                .memberName(team.getMember().getName())
+                .leaderId(team.getMember().getId())
+                .leaderName(team.getMember().getName())
                 .contestId(team.getContest().getId())
                 .contestTitle(team.getContest().getTitle())
                 .title(team.getTitle())
                 .body(team.getTitle())
+                .status(team.getStatus().getDescription())
                 .totalCount(team.getTotalCount())
                 .passCount(team.getPassCount())
                 .meetingMethod(team.getMeetingMethod().getDescription())

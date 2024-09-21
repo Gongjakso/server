@@ -139,4 +139,13 @@ public class TeamController {
                                                   @PageableDefault(size = 8) Pageable pageable) {
         return ApplicationResponse.ok(teamService.getScrapTeamList(principalDetails.getMember(), pageable));
     }
+
+    @Operation(summary = "팀 활동 상태 변경 API", description = "팀의 활동 상태를 변경한다.")
+    @PatchMapping("/contest/{contest_id}/team/{team_id}/change-status")
+    public ApplicationResponse<TeamRes> changeTeamStatus(@AuthenticationPrincipal PrincipalDetails principalDetails,
+                                                      @PathVariable(value = "contest_id") Long contestId,
+                                                      @PathVariable(value = "team_id") Long teamId,
+                                                      @RequestParam(value = "status") String status) {
+        return ApplicationResponse.ok(teamService.changeTeamStatus(principalDetails.getMember(), contestId, teamId, status));
+    }
 }
