@@ -76,6 +76,9 @@ public class Team extends BaseTimeEntity {
     @Column(name = "finished_at", columnDefinition = "date")
     private LocalDate finishedAt;
 
+    @Column(name = "channel_method", columnDefinition = "varchar(20)", nullable = false)
+    private String channelMethod;
+
     @Column(name = "channel_link", columnDefinition = "text")
     private String channelLink;
 
@@ -119,6 +122,7 @@ public class Team extends BaseTimeEntity {
                 LocalDate recruitFinishedAt,
                 LocalDate startedAt,
                 LocalDate finishedAt,
+                Boolean channelMethod,
                 String channelLink) {
         this.member = member;
         this.contest = contest;
@@ -134,6 +138,7 @@ public class Team extends BaseTimeEntity {
         this.recruitFinishedAt = recruitFinishedAt;
         this.startedAt = startedAt;
         this.finishedAt = finishedAt;
+        this.channelMethod = (channelMethod) ? "오픈카톡" : "구글폼";
         this.channelLink = channelLink;
         this.scrapCount = 0;
         this.viewCount = 0;

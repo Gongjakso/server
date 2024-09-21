@@ -66,6 +66,9 @@ public record TeamRes(
     @Schema(description = "활동 종료일", example = "2025-01-31")
     LocalDate finishedAt,
 
+    @Schema(description = "컨택 방법", example = "오픈카톡 - true | 구글폼 - false")
+    Boolean channelMethod,
+
     @Schema(description = "컨택 링크", example = "https://open.kakao.com/o/gongjakso")
     String channelLink,
 
@@ -128,6 +131,7 @@ public record TeamRes(
                 .recruitFinishedAt(team.getRecruitFinishedAt())
                 .startedAt(team.getStartedAt())
                 .finishedAt(team.getFinishedAt())
+                .channelMethod(team.getChannelMethod().equals("오픈카톡"))
                 .channelLink(team.getChannelLink())
                 .contestLink(team.getContest().getContestLink())
                 .scrapCount(team.getScrapCount())
