@@ -174,7 +174,7 @@ public class PortfolioService {
         //등록된 파일이나 노션 링크 있는지 확인
         //Validation
         Boolean isExist = portfolioRepository.existsExistPortfolioByMember(member);
-        if (!isExist){
+        if (isExist){
             throw new ApplicationException(ErrorCode.ALREADY_EXIST_EXCEPTION);
         }
         if(image.isEmpty() && notionUri.isEmpty()){
@@ -185,7 +185,7 @@ public class PortfolioService {
         if (image != null && !image.isEmpty()) {
             s3Url = s3Client.upload(image, S3_PORTFOLIO_DIR_NAME);
         }
-        Portfolio portfolio = new Portfolio(member,s3Url,notionUri);
+        Portfolio portfolio = new Portfolio(member,generatePortfolioName(null),s3Url,notionUri);
         portfolioRepository.save(portfolio);
     }
 
@@ -205,6 +205,7 @@ public class PortfolioService {
     public void updateExistPortfolio(Member member, Long id, MultipartFile image, String notionUri){
         //등록된 파일이나 노션 링크 있는지 확인
         //Validation
+        System.out.println(id);
         Portfolio portfolio = portfolioRepository.findById(id).orElseThrow(()-> new ApplicationException(ErrorCode.NOT_FOUND_EXCEPTION));
         if(!member.getId().equals(portfolio.getMember().getId())){
             throw new ApplicationException(ErrorCode.UNAUTHORIZED_EXCEPTION);
@@ -215,6 +216,7 @@ public class PortfolioService {
             s3Client.delete(portfolio.getFileUri());
             s3Url = s3Client.upload(image, S3_PORTFOLIO_DIR_NAME);
         }
+        System.out.println(notionUri);
         portfolio.updateExistPortfolio(portfolio,s3Url,notionUri);
         portfolioRepository.save(portfolio);
     }

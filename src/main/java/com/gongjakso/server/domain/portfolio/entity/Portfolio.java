@@ -52,8 +52,9 @@ public class Portfolio extends BaseTimeEntity {
     }
 
     @Builder(builderMethodName = "existPortfolioBuilder")
-    public Portfolio(Member member, String fileUri, String notionUri){
+    public Portfolio(Member member, String portfolioName, String fileUri, String notionUri){
         this.member = member;
+        this.portfolioName = portfolioName;
         this.fileUri = fileUri;
         this.notionUri = notionUri;
     }
