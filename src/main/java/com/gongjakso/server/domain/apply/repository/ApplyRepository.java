@@ -8,4 +8,5 @@ import java.util.Optional;
 public interface ApplyRepository extends JpaRepository<Apply, Long>, ApplyRepositoryCustom {
     Boolean existsByMemberIdAndTeamIdAndDeletedAtIsNull(Long memberId, Long teamId);
     Optional<Apply> findByIdAndDeletedAtIsNull(Long applyId);
+    Optional<Apply> findByTeamId(Long teamId);
 }
