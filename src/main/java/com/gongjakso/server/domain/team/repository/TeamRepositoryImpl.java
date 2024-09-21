@@ -60,9 +60,8 @@ public class TeamRepositoryImpl implements TeamRepositoryCustom {
         Long total = queryFactory.select(team.count())
                 .from(team)
                 .where(
-                        province != null ? team.province.eq(province) : team.province.isNull(),
-                        district != null ? team.district.eq(district) : team.district.isNull(),
-                        team.deletedAt.isNull()
+                        team.deletedAt.isNull(),
+                        builder
                 )
                 .fetchOne();
 
@@ -99,10 +98,9 @@ public class TeamRepositoryImpl implements TeamRepositoryCustom {
         Long total = queryFactory.select(team.count())
                 .from(team)
                 .where(
-                        province != null ? team.province.eq(province) : team.province.isNull(),
-                        district != null ? team.district.eq(district) : team.district.isNull(),
                         team.title.containsIgnoreCase(keyword),
-                        team.deletedAt.isNull()
+                        team.deletedAt.isNull(),
+                        builder
                 )
                 .fetchOne();
 
