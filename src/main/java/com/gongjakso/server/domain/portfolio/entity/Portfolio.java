@@ -58,9 +58,9 @@ public class Portfolio extends BaseTimeEntity {
         this.fileUri = fileUri;
         this.notionUri = notionUri;
     }
-    public void updateExistPortfolio(Portfolio portfolio, String fileUri, String notionUri) {
-        this.fileUri = (fileUri == null) ? this.fileUri : portfolio.getFileUri();
-        this.notionUri = (notionUri == null) ? this.notionUri : portfolio.getNotionUri();
+    public void updatePortfolioUri(Portfolio portfolio, String fileUri, String notionUri) {
+        this.fileUri = (fileUri == null) ? this.fileUri : fileUri;
+        this.notionUri = (notionUri == null) ? this.notionUri : notionUri;
     }
 
 
