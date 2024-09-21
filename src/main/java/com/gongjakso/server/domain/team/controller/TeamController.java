@@ -128,18 +128,16 @@ public class TeamController {
 
     @Operation(summary = "특정 팀 스크랩하기", description = "특정 팀을 스크랩하는 API")
     @PostMapping("/team/{team_id}/scrap")
-    public ApplicationResponse<Void> scrapTeam(@AuthenticationPrincipal PrincipalDetails principalDetails,
+    public ApplicationResponse<ScrapRes> scrapTeam(@AuthenticationPrincipal PrincipalDetails principalDetails,
                                            @PathVariable(value = "team_id") Long teamId) {
-        teamService.scrapTeam(principalDetails.getMember(), teamId);
-        return ApplicationResponse.ok();
+        return ApplicationResponse.ok(teamService.scrapTeam(principalDetails.getMember(), teamId));
     }
 
     @Operation(summary = "특정 팀 스크랩 취소하기", description = "특정 팀 스크랩을 취소하는 API")
     @DeleteMapping("/team/{team_id}/scrap")
-    public ApplicationResponse<Void> cancelScrapTeam(@AuthenticationPrincipal PrincipalDetails principalDetails,
+    public ApplicationResponse<ScrapRes> cancelScrapTeam(@AuthenticationPrincipal PrincipalDetails principalDetails,
                                                  @PathVariable(value = "team_id") Long teamId) {
-        teamService.cancelScrapTeam(principalDetails.getMember(), teamId);
-        return ApplicationResponse.ok();
+        return ApplicationResponse.ok(teamService.cancelScrapTeam(principalDetails.getMember(), teamId));
     }
 
     @Operation(summary = "스크랩한 팀 리스트 조회 API", description = "스크랩한 팀 리스트를 조회하는 API (오프셋 기반 페이지네이션)")
