@@ -47,10 +47,13 @@ public class ContestService {
         if (image != null && !image.isEmpty()) {
             s3Url = s3Client.upload(image, S3_CONTEST_DIR_NAME);
         }
+        //contest body data \n-><br/> \t-><t/>
+        String body = contestReq.body().replace("\n","<br/>")
+                                        .replace("\t","<t/>");
         //contest build 및 생성
         Contest contest = Contest.builder()
                 .title(contestReq.title())
-                .body(contestReq.body())
+                .body(body)
                 .contestLink(contestReq.contestLink())
                 .institution(contestReq.institution())
                 .startedAt(contestReq.startedAt())
