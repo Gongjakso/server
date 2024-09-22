@@ -10,9 +10,5 @@ import org.springframework.data.repository.query.Param;
 public interface PortfolioRepository extends JpaRepository<Portfolio, Long>, PortfolioRepositoryCustom{
     Optional<Portfolio> findByIdAndDeletedAtIsNull(Long portfolioId);
     long countByDeletedAtIsNull();
-    @Query("SELECT EXISTS (" +
-            "SELECT 1 FROM Portfolio po " +
-            "WHERE po.member = :member AND (po.fileUri IS NOT NULL OR po.notionUri IS NOT NULL) AND po.deletedAt IS NULL )")
-    Boolean existsExistPortfolioByMember(@Param("member") Member member);
     Optional<Portfolio> findPortfolioById(Long portfolioId);
 }
