@@ -2,6 +2,7 @@ package com.gongjakso.server.domain.team.service;
 
 import com.gongjakso.server.domain.apply.dto.response.SimpleApplyRes;
 import com.gongjakso.server.domain.apply.entity.Apply;
+import com.gongjakso.server.domain.apply.enumerate.ApplyStatus;
 import com.gongjakso.server.domain.apply.repository.ApplyRepository;
 import com.gongjakso.server.domain.contest.entity.Contest;
 import com.gongjakso.server.domain.contest.repository.ContestRepository;
@@ -170,6 +171,8 @@ public class TeamService {
         if(!team.getContest().getId().equals(contestId)) {
             throw new ApplicationException(ErrorCode.TEAM_NOT_FOUND_EXCEPTION);
         }
+
+        getPassCount(team);
 
         if(member != null && team.getMember().getId().equals(member.getId())){
             return TeamRes.of(team, "LEADER");
@@ -340,5 +343,10 @@ public class TeamService {
             newCookie.setPath("/");
             response.addCookie(newCookie);
         }
+    }
+
+    public void getPassCount(Team team) {
+        int passCount = applyRepository.countByTeamIdAndStatusAndDeletedAtIsNull(team.getId(), ApplyStatus.ACCEPTED);
+        team.updatePassCount(passCount);
     }
 }

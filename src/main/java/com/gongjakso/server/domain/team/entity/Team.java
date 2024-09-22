@@ -117,6 +117,10 @@ public class Team extends BaseTimeEntity {
         this.viewCount = team.getViewCount() + 1;
     }
 
+    public void updatePassCount(int passCount) {
+        this.passCount = passCount;
+    }
+
     @Builder
     public Team(Member member,
                 Contest contest,
