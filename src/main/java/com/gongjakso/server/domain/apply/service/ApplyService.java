@@ -128,10 +128,10 @@ public class ApplyService {
             throw new ApplicationException(ErrorCode.UNAUTHORIZED_EXCEPTION);
         }
 
-        updatePassCount(apply.getTeam());
-
         //Business Logic
         applyRepository.delete(apply);
+
+        updatePassCount(apply.getTeam());
     }
 
     public void updatePassCount(Team team) {
