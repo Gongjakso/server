@@ -191,6 +191,7 @@ public class TeamRepositoryImpl implements TeamRepositoryCustom {
         Long total = queryFactory.select(team.count())
                 .from(team)
                 .where(
+                        team.status.in(teamStatusList),
                         team.deletedAt.isNull()
                 )
                 .fetchOne();
@@ -224,6 +225,7 @@ public class TeamRepositoryImpl implements TeamRepositoryCustom {
         Long total = queryFactory.select(team.count())
                 .from(team)
                 .where(
+                        team.id.in(teamIdList),
                         team.deletedAt.isNull()
                 )
                 .fetchOne();
