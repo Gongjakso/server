@@ -9,4 +9,5 @@ public interface ApplyRepository extends JpaRepository<Apply, Long>, ApplyReposi
     Boolean existsByMemberIdAndTeamIdAndDeletedAtIsNull(Long memberId, Long teamId);
     Optional<Apply> findByIdAndDeletedAtIsNull(Long applyId);
     Optional<Apply> findByTeamIdAndDeletedAtIsNull(Long teamId);
+    Optional<Apply> findByTeamIdAndMemberIdAndDeletedAtIsNull(Long teamId, Long memberId);
 }

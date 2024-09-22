@@ -46,7 +46,7 @@ public class TeamService {
         Team savedTeam = teamRepository.save(team);
 
         // Response
-        return TeamRes.of(savedTeam, "LEADER");
+        return TeamRes.of(savedTeam, "LEADER", null);
     }
 
     @Transactional
@@ -68,7 +68,7 @@ public class TeamService {
         Team updatedTeam = teamRepository.save(team);
 
         // Response
-        return TeamRes.of(updatedTeam, "LEADER");
+        return TeamRes.of(updatedTeam, "LEADER", null);
     }
 
     @Transactional
@@ -91,7 +91,7 @@ public class TeamService {
         Team updatedTeam = teamRepository.save(team);
 
         // Response
-        return TeamRes.of(updatedTeam, "LEADER");
+        return TeamRes.of(updatedTeam, "LEADER", null);
     }
 
     @Transactional
@@ -113,7 +113,7 @@ public class TeamService {
         Team updatedTeam = teamRepository.save(team);
 
         // Response
-        return TeamRes.of(updatedTeam, "LEADER");
+        return TeamRes.of(updatedTeam, "LEADER", null);
     }
 
     @Transactional
@@ -135,7 +135,7 @@ public class TeamService {
         Team updatedTeam = teamRepository.save(team);
 
         // Response
-        return TeamRes.of(updatedTeam, "LEADER");
+        return TeamRes.of(updatedTeam, "LEADER", null);
     }
 
     @Transactional
@@ -172,14 +172,18 @@ public class TeamService {
                 .toList();
 
         String teamRole = "GENERAL";
+        Apply apply = null;
+
         if(member != null && team.getMember().getId().equals(member.getId())){
             teamRole = "LEADER";
         }else if(member != null && appliers.stream().anyMatch(applier -> applier.getId().equals(member.getId()))){
             teamRole = "APPLIER";
+            apply = applyRepository.findByTeamIdAndMemberIdAndDeletedAtIsNull(teamId, member.getId())
+                    .orElseThrow(() -> new ApplicationException(ErrorCode.APPLY_NOT_FOUND_EXCEPTION));
         }
 
         // Business Logic
-        return TeamRes.of(team, teamRole);
+        return TeamRes.of(team, teamRole, apply);
     }
 
     public Page<SimpleTeamRes> getTeamListWithContest(Long contestId, String province, String district, Pageable pageable) {
@@ -298,6 +302,6 @@ public class TeamService {
         Team updatedTeam = teamRepository.save(team);
 
         // Response
-        return TeamRes.of(updatedTeam, "LEADER");
+        return TeamRes.of(updatedTeam, "LEADER", null);
     }
 }
