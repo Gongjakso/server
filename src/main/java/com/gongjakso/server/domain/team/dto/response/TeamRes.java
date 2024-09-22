@@ -115,7 +115,7 @@ public record TeamRes(
 
     }
 
-    public static TeamRes of(Team team, String teamRole, Apply apply) {
+    public static TeamResBuilder teamResBuilder(Team team){
         List<RecruitPartRes> recruitPartRes = (team.getRecruitPart() != null) ? team.getRecruitPart().stream()
                 .map(RecruitPartRes::of)
                 .toList() : null;
@@ -127,7 +127,7 @@ public record TeamRes(
                 .contestId(team.getContest().getId())
                 .contestTitle(team.getContest().getTitle())
                 .title(team.getTitle())
-                .body(team.getTitle())
+                .body(team.getBody())
                 .status(team.getStatus().getDescription())
                 .totalCount(team.getTotalCount())
                 .passCount(team.getPassCount())
@@ -142,6 +142,17 @@ public record TeamRes(
                 .channelLink(team.getChannelLink())
                 .contestLink(team.getContest().getContestLink())
                 .scrapCount(team.getScrapCount())
+                .viewCount(team.getViewCount());
+    }
+
+    public static TeamRes of(Team team, String teamRole){
+        return teamResBuilder(team)
+                .teamRole(teamRole)
+                .build();
+    }
+
+    public static TeamRes of(Team team, String teamRole, Apply apply){
+        return teamResBuilder(team)
                 .teamRole(teamRole)
                 .applyStatus(apply != null ? apply.getStatus().getDescription() : null)
                 .applyId(apply != null ? apply.getId() : null)

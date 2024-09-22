@@ -47,7 +47,7 @@ public class TeamService {
         Team savedTeam = teamRepository.save(team);
 
         // Response
-        return TeamRes.of(savedTeam, "LEADER", null);
+        return TeamRes.of(savedTeam, "LEADER");
     }
 
     @Transactional
@@ -69,7 +69,7 @@ public class TeamService {
         Team updatedTeam = teamRepository.save(team);
 
         // Response
-        return TeamRes.of(updatedTeam, "LEADER", null);
+        return TeamRes.of(updatedTeam, "LEADER");
     }
 
     @Transactional
@@ -92,7 +92,7 @@ public class TeamService {
         Team updatedTeam = teamRepository.save(team);
 
         // Response
-        return TeamRes.of(updatedTeam, "LEADER", null);
+        return TeamRes.of(updatedTeam, "LEADER");
     }
 
     @Transactional
@@ -114,7 +114,7 @@ public class TeamService {
         Team updatedTeam = teamRepository.save(team);
 
         // Response
-        return TeamRes.of(updatedTeam, "LEADER", null);
+        return TeamRes.of(updatedTeam, "LEADER");
     }
 
     @Transactional
@@ -136,7 +136,7 @@ public class TeamService {
         Team updatedTeam = teamRepository.save(team);
 
         // Response
-        return TeamRes.of(updatedTeam, "LEADER", null);
+        return TeamRes.of(updatedTeam, "LEADER");
     }
 
     @Transactional
@@ -168,19 +168,16 @@ public class TeamService {
             throw new ApplicationException(ErrorCode.TEAM_NOT_FOUND_EXCEPTION);
         }
 
-        String teamRole = "GENERAL";
-        Apply apply = null;
-
         if(member != null && team.getMember().getId().equals(member.getId())){
-            teamRole = "LEADER";
+            return TeamRes.of(team, "LEADER");
         }else if(member != null &&  applyRepository.findByTeamIdAndMemberIdAndDeletedAtIsNull(teamId, member.getId()).isPresent()){
-            teamRole = "APPLIER";
-            apply = applyRepository.findByTeamIdAndMemberIdAndDeletedAtIsNull(teamId, member.getId())
+            Apply apply = applyRepository.findByTeamIdAndMemberIdAndDeletedAtIsNull(teamId, member.getId())
                     .orElseThrow(() -> new ApplicationException(ErrorCode.APPLY_NOT_FOUND_EXCEPTION));
+            return TeamRes.of(team, "APPLIER", apply);
         }
 
         // Business Logic
-        return TeamRes.of(team, teamRole, apply);
+        return TeamRes.of(team, "GENERAL");
     }
 
     public Page<SimpleTeamRes> getTeamListWithContest(Long contestId, String province, String district, Pageable pageable) {
