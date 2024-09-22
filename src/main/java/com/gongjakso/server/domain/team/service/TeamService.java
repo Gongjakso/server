@@ -17,6 +17,9 @@ import com.gongjakso.server.domain.team.repository.ScrapRepository;
 import com.gongjakso.server.domain.team.repository.TeamRepository;
 import com.gongjakso.server.global.exception.ApplicationException;
 import com.gongjakso.server.global.exception.ErrorCode;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -157,8 +160,8 @@ public class TeamService {
         teamRepository.delete(team);
     }
 
-    // TODO: 조회수 관련 로직 도입 및 @Transactional 도입 필요
-    public TeamRes getTeam(Member member, Long contestId, Long teamId) {
+    // TODO: @Transactional 도입 필요
+    public TeamRes getTeam(Member member, Long contestId, Long teamId, HttpServletRequest request, HttpServletResponse response) {
         // Validation
         contestRepository.findByIdAndDeletedAtIsNull(contestId)
                 .orElseThrow(() -> new ApplicationException(ErrorCode.CONTEST_NOT_FOUND_EXCEPTION));
@@ -175,6 +178,8 @@ public class TeamService {
                     .orElseThrow(() -> new ApplicationException(ErrorCode.APPLY_NOT_FOUND_EXCEPTION));
             return TeamRes.of(team, "APPLIER", apply);
         }
+
+        updateView(team, request, response);
 
         // Business Logic
         return TeamRes.of(team, "GENERAL");
@@ -311,5 +316,29 @@ public class TeamService {
         return applyRepository.findAllByTeamIdAndDeletedAtIsNull(teamId).stream()
                 .map(SimpleApplyRes::of)
                 .toList();
+    }
+
+    public void updateView(Team team, HttpServletRequest request, HttpServletResponse response) {
+        boolean hasViewed = false;
+        Cookie[] cookies = request.getCookies();
+
+        String COOKIE_NAME = "team_view";
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if (cookie.getName().equals(COOKIE_NAME)) {
+                    hasViewed = true;
+                    break;
+                }
+            }
+        }
+
+        if (!hasViewed) {
+            team.updateViewCount(team);
+            // 세션 쿠키 설정
+            Cookie newCookie = new Cookie(COOKIE_NAME, "viewed");
+            newCookie.setMaxAge(-1); // 브라우저 세션이 끝날 때까지 유효
+            newCookie.setPath("/");
+            response.addCookie(newCookie);
+        }
     }
 }

@@ -86,7 +86,7 @@ public class Team extends BaseTimeEntity {
     private int scrapCount;
 
     @Column(name = "view_count", nullable = false, columnDefinition = "int")
-    private int viewCount;
+    private Integer viewCount;
 
     public void update(TeamReq teamReq) {
         this.title = (teamReq.title() != null) ? teamReq.title() : this.title;
@@ -111,6 +111,10 @@ public class Team extends BaseTimeEntity {
 
     public void updateScrapCount(int scrapCount) {
         this.scrapCount = scrapCount;
+    }
+
+    public void updateViewCount(Team team){
+        this.viewCount = team.getViewCount() + 1;
     }
 
     @Builder

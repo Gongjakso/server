@@ -10,6 +10,8 @@ import com.gongjakso.server.global.common.ApplicationResponse;
 import com.gongjakso.server.global.security.PrincipalDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -85,8 +87,10 @@ public class TeamController {
     @GetMapping("/contest/{contest_id}/team/{team_id}")
     public ApplicationResponse<TeamRes> getTeam(@AuthenticationPrincipal PrincipalDetails principalDetails,
                                                 @PathVariable(value = "contest_id") Long contestId,
-                                                @PathVariable(value = "team_id") Long teamId) {
-        return ApplicationResponse.ok(teamService.getTeam(principalDetails == null ? null : principalDetails.getMember(), contestId, teamId));
+                                                @PathVariable(value = "team_id") Long teamId,
+                                                HttpServletRequest request,
+                                                HttpServletResponse response) {
+        return ApplicationResponse.ok(teamService.getTeam(principalDetails == null ? null : principalDetails.getMember(), contestId, teamId, request, response));
     }
 
     @Operation(summary = "팀 리스트 조회 API", description = "특정 공모전에 해당하는 팀 리스트를 조회하는 API (오프셋 기반 페이지네이션)")
