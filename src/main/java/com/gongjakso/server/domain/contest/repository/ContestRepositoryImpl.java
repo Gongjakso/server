@@ -21,8 +21,6 @@ public class ContestRepositoryImpl implements ContestRepositoryCustom{
         this.queryFactory = new JPAQueryFactory(em);
     }
 
-    //최신순으로 정렬
-    //제목,본문 기준으로 검색
     @Override
     public Page<Contest> searchList(String word, String sortAt, Pageable pageable) {
         List<Contest> contestList = queryFactory

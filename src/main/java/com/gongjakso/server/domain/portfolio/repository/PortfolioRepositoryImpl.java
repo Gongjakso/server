@@ -20,4 +20,13 @@ public class PortfolioRepositoryImpl {
                         .and(portfolio.deletedAt.isNull()))
                 .fetch();
     }
+
+    public Boolean existsExistPortfolioByMember(Member member){
+        return queryFactory
+                .selectFrom(portfolio)
+                .where(portfolio.member.eq(member)
+                        .and(portfolio.fileUri.isNotNull().or(portfolio.notionUri.isNotNull()))
+                        .and(portfolio.deletedAt.isNull()))
+                .fetchFirst()!=null;
+    }
 }
