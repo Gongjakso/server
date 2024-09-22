@@ -182,12 +182,12 @@ public class PortfolioService {
         if (isExist){
             throw new ApplicationException(ErrorCode.ALREADY_EXIST_EXCEPTION);
         }
-        if(file.isEmpty() && notionUri.isEmpty()){
+        if (file == null && notionUri == null){
             throw new ApplicationException(ErrorCode.PORTFOLIO_SAVE_FAILED_EXCEPTION);
         }
         //Business
         String s3Url = null;
-        if ( file!=null || !file.isEmpty()) {
+        if ( file!=null ) {
             s3Url = s3Client.upload(file, S3_PORTFOLIO_DIR_NAME);
         }
         Portfolio portfolio = new Portfolio(member,generatePortfolioName(null),s3Url,notionUri);
@@ -216,7 +216,7 @@ public class PortfolioService {
         }
         //Business
         String s3Url = null;
-        if (file != null && !file.isEmpty()) {
+        if ( file!=null ) {
             if(portfolio.getFileUri()!=null && !portfolio.getFileUri().isEmpty()){
                 s3Client.delete(portfolio.getFileUri());
             }
