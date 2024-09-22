@@ -164,8 +164,13 @@ public class PortfolioService {
 
     public List<SimplePortfolioRes> getMyPortfolios(Member member) {
         List<Portfolio> portfolioList = portfolioRepository.findByMemberAndDeletedAtIsNull(member);
+
+        if (portfolioList.isEmpty()) {
+            return List.of(SimplePortfolioRes.of(null, false));
+        }
+
         return portfolioList.stream()
-                .map(SimplePortfolioRes::of)
+                .map(portfolio -> SimplePortfolioRes.of(portfolio, true))
                 .toList();
     }
 
