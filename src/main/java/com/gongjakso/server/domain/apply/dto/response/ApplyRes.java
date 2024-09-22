@@ -32,7 +32,7 @@ public record ApplyRes(
 
         Boolean isPrivate,
 
-        @Size(max = 500)
+        @Size(max = 1000)
         String body,
 
         @Size(max = 20)
