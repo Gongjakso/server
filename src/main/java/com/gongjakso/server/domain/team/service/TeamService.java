@@ -172,8 +172,6 @@ public class TeamService {
             throw new ApplicationException(ErrorCode.TEAM_NOT_FOUND_EXCEPTION);
         }
 
-        getPassCount(team);
-
         if(member != null && team.getMember().getId().equals(member.getId())){
             return TeamRes.of(team, "LEADER");
         }else if(member != null &&  applyRepository.findByTeamIdAndMemberIdAndDeletedAtIsNull(teamId, member.getId()).isPresent()){
@@ -343,10 +341,5 @@ public class TeamService {
             newCookie.setPath("/");
             response.addCookie(newCookie);
         }
-    }
-
-    public void getPassCount(Team team) {
-        int passCount = applyRepository.countByTeamIdAndStatusAndDeletedAtIsNull(team.getId(), ApplyStatus.ACCEPTED);
-        team.updatePassCount(passCount);
     }
 }

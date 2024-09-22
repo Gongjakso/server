@@ -1,5 +1,6 @@
 package com.gongjakso.server.domain.apply.service;
 
+import com.gongjakso.server.domain.apply.enumerate.ApplyStatus;
 import com.gongjakso.server.domain.member.entity.Member;
 import com.gongjakso.server.domain.portfolio.entity.Portfolio;
 import com.gongjakso.server.domain.portfolio.repository.PortfolioRepository;
@@ -16,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.chrono.ChronoLocalDate;
 
@@ -23,12 +25,14 @@ import static java.time.LocalDateTime.now;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class ApplyService {
 
     private final ApplyRepository applyRepository;
     private final PortfolioRepository portfolioRepository;
     private final TeamRepository teamRepository;
 
+    @Transactional
     public ApplyRes apply(Member member, Long teamId, ApplyReq applyReq) {
         //Validation: teamId, 지원 가능 기간인지, 리더가 지원하는지, 이미 지원했는지, 본인의 포트폴리오인지 유효성 검사
         Team team = teamRepository.findTeamById(teamId)
@@ -73,6 +77,7 @@ public class ApplyService {
         return applyPage;
     }
 
+    @Transactional
     public ApplyRes getApply(Member member, Long applyId) {
         //Validation: Apply가 유효하지 않거나, 리더가 아니거나, 자신이 아닌 경우 예외 처리
         Apply apply = applyRepository.findApplyDetails(applyId)
@@ -92,6 +97,7 @@ public class ApplyService {
         return ApplyRes.of(apply);
     }
 
+    @Transactional
     public ApplyRes selectApply(Member member, Long applyId, StatusReq req){
         //Validation: Apply가 유효하지 않거나, 리더가 아닌 경우 예외 처리
         Apply apply = applyRepository.findApplyDetails(applyId).orElseThrow(() -> new ApplicationException(ErrorCode.APPLY_NOT_FOUND_EXCEPTION));
@@ -103,6 +109,7 @@ public class ApplyService {
         //Business Logic
         if (req != null) {
             apply.select(req.status());
+            updatePassCount(apply.getTeam());
         }
 
         applyRepository.save(apply);
@@ -111,6 +118,7 @@ public class ApplyService {
         return ApplyRes.of(apply);
     }
 
+    @Transactional
     public void cancelApply(Member member, Long applyId) {
         //Validation: Apply가 유효하지 않거나, 지원자 아닌 경우 예외 처리
         Apply apply = applyRepository.findByIdAndDeletedAtIsNull(applyId)
@@ -120,7 +128,14 @@ public class ApplyService {
             throw new ApplicationException(ErrorCode.UNAUTHORIZED_EXCEPTION);
         }
 
+        updatePassCount(apply.getTeam());
+
         //Business Logic
         applyRepository.delete(apply);
+    }
+
+    public void updatePassCount(Team team) {
+        int passCount = applyRepository.countByTeamIdAndStatusAndDeletedAtIsNull(team.getId(), ApplyStatus.ACCEPTED);
+        team.updatePassCount(passCount);
     }
 }
