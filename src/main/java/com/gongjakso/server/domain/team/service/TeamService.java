@@ -168,16 +168,12 @@ public class TeamService {
             throw new ApplicationException(ErrorCode.TEAM_NOT_FOUND_EXCEPTION);
         }
 
-        List<Member> appliers = applyRepository.findByTeamIdAndDeletedAtIsNull(teamId).stream()
-                .map(Apply::getMember)
-                .toList();
-
         String teamRole = "GENERAL";
         Apply apply = null;
 
         if(member != null && team.getMember().getId().equals(member.getId())){
             teamRole = "LEADER";
-        }else if(member != null && appliers.stream().anyMatch(applier -> applier.getId().equals(member.getId()))){
+        }else if(member != null &&  applyRepository.findByTeamIdAndMemberIdAndDeletedAtIsNull(teamId, member.getId()).isPresent()){
             teamRole = "APPLIER";
             apply = applyRepository.findByTeamIdAndMemberIdAndDeletedAtIsNull(teamId, member.getId())
                     .orElseThrow(() -> new ApplicationException(ErrorCode.APPLY_NOT_FOUND_EXCEPTION));
