@@ -1,5 +1,6 @@
 package com.gongjakso.server.domain.team.controller;
 
+import com.gongjakso.server.domain.apply.dto.response.SimpleApplyRes;
 import com.gongjakso.server.domain.team.dto.request.TeamReq;
 import com.gongjakso.server.domain.team.dto.response.ScrapRes;
 import com.gongjakso.server.domain.team.dto.response.SimpleTeamRes;
@@ -19,6 +20,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.util.List;
 
 
 @RestController
@@ -161,5 +163,12 @@ public class TeamController {
                                                       @PathVariable(value = "team_id") Long teamId,
                                                       @RequestParam(value = "status") String status) {
         return ApplicationResponse.ok(teamService.changeTeamStatus(principalDetails.getMember(), contestId, teamId, status));
+    }
+
+    @Operation(summary = "특정 팀의 지원자 리스트 조회", description = "특정 팀의 지원자 리스트를 조회하는 API")
+    @GetMapping("/team/{team_id}")
+    public ApplicationResponse<List<SimpleApplyRes>> getAppliesByTeam(@AuthenticationPrincipal PrincipalDetails principalDetails,
+                                                                               @PathVariable("team_id") Long teamId) {
+        return ApplicationResponse.ok(teamService.getApplyList(principalDetails.getMember(), teamId));
     }
 }
