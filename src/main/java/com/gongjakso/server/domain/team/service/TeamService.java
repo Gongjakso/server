@@ -1,5 +1,6 @@
 package com.gongjakso.server.domain.team.service;
 
+import com.gongjakso.server.domain.apply.dto.response.SimpleApplyRes;
 import com.gongjakso.server.domain.apply.entity.Apply;
 import com.gongjakso.server.domain.apply.repository.ApplyRepository;
 import com.gongjakso.server.domain.contest.entity.Contest;
@@ -303,5 +304,19 @@ public class TeamService {
 
         // Response
         return TeamRes.of(updatedTeam, "LEADER", null);
+    }
+
+    public List<SimpleApplyRes> getApplyList(Member member, Long teamId) {
+        // Validation
+        Team team = teamRepository.findByIdAndDeletedAtIsNull(teamId)
+                .orElseThrow(() -> new ApplicationException(ErrorCode.TEAM_NOT_FOUND_EXCEPTION));
+        if (!team.getMember().getId().equals(member.getId())) {
+            throw new ApplicationException(ErrorCode.FORBIDDEN_EXCEPTION);
+        }
+
+        // Business Logic & Response
+        return applyRepository.findAllByTeamIdAndDeletedAtIsNull(teamId).stream()
+                .map(SimpleApplyRes::of)
+                .toList();
     }
 }
