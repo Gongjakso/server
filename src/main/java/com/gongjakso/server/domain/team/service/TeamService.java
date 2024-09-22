@@ -161,7 +161,7 @@ public class TeamService {
         teamRepository.delete(team);
     }
 
-    // TODO: @Transactional 도입 필요
+    @Transactional
     public TeamRes getTeam(Member member, Long contestId, Long teamId, HttpServletRequest request, HttpServletResponse response) {
         // Validation
         contestRepository.findByIdAndDeletedAtIsNull(contestId)
