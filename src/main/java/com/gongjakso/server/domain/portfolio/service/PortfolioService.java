@@ -166,11 +166,11 @@ public class PortfolioService {
         List<Portfolio> portfolioList = portfolioRepository.findByMemberAndDeletedAtIsNull(member);
 
         if (portfolioList.isEmpty()) {
-            return List.of(SimplePortfolioRes.of(null, false));
+            return List.of(SimplePortfolioRes.of(null, false, null));
         }
 
         return portfolioList.stream()
-                .map(portfolio -> SimplePortfolioRes.of(portfolio, true))
+                .map(portfolio -> SimplePortfolioRes.of(portfolio, true, portfolio.getFileUri() != null || portfolio.getNotionUri() != null))
                 .toList();
     }
 

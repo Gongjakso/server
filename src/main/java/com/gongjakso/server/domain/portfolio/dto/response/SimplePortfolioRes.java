@@ -10,14 +10,16 @@ public record SimplePortfolioRes(
         Long PortfolioId,
         String PortfolioName,
         LocalDateTime modifiedAt,
-        Boolean isRegistered
+        Boolean isRegistered,
+        Boolean isExistPortfolio
 ) {
-    public static SimplePortfolioRes of(Portfolio portfolio, Boolean isRegistered) {
+    public static SimplePortfolioRes of(Portfolio portfolio, Boolean isRegistered, Boolean isExistPortfolio) {
         return new SimplePortfolioRes(
                 isRegistered ? portfolio.getId() : null,
                 isRegistered ? portfolio.getPortfolioName() : null,
                 isRegistered ? portfolio.getModifiedAt() : null,
-                isRegistered
+                isRegistered,
+                isExistPortfolio
         );
     }
 }
