@@ -262,9 +262,9 @@ public class PortfolioService {
         }
         DataType type = DataType.valueOf(dataType.toUpperCase());
         if (type.equals(DataType.FILE)){
-            return new ExistPortfolioRes(null,portfolio.getNotionUri());
-        } else if (type.equals(DataType.NOTION)) {
             return new ExistPortfolioRes(portfolio.getFileUri(),null);
+        } else if (type.equals(DataType.NOTION)) {
+            return new ExistPortfolioRes(null,portfolio.getNotionUri());
         }else {
             return new ExistPortfolioRes(portfolio.getFileUri(),portfolio.getNotionUri());
         }
