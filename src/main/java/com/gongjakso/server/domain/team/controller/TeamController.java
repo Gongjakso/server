@@ -8,6 +8,7 @@ import com.gongjakso.server.domain.team.service.TeamService;
 import com.gongjakso.server.global.common.ApplicationResponse;
 import com.gongjakso.server.global.security.PrincipalDetails;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -87,7 +88,11 @@ public class TeamController {
         return ApplicationResponse.ok(teamService.getTeam(principalDetails == null ? null : principalDetails.getMember(), contestId, teamId));
     }
 
-    @Operation(summary = "팀 리스트 조회 API", description = "특정 공모전에 해당하는 팀 리스트를 조회하는 API (오프셋 기반 페이지네이션)")
+    @Operation(summary = "팀 리스트 조회 API",
+            description = "특정 공모전에 해당하는 팀 리스트를 조회하는 API (오프셋 기반 페이지네이션)",
+            parameters = {
+                @Parameter(name = "sort", description = "정렬 기준 (예시- 생성 시각 내림차순 createdAt,desc / 인기순 오름차순 scrap,asc", required = false),
+            })
     @GetMapping("/contest/{contest_id}/team/list")
     public ApplicationResponse<Page<SimpleTeamRes>> getTeamList(@PathVariable(value = "contest_id") Long contestId,
                                                                 @RequestParam(value = "province", required = false) String province,
@@ -96,7 +101,12 @@ public class TeamController {
         return ApplicationResponse.ok(teamService.getTeamListWithContest(contestId, province, district, pageable));
     }
 
-    @Operation(summary = "팀 리스트 조회 API", description = "공모전에 상관없이 팀 리스트를 조회하는 API (검색 기능 존재 / 오프셋 기반 페이지네이션)")
+    @Operation(summary = "팀 리스트 조회 API",
+            method = "GET",
+            description = "공모전에 상관없이 팀 리스트를 조회하는 API (검색 기능 존재 / 오프셋 기반 페이지네이션)",
+            parameters = {
+                @Parameter(name = "sort", description = "정렬 기준 (예시- 생성 시각 내림차순 createdAt,desc / 인기순 오름차순 scrap,asc", required = false),
+            })
     @GetMapping("/team/list")
     public ApplicationResponse<Page<SimpleTeamRes>> getTeamList(@RequestParam(value = "province", required = false) String province,
                                               @RequestParam(value = "district", required = false) String district,
@@ -108,7 +118,7 @@ public class TeamController {
     @Operation(summary = "내가 모집 중인 팀 리스트 조회 API", description = "공모전에 상관없이 내가 모집 중인 팀 리스트를 조회하는 API (오프셋 기반 페이지네이션)")
     @GetMapping("/team/my-recruit")
     public ApplicationResponse<Page<SimpleTeamRes>> getMyRecruitTeamList(@AuthenticationPrincipal PrincipalDetails principalDetails,
-                                                      @PageableDefault(size = 8) Pageable pageable) {
+                                                                         @PageableDefault(size = 8) Pageable pageable) {
         return ApplicationResponse.ok(teamService.getMyRecruitTeamList(principalDetails.getMember(), pageable));
     }
 

@@ -3,13 +3,18 @@ package com.gongjakso.server.domain.team.repository;
 import com.gongjakso.server.domain.team.dto.response.SimpleTeamRes;
 import com.gongjakso.server.domain.team.entity.Team;
 import com.gongjakso.server.domain.team.enumerate.TeamStatus;
+import com.gongjakso.server.global.exception.ApplicationException;
+import com.gongjakso.server.global.exception.ErrorCode;
 import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -50,7 +55,7 @@ public class TeamRepositoryImpl implements TeamRepositoryCustom {
                         team.deletedAt.isNull(),
                         builder
                 )
-                .orderBy(team.createdAt.desc())
+                .orderBy(getSort(pageable).toArray(OrderSpecifier[]::new))
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();
@@ -89,7 +94,7 @@ public class TeamRepositoryImpl implements TeamRepositoryCustom {
                 .from(team)
                 .where(team.deletedAt.isNull()
                         .and(builder))
-                .orderBy(team.createdAt.desc())
+                .orderBy(getSort(pageable).toArray(OrderSpecifier[]::new))
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();
@@ -229,5 +234,30 @@ public class TeamRepositoryImpl implements TeamRepositoryCustom {
                 .fetchOne();
 
         return new PageImpl<>(content, pageable, (total != null) ? total : 0);
+    }
+
+    private List<OrderSpecifier<?>> getSort(Pageable pageable) {
+        List<OrderSpecifier<?>> orderSpecifierList = new ArrayList<>();
+
+        if(pageable.getSort().isEmpty()) {
+            orderSpecifierList.add(team.createdAt.desc());
+            return orderSpecifierList;
+        }
+
+        for(Sort.Order order : pageable.getSort()) {
+            System.out.println(order.getProperty());
+            switch (order.getProperty())  {
+                case "createdAt":
+                    orderSpecifierList.add((order.isAscending()) ? team.createdAt.asc() : team.createdAt.desc());
+                    break;
+                case "scrap":
+                    orderSpecifierList.add((order.isAscending()) ? team.scrapCount.asc() : team.scrapCount.desc());
+                    break;
+                default:
+                    throw new ApplicationException(ErrorCode.INVALID_SORT_EXCEPTION);
+            }
+        }
+
+        return orderSpecifierList;
     }
 }
