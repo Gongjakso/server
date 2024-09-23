@@ -174,6 +174,8 @@ public class TeamService {
 
         updateView(team, request, response);
 
+        updatePassCount(team);
+
         if(member != null && team.getMember().getId().equals(member.getId())){
             return TeamRes.of(team, "LEADER");
         }else if(member != null &&  applyRepository.findByTeamIdAndMemberIdAndDeletedAtIsNull(teamId, member.getId()).isPresent()){
@@ -341,5 +343,10 @@ public class TeamService {
             newCookie.setPath("/");
             response.addCookie(newCookie);
         }
+    }
+
+    public void updatePassCount(Team team) {
+        int passCount = applyRepository.countByTeamIdAndStatusAndDeletedAtIsNull(team.getId(), ApplyStatus.ACCEPTED);
+        team.updatePassCount(passCount);
     }
 }
