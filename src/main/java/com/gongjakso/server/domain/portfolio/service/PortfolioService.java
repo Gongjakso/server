@@ -6,6 +6,7 @@ import com.gongjakso.server.domain.portfolio.dto.response.ExistPortfolioRes;
 import com.gongjakso.server.domain.portfolio.dto.response.PortfolioRes;
 import com.gongjakso.server.domain.portfolio.dto.response.SimplePortfolioRes;
 import com.gongjakso.server.domain.portfolio.entity.Portfolio;
+import com.gongjakso.server.domain.portfolio.enumerate.DataType;
 import com.gongjakso.server.domain.portfolio.vo.PortfolioData;
 import com.gongjakso.server.domain.portfolio.repository.PortfolioRepository;
 import com.gongjakso.server.global.exception.ApplicationException;
@@ -226,13 +227,19 @@ public class PortfolioService {
         portfolioRepository.save(portfolio);
     }
 
-    public ExistPortfolioRes findExistPorfolio(Member member, Long id){
+    public ExistPortfolioRes findExistPorfolio(Member member, Long id, DataType dataType){
         //Validation
         Portfolio portfolio = portfolioRepository.findById(id).orElseThrow(()-> new ApplicationException(ErrorCode.NOT_FOUND_EXCEPTION));
         if (!portfolio.getMember().getId().equals(member.getId())) {
             throw new ApplicationException(ErrorCode.FORBIDDEN_EXCEPTION);
         }
-        return new ExistPortfolioRes(portfolio.getFileUri(),portfolio.getNotionUri());
+        if (dataType.equals(DataType.FILE)){
+            return new ExistPortfolioRes(null,portfolio.getNotionUri());
+        } else if (dataType.equals(DataType.NOTION)) {
+            return new ExistPortfolioRes(portfolio.getFileUri(),null);
+        }else {
+            return new ExistPortfolioRes(portfolio.getFileUri(),portfolio.getNotionUri());
+        }
     }
 
 }

@@ -4,6 +4,7 @@ import com.gongjakso.server.domain.portfolio.dto.request.PortfolioReq;
 import com.gongjakso.server.domain.portfolio.dto.response.ExistPortfolioRes;
 import com.gongjakso.server.domain.portfolio.dto.response.PortfolioRes;
 import com.gongjakso.server.domain.portfolio.dto.response.SimplePortfolioRes;
+import com.gongjakso.server.domain.portfolio.enumerate.DataType;
 import com.gongjakso.server.domain.portfolio.service.PortfolioService;
 import com.gongjakso.server.global.common.ApplicationResponse;
 import com.gongjakso.server.global.security.PrincipalDetails;
@@ -85,8 +86,8 @@ public class PortfolioController {
 
     @Operation(description = "포트폴리오 파일 및 링크 업로드 가져오기 API")
     @GetMapping("/exist-portfolio/{portfolio_id}")
-    public ApplicationResponse<ExistPortfolioRes> findExistPortfolio(@AuthenticationPrincipal PrincipalDetails principalDetails, @PathVariable("portfolio_id") Long portfolioId){
-        return ApplicationResponse.ok(portfolioService.findExistPorfolio(principalDetails.getMember(),portfolioId));
+    public ApplicationResponse<ExistPortfolioRes> findExistPortfolio(@AuthenticationPrincipal PrincipalDetails principalDetails, @PathVariable("portfolio_id") Long portfolioId, @RequestParam(name = "dataType") DataType dataType){
+        return ApplicationResponse.ok(portfolioService.findExistPorfolio(principalDetails.getMember(),portfolioId,dataType));
     }
 
 
