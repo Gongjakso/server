@@ -179,7 +179,7 @@ public class PortfolioService {
     public void saveExistPortfolio(Member member, MultipartFile file, String notionUri){
         //등록된 파일이나 노션 링크 있는지 확인
         //Validation
-        Boolean isExist = portfolioRepository.existsExistPortfolioByMember(member);
+        Boolean isExist = portfolioRepository.hasExistPortfolioByMember(member,"or");
         if (isExist){
             throw new ApplicationException(ErrorCode.ALREADY_EXIST_EXCEPTION);
         }
@@ -196,15 +196,40 @@ public class PortfolioService {
     }
 
     @Transactional
-    public void deleteExistPortfolio(Member member, Long id){
+    public void deleteExistPortfolio(Member member, Long id, DataType dataType){
         Portfolio portfolio = portfolioRepository.findById(id).orElseThrow(()-> new ApplicationException(ErrorCode.NOT_FOUND_EXCEPTION));
         if(!member.getId().equals(portfolio.getMember().getId())){
             throw new ApplicationException(ErrorCode.UNAUTHORIZED_EXCEPTION);
         }
-        if(portfolio.getFileUri() != null || !portfolio.getFileUri().isEmpty()){
+        if (dataType.equals(DataType.FILE)){
+            //file delete
+            if(portfolio.getFileUri()==null){
+                throw new ApplicationException(ErrorCode.FILE_NOT_FOUND_EXCEPTION);
+            }
             s3Client.delete(portfolio.getFileUri());
+            portfolio.setFileUri(null);
+            //file,notion all null
+            if(portfolioRepository.hasExistPortfolioByMember(member,"and")){
+                portfolioRepository.delete(portfolio);
+            }
+        } else if (dataType.equals(DataType.NOTION)) {
+            //notion delete
+            if(portfolio.getNotionUri()==null){
+                throw new ApplicationException(ErrorCode.NOTION_NOT_FOUND_EXCEPTION);
+            }
+            portfolio.setNotionUri(null);
+            //file,notion all null
+            if(portfolioRepository.hasExistPortfolioByMember(member,"and")){
+                portfolioRepository.delete(portfolio);
+            }
+        }else {
+            //file,notion delete
+            if(portfolio.getFileUri()==null || portfolio.getNotionUri()==null){
+                throw new ApplicationException(ErrorCode.NOT_FOUND_EXCEPTION);
+            }
+            s3Client.delete(portfolio.getFileUri());
+            portfolioRepository.delete(portfolio);
         }
-        portfolioRepository.delete(portfolio);
     }
 
     @Transactional
@@ -223,7 +248,7 @@ public class PortfolioService {
             }
             s3Url = s3Client.upload(file, S3_PORTFOLIO_DIR_NAME);
         }
-        portfolio.updatePortfolioUri(portfolio,s3Url,notionUri);
+        portfolio.updatePortfolioUri(s3Url,notionUri);
         portfolioRepository.save(portfolio);
     }
 

@@ -2,6 +2,7 @@ package com.gongjakso.server.domain.portfolio.repository;
 
 import com.gongjakso.server.domain.member.entity.Member;
 import com.gongjakso.server.domain.portfolio.entity.Portfolio;
+import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 
@@ -21,12 +22,21 @@ public class PortfolioRepositoryImpl {
                 .fetch();
     }
 
-    public Boolean existsExistPortfolioByMember(Member member){
+    public Boolean hasExistPortfolioByMember(Member member,String condition){
         return queryFactory
                 .selectFrom(portfolio)
                 .where(portfolio.member.eq(member)
-                        .and(portfolio.fileUri.isNotNull().or(portfolio.notionUri.isNotNull()))
+                        .and(conditionEq(condition))
                         .and(portfolio.deletedAt.isNull()))
                 .fetchFirst()!=null;
+    }
+
+    public BooleanExpression conditionEq(String condition){
+        if(condition.equals("or")){
+            return portfolio.fileUri.isNotNull().or(portfolio.notionUri.isNotNull());
+        }else if (condition.equals("and")){
+            return portfolio.fileUri.isNull().and(portfolio.notionUri.isNull());
+        }
+        return null;
     }
 }

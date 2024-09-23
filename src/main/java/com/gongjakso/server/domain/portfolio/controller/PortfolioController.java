@@ -72,8 +72,8 @@ public class PortfolioController {
 
     @Operation(description = "포트폴리오 파일 및 링크 업로드 삭제 API")
     @DeleteMapping("/exist-portfolio/{portfolio_id}")
-    public ApplicationResponse<Void> deleteExistPortfolio(@AuthenticationPrincipal PrincipalDetails principalDetails,@PathVariable("portfolio_id") Long portfolioId){
-        portfolioService.deleteExistPortfolio(principalDetails.getMember(),portfolioId);
+    public ApplicationResponse<Void> deleteExistPortfolio(@AuthenticationPrincipal PrincipalDetails principalDetails,@PathVariable("portfolio_id") Long portfolioId, @RequestParam(name = "dataType") DataType dataType){
+        portfolioService.deleteExistPortfolio(principalDetails.getMember(),portfolioId,dataType);
         return ApplicationResponse.ok();
     }
 

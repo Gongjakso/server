@@ -58,11 +58,10 @@ public class Portfolio extends BaseTimeEntity {
         this.fileUri = fileUri;
         this.notionUri = notionUri;
     }
-    public void updatePortfolioUri(Portfolio portfolio, String fileUri, String notionUri) {
+    public void updatePortfolioUri(String fileUri, String notionUri) {
         this.fileUri = (fileUri == null) ? this.fileUri : fileUri;
         this.notionUri = (notionUri == null) ? this.notionUri : notionUri;
     }
-
 
     public void updateName(String updatedName) {
         this.portfolioName = updatedName;
@@ -70,5 +69,12 @@ public class Portfolio extends BaseTimeEntity {
 
     public void updateData(PortfolioData updatedData) {
         this.portfolioData = updatedData;
+    }
+
+    public void setFileUri(String fileUri){
+        this.fileUri=fileUri;
+    }
+    public void setNotionUri(String notionUri){
+        this.notionUri=notionUri;
     }
 }

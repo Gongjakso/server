@@ -42,6 +42,8 @@ public enum ErrorCode {
     PORTFOLIO_UPDATE_FAILED_EXCEPTION(HttpStatus.INTERNAL_SERVER_ERROR, 6002, "포트폴리오 수정에 실패했습니다."),
     INVALID_PORTFOLIO_REQUEST_EXCEPTION(HttpStatus.BAD_REQUEST, 6003, "유효하지 않은 포트폴리오 요청입니다."),
     PORTFOLIO_UNAUTHORIZED_EXCEPTION(HttpStatus.UNAUTHORIZED, 6004, "포트폴리오에 대한 권한이 없습니다."),
+    FILE_NOT_FOUND_EXCEPTION(HttpStatus.NOT_FOUND, 6005, "존재하지 않는 파일 리소스입니다."),
+    NOTION_NOT_FOUND_EXCEPTION(HttpStatus.NOT_FOUND, 6005, "존재하지 않는 노션 링크 리소스입니다."),
 
     //7000: Apply Error
     APPLY_PERIOD_EXPIRED_EXCEPTION(HttpStatus.BAD_REQUEST,7000,"지원 기간이 지났습니다"),
