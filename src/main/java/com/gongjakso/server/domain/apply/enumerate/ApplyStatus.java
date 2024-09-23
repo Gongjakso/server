@@ -6,9 +6,9 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public enum ApplyStatus {
-    COMPLETED("지원 완료"),
-    ACCEPTED("합격"),
-    REJECTED("불합격");
+    COMPLETED("합류 대기중"),
+    ACCEPTED("합류 완료"),
+    REJECTED("미선발");
 
     private final String description;
 }

@@ -3,6 +3,7 @@ package com.gongjakso.server.domain.team.dto.response;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
+import com.gongjakso.server.domain.apply.entity.Apply;
 import com.gongjakso.server.domain.team.entity.Team;
 import com.gongjakso.server.domain.team.vo.RecruitPart;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -82,7 +83,13 @@ public record TeamRes(
     int viewCount,
 
     @Schema(description = "사용자 역할", example = "LEADER")
-    String teamRole
+    String teamRole,
+
+    @Schema(description = "지원 상태", example = "합류 대기중 | 합류 완료 | 미선발")
+    String applyStatus,
+
+    @Schema(description = "지원 ID", example = "1")
+    Long applyId
 ) {
 
     @Builder
@@ -108,7 +115,7 @@ public record TeamRes(
 
     }
 
-    public static TeamRes of(Team team, String teamRole) {
+    public static TeamRes of(Team team, String teamRole, Apply apply) {
         List<RecruitPartRes> recruitPartRes = (team.getRecruitPart() != null) ? team.getRecruitPart().stream()
                 .map(RecruitPartRes::of)
                 .toList() : null;
@@ -136,6 +143,8 @@ public record TeamRes(
                 .contestLink(team.getContest().getContestLink())
                 .scrapCount(team.getScrapCount())
                 .teamRole(teamRole)
+                .applyStatus(apply != null ? apply.getStatus().getDescription() : null)
+                .applyId(apply != null ? apply.getId() : null)
                 .build();
     }
 }

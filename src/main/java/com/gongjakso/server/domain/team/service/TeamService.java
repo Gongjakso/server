@@ -1,5 +1,6 @@
 package com.gongjakso.server.domain.team.service;
 
+import com.gongjakso.server.domain.apply.dto.response.SimpleApplyRes;
 import com.gongjakso.server.domain.apply.entity.Apply;
 import com.gongjakso.server.domain.apply.repository.ApplyRepository;
 import com.gongjakso.server.domain.contest.entity.Contest;
@@ -46,7 +47,7 @@ public class TeamService {
         Team savedTeam = teamRepository.save(team);
 
         // Response
-        return TeamRes.of(savedTeam, "LEADER");
+        return TeamRes.of(savedTeam, "LEADER", null);
     }
 
     @Transactional
@@ -68,7 +69,7 @@ public class TeamService {
         Team updatedTeam = teamRepository.save(team);
 
         // Response
-        return TeamRes.of(updatedTeam, "LEADER");
+        return TeamRes.of(updatedTeam, "LEADER", null);
     }
 
     @Transactional
@@ -91,7 +92,7 @@ public class TeamService {
         Team updatedTeam = teamRepository.save(team);
 
         // Response
-        return TeamRes.of(updatedTeam, "LEADER");
+        return TeamRes.of(updatedTeam, "LEADER", null);
     }
 
     @Transactional
@@ -113,7 +114,7 @@ public class TeamService {
         Team updatedTeam = teamRepository.save(team);
 
         // Response
-        return TeamRes.of(updatedTeam, "LEADER");
+        return TeamRes.of(updatedTeam, "LEADER", null);
     }
 
     @Transactional
@@ -135,7 +136,7 @@ public class TeamService {
         Team updatedTeam = teamRepository.save(team);
 
         // Response
-        return TeamRes.of(updatedTeam, "LEADER");
+        return TeamRes.of(updatedTeam, "LEADER", null);
     }
 
     @Transactional
@@ -167,19 +168,19 @@ public class TeamService {
             throw new ApplicationException(ErrorCode.TEAM_NOT_FOUND_EXCEPTION);
         }
 
-        List<Member> appliers = applyRepository.findByTeamIdAndDeletedAtIsNull(teamId).stream()
-                .map(Apply::getMember)
-                .toList();
-
         String teamRole = "GENERAL";
+        Apply apply = null;
+
         if(member != null && team.getMember().getId().equals(member.getId())){
             teamRole = "LEADER";
-        }else if(member != null && appliers.stream().anyMatch(applier -> applier.getId().equals(member.getId()))){
+        }else if(member != null &&  applyRepository.findByTeamIdAndMemberIdAndDeletedAtIsNull(teamId, member.getId()).isPresent()){
             teamRole = "APPLIER";
+            apply = applyRepository.findByTeamIdAndMemberIdAndDeletedAtIsNull(teamId, member.getId())
+                    .orElseThrow(() -> new ApplicationException(ErrorCode.APPLY_NOT_FOUND_EXCEPTION));
         }
 
         // Business Logic
-        return TeamRes.of(team, teamRole);
+        return TeamRes.of(team, teamRole, apply);
     }
 
     public Page<SimpleTeamRes> getTeamListWithContest(Long contestId, String province, String district, Pageable pageable) {
@@ -298,6 +299,20 @@ public class TeamService {
         Team updatedTeam = teamRepository.save(team);
 
         // Response
-        return TeamRes.of(updatedTeam, "LEADER");
+        return TeamRes.of(updatedTeam, "LEADER", null);
+    }
+
+    public List<SimpleApplyRes> getApplyList(Member member, Long teamId) {
+        // Validation
+        Team team = teamRepository.findByIdAndDeletedAtIsNull(teamId)
+                .orElseThrow(() -> new ApplicationException(ErrorCode.TEAM_NOT_FOUND_EXCEPTION));
+        if (!team.getMember().getId().equals(member.getId())) {
+            throw new ApplicationException(ErrorCode.FORBIDDEN_EXCEPTION);
+        }
+
+        // Business Logic & Response
+        return applyRepository.findAllByTeamIdAndDeletedAtIsNull(teamId).stream()
+                .map(SimpleApplyRes::of)
+                .toList();
     }
 }

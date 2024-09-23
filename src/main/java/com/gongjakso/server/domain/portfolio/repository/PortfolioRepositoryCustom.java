@@ -7,4 +7,5 @@ import java.util.List;
 
 public interface PortfolioRepositoryCustom {
     List<Portfolio> findByMemberAndDeletedAtIsNull(Member member);
+    Boolean existsExistPortfolioByMember(Member member);
 }

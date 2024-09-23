@@ -1,5 +1,6 @@
 package com.gongjakso.server.domain.portfolio.entity;
 
+import com.gongjakso.server.domain.contest.dto.request.UpdateContestDto;
 import com.gongjakso.server.domain.member.entity.Member;
 import com.gongjakso.server.domain.portfolio.vo.PortfolioData;
 import com.gongjakso.server.global.common.BaseTimeEntity;
@@ -12,6 +13,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.type.SqlTypes;
+import org.springframework.data.redis.connection.ReactiveGeoCommands;
 
 @Getter
 @Entity
@@ -36,12 +38,31 @@ public class Portfolio extends BaseTimeEntity {
     @JdbcTypeCode(SqlTypes.JSON)
     private PortfolioData portfolioData;
 
-    @Builder
+    @Column(name = "file_uri",columnDefinition = "text")
+    private String fileUri;
+
+    @Column(name = "notion_uri",columnDefinition = "text")
+    private String notionUri;
+
+    @Builder(builderMethodName = "portfolioBuilder")
     public Portfolio(Member member, String portfolioName, PortfolioData portfolioData) {
         this.member = member;
         this.portfolioName = portfolioName;
         this.portfolioData = portfolioData;
     }
+
+    @Builder(builderMethodName = "existPortfolioBuilder")
+    public Portfolio(Member member, String portfolioName, String fileUri, String notionUri){
+        this.member = member;
+        this.portfolioName = portfolioName;
+        this.fileUri = fileUri;
+        this.notionUri = notionUri;
+    }
+    public void updatePortfolioUri(Portfolio portfolio, String fileUri, String notionUri) {
+        this.fileUri = (fileUri == null) ? this.fileUri : fileUri;
+        this.notionUri = (notionUri == null) ? this.notionUri : notionUri;
+    }
+
 
     public void updateName(String updatedName) {
         this.portfolioName = updatedName;
