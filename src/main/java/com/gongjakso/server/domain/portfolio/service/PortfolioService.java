@@ -12,6 +12,7 @@ import com.gongjakso.server.domain.portfolio.repository.PortfolioRepository;
 import com.gongjakso.server.global.exception.ApplicationException;
 import com.gongjakso.server.global.exception.ErrorCode;
 import java.util.List;
+import java.util.Locale;
 
 import com.gongjakso.server.global.util.s3.S3Client;
 import lombok.RequiredArgsConstructor;
@@ -196,12 +197,13 @@ public class PortfolioService {
     }
 
     @Transactional
-    public void deleteExistPortfolio(Member member, Long id, DataType dataType){
+    public void deleteExistPortfolio(Member member, Long id, String dataType){
         Portfolio portfolio = portfolioRepository.findById(id).orElseThrow(()-> new ApplicationException(ErrorCode.NOT_FOUND_EXCEPTION));
         if(!member.getId().equals(portfolio.getMember().getId())){
             throw new ApplicationException(ErrorCode.UNAUTHORIZED_EXCEPTION);
         }
-        if (dataType.equals(DataType.FILE)){
+        DataType type = DataType.valueOf(dataType.toUpperCase());
+        if (type.equals(DataType.FILE)){
             //file delete
             if(portfolio.getFileUri()==null){
                 throw new ApplicationException(ErrorCode.FILE_NOT_FOUND_EXCEPTION);
@@ -212,7 +214,7 @@ public class PortfolioService {
             if(portfolioRepository.hasExistPortfolioByMember(member,"and")){
                 portfolioRepository.delete(portfolio);
             }
-        } else if (dataType.equals(DataType.NOTION)) {
+        } else if (type.equals(DataType.NOTION)) {
             //notion delete
             if(portfolio.getNotionUri()==null){
                 throw new ApplicationException(ErrorCode.NOTION_NOT_FOUND_EXCEPTION);
@@ -252,15 +254,16 @@ public class PortfolioService {
         portfolioRepository.save(portfolio);
     }
 
-    public ExistPortfolioRes findExistPorfolio(Member member, Long id, DataType dataType){
+    public ExistPortfolioRes findExistPorfolio(Member member, Long id, String dataType){
         //Validation
         Portfolio portfolio = portfolioRepository.findById(id).orElseThrow(()-> new ApplicationException(ErrorCode.NOT_FOUND_EXCEPTION));
         if (!portfolio.getMember().getId().equals(member.getId())) {
             throw new ApplicationException(ErrorCode.FORBIDDEN_EXCEPTION);
         }
-        if (dataType.equals(DataType.FILE)){
+        DataType type = DataType.valueOf(dataType.toUpperCase());
+        if (type.equals(DataType.FILE)){
             return new ExistPortfolioRes(null,portfolio.getNotionUri());
-        } else if (dataType.equals(DataType.NOTION)) {
+        } else if (type.equals(DataType.NOTION)) {
             return new ExistPortfolioRes(portfolio.getFileUri(),null);
         }else {
             return new ExistPortfolioRes(portfolio.getFileUri(),portfolio.getNotionUri());
