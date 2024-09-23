@@ -115,11 +115,14 @@ public class TeamRepositoryImpl implements TeamRepositoryCustom {
     }
 
     public Page<SimpleTeamRes> findRecruitPagination(Long memberId, Pageable pageable) {
+        List<TeamStatus> teamStatusList = Arrays.asList(TeamStatus.RECRUITING, TeamStatus.EXTENSION);
+
         List<Team> teamList = queryFactory
                 .select(team)
                 .from(team)
                 .where(
                         team.member.id.eq(memberId),
+                        team.status.in(teamStatusList),
                         team.deletedAt.isNull()
                 )
                 .orderBy(team.createdAt.desc())
