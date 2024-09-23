@@ -172,6 +172,10 @@ public class TeamService {
             throw new ApplicationException(ErrorCode.TEAM_NOT_FOUND_EXCEPTION);
         }
 
+        updateView(team, request, response);
+
+        updatePassCount(team);
+
         if(member != null && team.getMember().getId().equals(member.getId())){
             return TeamRes.of(team, "LEADER");
         }else if(member != null &&  applyRepository.findByTeamIdAndMemberIdAndDeletedAtIsNull(teamId, member.getId()).isPresent()){
@@ -179,8 +183,6 @@ public class TeamService {
                     .orElseThrow(() -> new ApplicationException(ErrorCode.APPLY_NOT_FOUND_EXCEPTION));
             return TeamRes.of(team, "APPLIER", apply);
         }
-
-        updateView(team, request, response);
 
         // Business Logic
         return TeamRes.of(team, "GENERAL");
@@ -341,5 +343,10 @@ public class TeamService {
             newCookie.setPath("/");
             response.addCookie(newCookie);
         }
+    }
+
+    public void updatePassCount(Team team) {
+        int passCount = applyRepository.countByTeamIdAndStatusAndDeletedAtIsNull(team.getId(), ApplyStatus.ACCEPTED);
+        team.updatePassCount(passCount);
     }
 }
