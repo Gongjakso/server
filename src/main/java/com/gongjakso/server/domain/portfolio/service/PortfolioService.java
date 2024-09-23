@@ -6,11 +6,13 @@ import com.gongjakso.server.domain.portfolio.dto.response.ExistPortfolioRes;
 import com.gongjakso.server.domain.portfolio.dto.response.PortfolioRes;
 import com.gongjakso.server.domain.portfolio.dto.response.SimplePortfolioRes;
 import com.gongjakso.server.domain.portfolio.entity.Portfolio;
+import com.gongjakso.server.domain.portfolio.enumerate.DataType;
 import com.gongjakso.server.domain.portfolio.vo.PortfolioData;
 import com.gongjakso.server.domain.portfolio.repository.PortfolioRepository;
 import com.gongjakso.server.global.exception.ApplicationException;
 import com.gongjakso.server.global.exception.ErrorCode;
 import java.util.List;
+import java.util.Locale;
 
 import com.gongjakso.server.global.util.s3.S3Client;
 import lombok.RequiredArgsConstructor;
@@ -178,7 +180,7 @@ public class PortfolioService {
     public void saveExistPortfolio(Member member, MultipartFile file, String notionUri){
         //등록된 파일이나 노션 링크 있는지 확인
         //Validation
-        Boolean isExist = portfolioRepository.existsExistPortfolioByMember(member);
+        Boolean isExist = portfolioRepository.hasExistPortfolioByMember(member,"or");
         if (isExist){
             throw new ApplicationException(ErrorCode.ALREADY_EXIST_EXCEPTION);
         }
@@ -195,15 +197,41 @@ public class PortfolioService {
     }
 
     @Transactional
-    public void deleteExistPortfolio(Member member, Long id){
+    public void deleteExistPortfolio(Member member, Long id, String dataType){
         Portfolio portfolio = portfolioRepository.findById(id).orElseThrow(()-> new ApplicationException(ErrorCode.NOT_FOUND_EXCEPTION));
         if(!member.getId().equals(portfolio.getMember().getId())){
             throw new ApplicationException(ErrorCode.UNAUTHORIZED_EXCEPTION);
         }
-        if(portfolio.getFileUri() != null || !portfolio.getFileUri().isEmpty()){
+        DataType type = DataType.valueOf(dataType.toUpperCase());
+        if (type.equals(DataType.FILE)){
+            //file delete
+            if(portfolio.getFileUri()==null){
+                throw new ApplicationException(ErrorCode.FILE_NOT_FOUND_EXCEPTION);
+            }
             s3Client.delete(portfolio.getFileUri());
+            portfolio.setFileUri(null);
+            //file,notion all null
+            if(portfolioRepository.hasExistPortfolioByMember(member,"and")){
+                portfolioRepository.delete(portfolio);
+            }
+        } else if (type.equals(DataType.NOTION)) {
+            //notion delete
+            if(portfolio.getNotionUri()==null){
+                throw new ApplicationException(ErrorCode.NOTION_NOT_FOUND_EXCEPTION);
+            }
+            portfolio.setNotionUri(null);
+            //file,notion all null
+            if(portfolioRepository.hasExistPortfolioByMember(member,"and")){
+                portfolioRepository.delete(portfolio);
+            }
+        }else {
+            //file,notion delete
+            if(portfolio.getFileUri()==null || portfolio.getNotionUri()==null){
+                throw new ApplicationException(ErrorCode.NOT_FOUND_EXCEPTION);
+            }
+            s3Client.delete(portfolio.getFileUri());
+            portfolioRepository.delete(portfolio);
         }
-        portfolioRepository.delete(portfolio);
     }
 
     @Transactional
@@ -222,17 +250,24 @@ public class PortfolioService {
             }
             s3Url = s3Client.upload(file, S3_PORTFOLIO_DIR_NAME);
         }
-        portfolio.updatePortfolioUri(portfolio,s3Url,notionUri);
+        portfolio.updatePortfolioUri(s3Url,notionUri);
         portfolioRepository.save(portfolio);
     }
 
-    public ExistPortfolioRes findExistPorfolio(Member member, Long id){
+    public ExistPortfolioRes findExistPorfolio(Member member, Long id, String dataType){
         //Validation
         Portfolio portfolio = portfolioRepository.findById(id).orElseThrow(()-> new ApplicationException(ErrorCode.NOT_FOUND_EXCEPTION));
         if (!portfolio.getMember().getId().equals(member.getId())) {
             throw new ApplicationException(ErrorCode.FORBIDDEN_EXCEPTION);
         }
-        return new ExistPortfolioRes(portfolio.getFileUri(),portfolio.getNotionUri());
+        DataType type = DataType.valueOf(dataType.toUpperCase());
+        if (type.equals(DataType.FILE)){
+            return new ExistPortfolioRes(portfolio.getFileUri(),null);
+        } else if (type.equals(DataType.NOTION)) {
+            return new ExistPortfolioRes(null,portfolio.getNotionUri());
+        }else {
+            return new ExistPortfolioRes(portfolio.getFileUri(),portfolio.getNotionUri());
+        }
     }
 
 }
