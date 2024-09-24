@@ -24,6 +24,13 @@ public record ApplyRes(
         @NotNull
         Long memberId,
 
+        @NotNull
+        String name,
+
+        String phone,
+
+        String major,
+
         @Nullable
         Long portfolioId,
 
@@ -66,6 +73,9 @@ public record ApplyRes(
                 .teamId(apply.getTeam().getId())
                 .teamName(apply.getTeam().getTitle())
                 .memberId(apply.getMember().getId())
+                .name(apply.getMember().getName())
+                .phone(apply.getMember().getPhone())
+                .major(apply.getMember().getMajor())
                 .leaderName(apply.getTeam().getMember().getName())
                 .portfolioId(apply.getPortfolioInfo().getPortfolio() != null ? apply.getPortfolioInfo().getPortfolio().getId() : null)
                 .portfolioName(apply.getPortfolioInfo().getPortfolio() != null ? apply.getPortfolioInfo().getPortfolio().getPortfolioName() : null)
