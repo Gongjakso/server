@@ -1,5 +1,7 @@
 package com.gongjakso.server.domain.team.repository;
 
+import com.gongjakso.server.domain.member.entity.Member;
+import com.gongjakso.server.domain.portfolio.entity.Portfolio;
 import com.gongjakso.server.domain.team.dto.response.SimpleTeamRes;
 import com.gongjakso.server.domain.team.entity.Team;
 import org.springframework.data.domain.Page;
@@ -22,4 +24,6 @@ public interface TeamRepositoryCustom {
     Page<SimpleTeamRes> findParticipatePagination(Long memberId, Pageable pageable);
 
     Page<SimpleTeamRes> findScrapPagination(Long memberId, Pageable pageable);
+
+    Boolean equalsLeaderIdAndMember(Portfolio portfolio, Member member);
 }

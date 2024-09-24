@@ -1,6 +1,8 @@
 package com.gongjakso.server.domain.apply.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import com.gongjakso.server.domain.apply.entity.Apply;
 import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.NotNull;
@@ -12,17 +14,25 @@ import java.time.LocalDateTime;
 import java.time.Period;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 @Builder
 public record ApplyRes(
 
         @NotNull
-        Long applyId,
+        Long id,
 
         @NotNull
         Long teamId,
 
         @NotNull
         Long memberId,
+
+        @NotNull
+        String name,
+
+        String phone,
+
+        String major,
 
         @Nullable
         Long portfolioId,
@@ -41,11 +51,11 @@ public record ApplyRes(
 
         @Size(max = 20)
         @NotNull
-        String part,
+        String applyPart,
 
         int scrapCount,
 
-        int remainingDays,
+        int dDay,
 
         LocalDate startedAt,
 
@@ -62,23 +72,26 @@ public record ApplyRes(
 ) {
     public static ApplyRes of(Apply apply) {
         return ApplyRes.builder()
-                .applyId(apply.getId())
+                .id(apply.getId())
                 .teamId(apply.getTeam().getId())
                 .teamName(apply.getTeam().getTitle())
                 .memberId(apply.getMember().getId())
+                .name(apply.getMember().getName())
+                .phone(apply.getMember().getPhone())
+                .major(apply.getMember().getMajor())
                 .leaderName(apply.getTeam().getMember().getName())
                 .portfolioId(apply.getPortfolioInfo().getPortfolio() != null ? apply.getPortfolioInfo().getPortfolio().getId() : null)
                 .portfolioName(apply.getPortfolioInfo().getPortfolio() != null ? apply.getPortfolioInfo().getPortfolio().getPortfolioName() : null)
                 .isPrivate(apply.getPortfolioInfo().isPrivate())
                 .body(apply.getBody())
                 .status(apply.getStatus().getDescription())
-                .part(apply.getPart())
+                .applyPart(apply.getPart())
                 .isViewed(apply.isViewed())
                 .deleteAt(apply.getDeletedAt())
                 .scrapCount(apply.getTeam().getScrapCount())
                 .startedAt(apply.getTeam().getStartedAt())
                 .finishedAt(apply.getTeam().getFinishedAt())
-                .remainingDays(Period.between(LocalDate.now(), apply.getTeam().getFinishedAt()).getDays())
+                .dDay(Period.between(LocalDate.now(), apply.getTeam().getFinishedAt()).getDays())
                 .build();
     }
 }
