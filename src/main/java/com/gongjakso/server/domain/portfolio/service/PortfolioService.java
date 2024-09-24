@@ -9,10 +9,10 @@ import com.gongjakso.server.domain.portfolio.entity.Portfolio;
 import com.gongjakso.server.domain.portfolio.enumerate.DataType;
 import com.gongjakso.server.domain.portfolio.vo.PortfolioData;
 import com.gongjakso.server.domain.portfolio.repository.PortfolioRepository;
+import com.gongjakso.server.domain.team.repository.TeamRepository;
 import com.gongjakso.server.global.exception.ApplicationException;
 import com.gongjakso.server.global.exception.ErrorCode;
 import java.util.List;
-import java.util.Locale;
 
 import com.gongjakso.server.global.util.s3.S3Client;
 import lombok.RequiredArgsConstructor;
@@ -28,6 +28,7 @@ public class PortfolioService {
     private final PortfolioRepository portfolioRepository;
     private final S3Client s3Client;
     private final String S3_PORTFOLIO_DIR_NAME = "portfolio";
+    private final TeamRepository teamRepository;
 
 
     // PortfolioName 생성 로직을 분리
@@ -123,7 +124,7 @@ public class PortfolioService {
     public PortfolioRes getPortfolio(Member member, Long portfolioId) {
         Portfolio portfolio = portfolioRepository.findByIdAndDeletedAtIsNull(portfolioId)
                 .orElseThrow(() -> new ApplicationException(ErrorCode.PORTFOLIO_NOT_FOUND_EXCEPTION));
-        if (!portfolio.getMember().getId().equals(member.getId())) {
+        if (!portfolio.getMember().getId().equals(member.getId()) && !teamRepository.equalsLeaderIdAndMember(portfolio, member)) {
             throw new ApplicationException(ErrorCode.FORBIDDEN_EXCEPTION);
         }
 

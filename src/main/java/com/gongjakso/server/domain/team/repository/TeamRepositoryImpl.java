@@ -1,5 +1,7 @@
 package com.gongjakso.server.domain.team.repository;
 
+import com.gongjakso.server.domain.member.entity.Member;
+import com.gongjakso.server.domain.portfolio.entity.Portfolio;
 import com.gongjakso.server.domain.team.dto.response.SimpleTeamRes;
 import com.gongjakso.server.domain.team.entity.Team;
 import com.gongjakso.server.domain.team.enumerate.TeamStatus;
@@ -264,5 +266,23 @@ public class TeamRepositoryImpl implements TeamRepositoryCustom {
         }
 
         return orderSpecifierList;
+    }
+
+    public Boolean equalsLeaderIdAndMember(Portfolio portfolio, Member member) {
+        BooleanBuilder booleanBuilder = new BooleanBuilder();
+
+        booleanBuilder.and(apply.portfolioInfo.portfolio.isNotNull())
+                .and(apply.portfolioInfo.portfolio.eq(portfolio))
+                .and(apply.deletedAt.isNull())
+                .and(team.deletedAt.isNull());
+
+        booleanBuilder.and(team.member.eq(member));
+
+        return queryFactory
+                .selectOne()
+                .from(apply)
+                .join(apply.team, team)
+                .where(booleanBuilder)
+                .fetchFirst() != null;
     }
 }
