@@ -18,8 +18,8 @@ public record SimpleApplyRes(
         Long teamId,
 
         @NotNull
-        Long memberId,
-        String memberName,
+        Long applicantId,
+        String applicantName,
         Long portfolioId,
         String portfolioName,
         String status,
@@ -30,8 +30,8 @@ public record SimpleApplyRes(
         return SimpleApplyRes.builder()
                 .id(apply.getId())
                 .teamId(apply.getTeam().getId())
-                .memberId(apply.getMember().getId())
-                .memberName(apply.getMember().getName())
+                .applicantId(apply.getMember().getId())
+                .applicantName(apply.getMember().getName())
                 .portfolioId(apply.getPortfolioInfo().getPortfolio() != null ? apply.getPortfolioInfo().getPortfolio().getId() : null)
                 .portfolioName(apply.getPortfolioInfo().getPortfolio() != null ? apply.getPortfolioInfo().getPortfolio().getPortfolioName() : null)
                 .status(apply.getStatus().name())
