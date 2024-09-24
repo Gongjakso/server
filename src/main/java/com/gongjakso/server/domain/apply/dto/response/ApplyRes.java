@@ -61,7 +61,7 @@ public record ApplyRes(
 
         LocalDate finishedAt,
 
-        String teamName,
+        String title,
 
         String leaderName,
 
@@ -74,7 +74,7 @@ public record ApplyRes(
         return ApplyRes.builder()
                 .id(apply.getId())
                 .teamId(apply.getTeam().getId())
-                .teamName(apply.getTeam().getTitle())
+                .title(apply.getTeam().getTitle())
                 .applicantId(apply.getMember().getId())
                 .applicantName(apply.getMember().getName())
                 .applicantPhone(apply.getMember().getPhone())
