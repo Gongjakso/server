@@ -28,7 +28,7 @@ public record ApplyRes(
         Long memberId,
 
         @NotNull
-        String name,
+        String memberName,
 
         String phone,
 
@@ -76,7 +76,7 @@ public record ApplyRes(
                 .teamId(apply.getTeam().getId())
                 .teamName(apply.getTeam().getTitle())
                 .memberId(apply.getMember().getId())
-                .name(apply.getMember().getName())
+                .memberName(apply.getMember().getName())
                 .phone(apply.getMember().getPhone())
                 .major(apply.getMember().getMajor())
                 .leaderName(apply.getTeam().getMember().getName())
