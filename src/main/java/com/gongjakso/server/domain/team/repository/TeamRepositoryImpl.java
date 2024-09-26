@@ -40,6 +40,8 @@ public class TeamRepositoryImpl implements TeamRepositoryCustom {
     }
 
     public Page<SimpleTeamRes> findPaginationWithContest(Long contestId, String province, String district, Pageable pageable) {
+        List<TeamStatus> teamStatusList = Arrays.asList(TeamStatus.RECRUITING, TeamStatus.EXTENSION);
+
         BooleanBuilder builder = new BooleanBuilder();
 
         if(province != null && !province.isEmpty()) {
@@ -54,6 +56,7 @@ public class TeamRepositoryImpl implements TeamRepositoryCustom {
                 .from(team)
                 .where(
                         team.contest.id.eq(contestId),
+                        team.status.in(teamStatusList),
                         team.deletedAt.isNull(),
                         builder
                 )
@@ -79,6 +82,8 @@ public class TeamRepositoryImpl implements TeamRepositoryCustom {
     }
 
     public Page<SimpleTeamRes> findPaginationWithoutContest(String province, String district, String keyword, Pageable pageable) {
+        List<TeamStatus> teamStatusList = Arrays.asList(TeamStatus.RECRUITING, TeamStatus.EXTENSION);
+
         BooleanBuilder builder = new BooleanBuilder();
 
         if(province != null && !province.isEmpty()) {
@@ -95,6 +100,7 @@ public class TeamRepositoryImpl implements TeamRepositoryCustom {
                 .select(team)
                 .from(team)
                 .where(team.deletedAt.isNull()
+                        .and(team.status.in(teamStatusList))
                         .and(builder))
                 .orderBy(getSort(pageable).toArray(OrderSpecifier[]::new))
                 .offset(pageable.getOffset())
@@ -117,7 +123,7 @@ public class TeamRepositoryImpl implements TeamRepositoryCustom {
     }
 
     public Page<SimpleTeamRes> findRecruitPagination(Long memberId, Pageable pageable) {
-        List<TeamStatus> teamStatusList = Arrays.asList(TeamStatus.RECRUITING, TeamStatus.EXTENSION);
+        List<TeamStatus> teamStatusList = Arrays.asList(TeamStatus.RECRUITING, TeamStatus.EXTENSION, TeamStatus.CANCELED, TeamStatus.CLOSED);
 
         List<Team> teamList = queryFactory
                 .select(team)
