@@ -28,6 +28,9 @@ public record ApplyRes(
         Long teamId,
 
         @NotNull
+        Long contestId,
+
+        @NotNull
         Long applicantId,
 
         @NotNull
@@ -107,6 +110,7 @@ public record ApplyRes(
         return ApplyRes.builder()
                 .id(apply.getId())
                 .teamId(apply.getTeam().getId())
+                .contestId(apply.getTeam().getContest().getId())
                 .title(apply.getTeam().getTitle())
                 .applicantId(apply.getMember().getId())
                 .applicantName(apply.getMember().getName())
