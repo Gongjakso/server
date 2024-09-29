@@ -11,7 +11,7 @@ import java.util.List;
 import static com.gongjakso.server.domain.portfolio.entity.QPortfolio.portfolio;
 
 @RequiredArgsConstructor
-public class PortfolioRepositoryImpl {
+public class PortfolioRepositoryImpl implements PortfolioRepositoryCustom {
     private final JPAQueryFactory queryFactory;
 
     public List<Portfolio> findByMemberAndDeletedAtIsNull(Member member) {
