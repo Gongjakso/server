@@ -97,7 +97,7 @@ public class TeamController {
     @Operation(summary = "팀 리스트 조회 API",
             description = "특정 공모전에 해당하는 팀 리스트를 조회하는 API (오프셋 기반 페이지네이션)",
             parameters = {
-                @Parameter(name = "sort", description = "정렬 기준 (예시- 생성 시각 내림차순 createdAt,desc / 인기순 오름차순 scrap,asc", required = false),
+                @Parameter(name = "sort", description = "정렬 기준 (예시- 생성 시각 내림차순 createdAt,desc / 인기순 스크랩 수 내림차순 scrap,desc", required = false),
             })
     @GetMapping("/contest/{contest_id}/team/list")
     public ApplicationResponse<Page<SimpleTeamRes>> getTeamList(@PathVariable(value = "contest_id") Long contestId,
@@ -111,7 +111,7 @@ public class TeamController {
             method = "GET",
             description = "공모전에 상관없이 팀 리스트를 조회하는 API (검색 기능 존재 / 오프셋 기반 페이지네이션)",
             parameters = {
-                @Parameter(name = "sort", description = "정렬 기준 (예시- 생성 시각 내림차순 createdAt,desc / 인기순 오름차순 scrap,asc", required = false),
+                @Parameter(name = "sort", description = "정렬 기준 (예시- 생성 시각 내림차순 createdAt,desc / 인기순 스크랩 수 내림차순 scrap,desc", required = false),
             })
     @GetMapping("/team/list")
     public ApplicationResponse<Page<SimpleTeamRes>> getTeamList(@RequestParam(value = "province", required = false) String province,
