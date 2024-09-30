@@ -258,7 +258,7 @@ public class PortfolioService {
     public ExistPortfolioRes findExistPorfolio(Member member, Long id, String dataType){
         //Validation
         Portfolio portfolio = portfolioRepository.findById(id).orElseThrow(()-> new ApplicationException(ErrorCode.NOT_FOUND_EXCEPTION));
-        if (!portfolio.getMember().getId().equals(member.getId())) {
+        if (!portfolio.getMember().getId().equals(member.getId()) && !teamRepository.equalsLeaderIdAndMember(portfolio, member)) {
             throw new ApplicationException(ErrorCode.FORBIDDEN_EXCEPTION);
         }
         DataType type = DataType.valueOf(dataType.toUpperCase());

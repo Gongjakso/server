@@ -22,7 +22,7 @@ public record ApplyReq(
         Long portfolioId,
 
         @NotNull
-        @Schema(description = "포트폴리오 공개 설정", example = "false")
+        @Schema(description = "포트폴리오 공개 설정", example = "false", defaultValue = "false")
         Boolean isPrivate,
 
         @Size(max = 1000)

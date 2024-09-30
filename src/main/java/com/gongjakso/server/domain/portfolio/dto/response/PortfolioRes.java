@@ -16,19 +16,23 @@ public record PortfolioRes (
         List<PortfolioData.Activity> activityList,
         List<PortfolioData.Award> awardList,
         List<PortfolioData.Certificate> certificateList,
-        List<PortfolioData.Sns> snsList
+        List<PortfolioData.Sns> snsList,
+        String fileUri,
+        String notionUri
 ) {
     public static PortfolioRes from(Portfolio portfolio) {
         PortfolioData portfolioData = portfolio.getPortfolioData();
         return new PortfolioRes(
                 portfolio.getId(),
                 portfolio.getPortfolioName(),
-                portfolioData.educationList(),
-                portfolioData.workList(),
-                portfolioData.activityList(),
-                portfolioData.awardList(),
-                portfolioData.certificateList(),
-                portfolioData.snsList()
+                portfolioData != null ? portfolioData.educationList() : null,
+                portfolioData != null ? portfolioData.workList() : null,
+                portfolioData != null ? portfolioData.activityList() : null,
+                portfolioData != null ? portfolioData.awardList() : null,
+                portfolioData != null ? portfolioData.certificateList(): null,
+                portfolioData != null ? portfolioData.snsList(): null,
+                portfolio.getFileUri(),
+                portfolio.getNotionUri()
         );
     }
 }
