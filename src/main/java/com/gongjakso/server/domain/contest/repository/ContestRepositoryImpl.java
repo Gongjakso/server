@@ -42,7 +42,7 @@ public class ContestRepositoryImpl implements ContestRepositoryCustom{
 
     private OrderSpecifier<?> arg(String sortAt){
         if("VIEW".equals(sortAt)){
-            return contest.view.asc();//조회순
+            return contest.view.desc();//조회순
         }
         return contest.createdAt.desc(); //최신순
     }
