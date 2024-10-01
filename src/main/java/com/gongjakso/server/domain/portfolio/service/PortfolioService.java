@@ -255,7 +255,7 @@ public class PortfolioService {
         portfolioRepository.save(portfolio);
     }
 
-    public ExistPortfolioRes findExistPorfolio(Member member, Long id, String dataType){
+    public ExistPortfolioRes findExistPortfolio(Member member, Long id, String dataType){
         //Validation
         Portfolio portfolio = portfolioRepository.findById(id).orElseThrow(()-> new ApplicationException(ErrorCode.NOT_FOUND_EXCEPTION));
         if (!portfolio.getMember().getId().equals(member.getId()) && !teamRepository.equalsLeaderIdAndMember(portfolio, member)) {
