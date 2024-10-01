@@ -22,6 +22,7 @@ public record SimpleApplyRes(
         String applicantName,
         Long portfolioId,
         String portfolioName,
+        String dataType,
         String status,
         String applyPart,
         Boolean isViewed
@@ -34,6 +35,7 @@ public record SimpleApplyRes(
                 .applicantName(apply.getMember().getName())
                 .portfolioId(apply.getPortfolioInfo().getPortfolio() != null ? apply.getPortfolioInfo().getPortfolio().getId() : null)
                 .portfolioName(apply.getPortfolioInfo().getPortfolio() != null ? apply.getPortfolioInfo().getPortfolio().getPortfolioName() : null)
+                .dataType(apply.getPortfolioInfo().getDataType())
                 .status(apply.getStatus().name())
                 .applyPart(apply.getPart())
                 .isViewed(apply.isViewed())

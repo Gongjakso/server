@@ -46,6 +46,9 @@ public record ApplyRes(
         @Nullable
         String portfolioName,
 
+        @Nullable
+        String dataType,
+
         Boolean isPrivate,
 
         @Size(max = 1000)
@@ -119,6 +122,7 @@ public record ApplyRes(
                 .leaderName(apply.getTeam().getMember().getName())
                 .portfolioId(apply.getPortfolioInfo().isPrivate() ? null : apply.getPortfolioInfo().getPortfolio().getId())
                 .portfolioName(apply.getPortfolioInfo().isPrivate() ? null : apply.getPortfolioInfo().getPortfolio().getPortfolioName())
+                .dataType(apply.getPortfolioInfo().isPrivate() ? null : apply.getPortfolioInfo().getDataType())
                 .isPrivate(apply.getPortfolioInfo().isPrivate())
                 .body(apply.getBody())
                 .status(apply.getStatus().getDescription())
