@@ -16,6 +16,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -290,5 +291,28 @@ public class TeamRepositoryImpl implements TeamRepositoryCustom {
                 .join(apply.team, team)
                 .where(booleanBuilder)
                 .fetchFirst() != null;
+    }
+
+    public List<Team> findAllByRecruitFinishedAtAndStartedAtBeforeAndFinishedAtAfter(LocalDate today) {
+        return queryFactory
+                .selectFrom(team)
+                .where(
+                        team.deletedAt.isNull(),
+                        team.recruitFinishedAt.before(LocalDate.from(today)),
+                        team.startedAt.before(LocalDate.from(today)),
+                        team.finishedAt.after(LocalDate.from(today))
+                )
+                .fetch();
+    }
+
+    public List<Team> findAllByTeamStatusAndFinishedAtBefore(LocalDate today) {
+        return queryFactory
+                .selectFrom(team)
+                .where(
+                        team.deletedAt.isNull(),
+                        team.status.eq(TeamStatus.valueOf(TeamStatus.ACTIVE.name())),
+                        team.finishedAt.before(LocalDate.from(today))
+                )
+                .fetch();
     }
 }
