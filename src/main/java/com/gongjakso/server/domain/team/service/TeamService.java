@@ -349,4 +349,22 @@ public class TeamService {
         int passCount = applyRepository.countByTeamIdAndStatusAndDeletedAtIsNull(team.getId(), ApplyStatus.ACCEPTED);
         team.updatePassCount(passCount);
     }
+
+    @Transactional
+    public void updateTeamsToActiveStatus() {
+        List<Team> activeTeams = teamRepository.findAllByRecruitFinishedAtAndStartedAtBeforeAndFinishedAtAfter(LocalDate.now());
+
+        if (!activeTeams.isEmpty()) {
+            activeTeams.forEach(team -> team.updateTeamStatus(TeamStatus.ACTIVE));
+            teamRepository.saveAll(activeTeams);
+        }
+
+        List<Team> finishedTeams = teamRepository.findAllByTeamStatusAndFinishedAtBefore(LocalDate.now());
+
+        if (!finishedTeams.isEmpty()) {
+            finishedTeams.forEach(team -> team.updateTeamStatus(TeamStatus.FINISHED));
+            teamRepository.saveAll(finishedTeams);
+        }
+    }
+
 }

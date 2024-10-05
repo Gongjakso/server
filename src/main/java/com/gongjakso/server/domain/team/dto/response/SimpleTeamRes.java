@@ -36,6 +36,9 @@ public record SimpleTeamRes(
     @Schema(description = "지원 파트 정보 - 내가 지원한 팀에서는 지원한 포지션 하나만 반환")
     List<String> recruitPart,
 
+    @Schema(description = "사용자가 지원한 파트")
+    String applyPart,
+
     @Schema(description = "모집 마감일", example = "2024-12-31")
     LocalDate recruitFinishedAt,
 
@@ -81,5 +84,33 @@ public record SimpleTeamRes(
             .scrapCount(team.getScrapCount())
             .viewCount(team.getViewCount())
             .build();
+    }
+
+    public static SimpleTeamRes of(Team team, String applyPart) {
+        int dDay = 0;
+        if (team.getRecruitFinishedAt() != null) {
+            dDay = (int) java.time.temporal.ChronoUnit.DAYS.between(LocalDate.now(), team.getRecruitFinishedAt());
+        }
+
+        List<String> recruitPartList = (team.getRecruitPart() != null) ? team.getRecruitPart().stream()
+                .map(recruitPart -> recruitPart.position().getKoreanName())
+                .toList() : null;
+
+        return SimpleTeamRes.builder()
+                .id(team.getId())
+                .title(team.getTitle())
+                .leaderId(team.getMember().getId())
+                .leaderName(team.getMember().getName())
+                .contestId(team.getContest().getId())
+                .status(team.getStatus().getDescription())
+                .recruitPart(recruitPartList)
+                .applyPart(applyPart)
+                .recruitFinishedAt(team.getRecruitFinishedAt())
+                .startedAt(team.getStartedAt())
+                .finishedAt(team.getFinishedAt())
+                .dDay(dDay)
+                .scrapCount(team.getScrapCount())
+                .viewCount(team.getViewCount())
+                .build();
     }
 }

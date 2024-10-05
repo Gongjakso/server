@@ -1,5 +1,8 @@
 package com.gongjakso.server.domain.team.repository;
 
+import com.gongjakso.server.domain.apply.entity.Apply;
+import com.gongjakso.server.domain.apply.enumerate.ApplyStatus;
+import com.gongjakso.server.domain.apply.repository.ApplyRepository;
 import com.gongjakso.server.domain.member.entity.Member;
 import com.gongjakso.server.domain.portfolio.entity.Portfolio;
 import com.gongjakso.server.domain.team.dto.response.SimpleTeamRes;
@@ -16,6 +19,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -29,6 +33,7 @@ import static com.gongjakso.server.domain.team.entity.QTeam.team;
 public class TeamRepositoryImpl implements TeamRepositoryCustom {
 
     private final JPAQueryFactory queryFactory;
+    private final ApplyRepository applyRepository;
 
     public Optional<Team> findTeamById(Long id) {
         return Optional.ofNullable(queryFactory
@@ -185,15 +190,26 @@ public class TeamRepositoryImpl implements TeamRepositoryCustom {
     }
 
     public Page<SimpleTeamRes> findParticipatePagination(Long memberId, Pageable pageable) {
-        List<TeamStatus> teamStatusList = Arrays.asList(TeamStatus.RECRUITING, TeamStatus.EXTENSION, TeamStatus.CANCELED, TeamStatus.CLOSED);
+        List<TeamStatus> teamStatusList = Arrays.asList(TeamStatus.ACTIVE, TeamStatus.FINISHED);
 
         List<Team> teamList = queryFactory
                 .select(team)
                 .from(team)
-                .innerJoin(apply).on(apply.team.id.eq(team.id).and(apply.deletedAt.isNull()))
+                .leftJoin(apply).on(apply.team.id.eq(team.id)
+                        .and(apply.member.id.eq(memberId))
+                        .and(apply.deletedAt.isNull()))
                 .where(
-                        team.status.in(teamStatusList),
-                        team.deletedAt.isNull()
+                        (
+                                team.member.id.eq(memberId)
+                                        .and(team.status.in(teamStatusList))
+                                        .and(team.deletedAt.isNull())
+                        )
+                                .or(
+                                        apply.member.id.eq(memberId)
+                                                .and(apply.status.eq(ApplyStatus.ACCEPTED))
+                                                .and(apply.team.status.in(teamStatusList))
+                                                .and(apply.team.deletedAt.isNull())
+                                )
                 )
                 .orderBy(team.createdAt.desc())
                 .offset(pageable.getOffset())
@@ -201,7 +217,14 @@ public class TeamRepositoryImpl implements TeamRepositoryCustom {
                 .fetch();
 
         List<SimpleTeamRes> content = teamList.stream()
-                .map(SimpleTeamRes::of)
+                .map(team -> {
+                    Optional<Apply> apply = applyRepository
+                            .findByTeamIdAndMemberIdAndDeletedAtIsNull(team.getId(), memberId);
+
+                    String applyPart = apply.map(Apply::getPart).orElse(null);
+
+                    return SimpleTeamRes.of(team, applyPart);
+                })
                 .toList();
 
         Long total = queryFactory.select(team.count())
@@ -290,5 +313,28 @@ public class TeamRepositoryImpl implements TeamRepositoryCustom {
                 .join(apply.team, team)
                 .where(booleanBuilder)
                 .fetchFirst() != null;
+    }
+
+    public List<Team> findAllByRecruitFinishedAtAndStartedAtBeforeAndFinishedAtAfter(LocalDate today) {
+        return queryFactory
+                .selectFrom(team)
+                .where(
+                        team.deletedAt.isNull(),
+                        team.recruitFinishedAt.before(LocalDate.from(today)),
+                        team.startedAt.before(LocalDate.from(today)),
+                        team.finishedAt.after(LocalDate.from(today))
+                )
+                .fetch();
+    }
+
+    public List<Team> findAllByTeamStatusAndFinishedAtBefore(LocalDate today) {
+        return queryFactory
+                .selectFrom(team)
+                .where(
+                        team.deletedAt.isNull(),
+                        team.status.eq(TeamStatus.valueOf(TeamStatus.ACTIVE.name())),
+                        team.finishedAt.before(LocalDate.from(today))
+                )
+                .fetch();
     }
 }

@@ -54,7 +54,7 @@ jobs:
           docker build -t ${{ secrets.DOCKERHUB_USERNAME}}/${{ secrets.DOCKERHUB_REPOSITORY}} ./
           docker push ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKERHUB_REPOSITORY}}
 
-      # Docker Compose 및 deploy.sh 실행
+      # Docker Compose
       - name: Docker Compose
         uses: appleboy/ssh-action@master
         with:
@@ -63,8 +63,8 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             sudo docker login -u ${{ secrets.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_PASSWORD }}
+            sudo docker-compose stop ${{ secrets.DOCKER_SERVICE_NAME }}
+            sudo docker-compose rm -f ${{ secrets.DOCKER_SERVICE_NAME }}
             sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKERHUB_REPOSITORY}}
-            cd ~
-            sudo chmod +x depoly.sh
-            ./depoly.sh
-#            sudo docker tag ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKERHUB_REPOSITORY}} ${{ secrets.DOCKER_IMAGE_NAME }}
+            sudo docker tag ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKERHUB_REPOSITORY}} ${{ secrets.DOCKER_IMAGE_NAME }}
+            sudo docker compose up -d
