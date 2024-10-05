@@ -87,7 +87,7 @@ public class PortfolioController {
     @Operation(description = "포트폴리오 파일 및 링크 업로드 가져오기 API")
     @GetMapping("/exist-portfolio/{portfolio_id}")
     public ApplicationResponse<ExistPortfolioRes> findExistPortfolio(@AuthenticationPrincipal PrincipalDetails principalDetails, @PathVariable("portfolio_id") Long portfolioId, @RequestParam(name = "dataType") String dataType){
-        return ApplicationResponse.ok(portfolioService.findExistPorfolio(principalDetails.getMember(),portfolioId,dataType));
+        return ApplicationResponse.ok(portfolioService.findExistPortfolio(principalDetails.getMember(),portfolioId,dataType));
     }
 
 

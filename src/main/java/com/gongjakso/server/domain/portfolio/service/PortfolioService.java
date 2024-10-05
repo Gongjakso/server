@@ -181,7 +181,7 @@ public class PortfolioService {
     public void saveExistPortfolio(Member member, MultipartFile file, String notionUri){
         //등록된 파일이나 노션 링크 있는지 확인
         //Validation
-        Boolean isExist = portfolioRepository.hasExistPortfolioByMember(member,"or");
+        Boolean isExist = portfolioRepository.hasExistPortfolioByMember(member);
         if (isExist){
             throw new ApplicationException(ErrorCode.ALREADY_EXIST_EXCEPTION);
         }
@@ -212,20 +212,20 @@ public class PortfolioService {
             s3Client.delete(portfolio.getFileUri());
             portfolio.setFileUri(null);
             //file,notion all null
-            if(portfolioRepository.hasExistPortfolioByMember(member,"and")){
+            if(portfolioRepository.hasExistPortfolioById(member,id)){
                 portfolioRepository.delete(portfolio);
             }
-        } else if (type.equals(DataType.NOTION)) {
+        }else if (type.equals(DataType.NOTION)) {
             //notion delete
             if(portfolio.getNotionUri()==null){
                 throw new ApplicationException(ErrorCode.NOTION_NOT_FOUND_EXCEPTION);
             }
             portfolio.setNotionUri(null);
             //file,notion all null
-            if(portfolioRepository.hasExistPortfolioByMember(member,"and")){
+            if(portfolioRepository.hasExistPortfolioById(member,id)){
                 portfolioRepository.delete(portfolio);
             }
-        }else {
+        }else if(type.equals(DataType.HYBRID)) {
             //file,notion delete
             if(portfolio.getFileUri()==null || portfolio.getNotionUri()==null){
                 throw new ApplicationException(ErrorCode.NOT_FOUND_EXCEPTION);
@@ -255,7 +255,7 @@ public class PortfolioService {
         portfolioRepository.save(portfolio);
     }
 
-    public ExistPortfolioRes findExistPorfolio(Member member, Long id, String dataType){
+    public ExistPortfolioRes findExistPortfolio(Member member, Long id, String dataType){
         //Validation
         Portfolio portfolio = portfolioRepository.findById(id).orElseThrow(()-> new ApplicationException(ErrorCode.NOT_FOUND_EXCEPTION));
         if (!portfolio.getMember().getId().equals(member.getId()) && !teamRepository.equalsLeaderIdAndMember(portfolio, member)) {
