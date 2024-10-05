@@ -54,7 +54,7 @@ jobs:
           docker build -t ${{ secrets.DOCKERHUB_USERNAME}}/${{ secrets.DOCKERHUB_REPOSITORY}} ./
           docker push ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKERHUB_REPOSITORY}}
 
-      # Docker Compose 및 deploy.sh 실행
+      # Docker Compose
       - name: Docker Compose
         uses: appleboy/ssh-action@master
         with:
