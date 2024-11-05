@@ -1,5 +1,5 @@
 package com.gongjakso.server.domain.member.enumerate;
 
 public enum LoginType {
-    GENERAL, KAKAO
+    GENERAL, KAKAO, GOOGLE, NAVER
 }
