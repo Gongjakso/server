@@ -1,7 +1,9 @@
 package com.gongjakso.server.global.security.google.dto;
 
 import jakarta.validation.constraints.Null;
+import lombok.Builder;
 
+@Builder
 public record GoogleToken(
         String access_token,
         @Null

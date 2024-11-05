@@ -76,7 +76,7 @@ public class AuthService {
 
             return memberRepository.save(newMember);
         }
-        return null;
+        return member;
     }
 
     public Member googleMember(String code, String redirectUri) {
@@ -100,7 +100,7 @@ public class AuthService {
 
             return memberRepository.save(newMember);
         }
-        return null;
+        return member;
     }
 
     public void signOut(String token, Member member) {

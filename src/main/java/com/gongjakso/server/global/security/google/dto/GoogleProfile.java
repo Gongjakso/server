@@ -1,5 +1,8 @@
 package com.gongjakso.server.global.security.google.dto;
 
+import lombok.Builder;
+
+@Builder
 public record GoogleProfile(
         String sub,
         String name,
