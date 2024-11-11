@@ -3,6 +3,7 @@ package com.gongjakso.server.domain.team.dto.response;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
+import com.gongjakso.server.domain.apply.entity.Apply;
 import com.gongjakso.server.domain.team.entity.Team;
 import com.gongjakso.server.domain.team.vo.RecruitPart;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -18,11 +19,11 @@ public record TeamRes(
     @Schema(description = "팀 ID", example = "1")
     Long id,
 
-    @Schema(description = "멤버 ID", example = "1")
-    Long memberId,
+    @Schema(description = "팀장 ID", example = "1")
+    Long leaderId,
 
-    @Schema(description = "멤버 이름", example = "홍길동")
-    String memberName,
+    @Schema(description = "팀장 이름", example = "홍길동")
+    String leaderName,
 
     @Schema(description = "공모전 ID", example = "1")
     Long contestId,
@@ -35,6 +36,9 @@ public record TeamRes(
 
     @Schema(description = "팀 내용", example = "광화문광장 숏폼 공모전 참여자 모집합니다.")
     String body,
+
+    @Schema(description = "팀 상태", example = "모집 중|모집 연장|모집 취소|모집 마감|활동 중|활동 종료")
+    String status,
 
     @Schema(description = "총 인원", example = "5")
     int totalCount,
@@ -63,14 +67,29 @@ public record TeamRes(
     @Schema(description = "활동 종료일", example = "2025-01-31")
     LocalDate finishedAt,
 
+    @Schema(description = "컨택 방법", example = "오픈카톡 - true | 구글폼 - false")
+    Boolean channelMethod,
+
     @Schema(description = "컨택 링크", example = "https://open.kakao.com/o/gongjakso")
     String channelLink,
+
+    @Schema(description = "공모전 공고 링크", example = "https://www.ictfestival.or.kr/")
+    String contestLink,
 
     @Schema(description = "스크랩 수", example = "10")
     int scrapCount,
 
     @Schema(description = "조회 수", example = "100")
-    int viewCount
+    int viewCount,
+
+    @Schema(description = "사용자 역할", example = "LEADER")
+    String teamRole,
+
+    @Schema(description = "지원 상태", example = "합류 대기중 | 합류 완료 | 미선발")
+    String applyStatus,
+
+    @Schema(description = "지원 ID", example = "1")
+    Long applyId
 ) {
 
     @Builder
@@ -96,19 +115,20 @@ public record TeamRes(
 
     }
 
-    public static TeamRes of(Team team) {
+    public static TeamResBuilder teamResBuilder(Team team){
         List<RecruitPartRes> recruitPartRes = (team.getRecruitPart() != null) ? team.getRecruitPart().stream()
                 .map(RecruitPartRes::of)
                 .toList() : null;
 
         return TeamRes.builder()
                 .id(team.getId())
-                .memberId(team.getMember().getId())
-                .memberName(team.getMember().getName())
+                .leaderId(team.getMember().getId())
+                .leaderName(team.getMember().getName())
                 .contestId(team.getContest().getId())
                 .contestTitle(team.getContest().getTitle())
                 .title(team.getTitle())
-                .body(team.getTitle())
+                .body(team.getBody())
+                .status(team.getStatus().getDescription())
                 .totalCount(team.getTotalCount())
                 .passCount(team.getPassCount())
                 .meetingMethod(team.getMeetingMethod().getDescription())
@@ -118,8 +138,24 @@ public record TeamRes(
                 .recruitFinishedAt(team.getRecruitFinishedAt())
                 .startedAt(team.getStartedAt())
                 .finishedAt(team.getFinishedAt())
+                .channelMethod(team.getChannelMethod().equals("오픈카톡"))
                 .channelLink(team.getChannelLink())
+                .contestLink(team.getContest().getContestLink())
                 .scrapCount(team.getScrapCount())
+                .viewCount(team.getViewCount());
+    }
+
+    public static TeamRes of(Team team, String teamRole){
+        return teamResBuilder(team)
+                .teamRole(teamRole)
+                .build();
+    }
+
+    public static TeamRes of(Team team, String teamRole, Apply apply){
+        return teamResBuilder(team)
+                .teamRole(teamRole)
+                .applyStatus(apply != null ? apply.getStatus().getDescription() : null)
+                .applyId(apply != null ? apply.getId() : null)
                 .build();
     }
 }

@@ -2,16 +2,23 @@ package com.gongjakso.server.domain.portfolio.service;
 
 import com.gongjakso.server.domain.member.entity.Member;
 import com.gongjakso.server.domain.portfolio.dto.request.PortfolioReq;
+import com.gongjakso.server.domain.portfolio.dto.response.ExistPortfolioRes;
 import com.gongjakso.server.domain.portfolio.dto.response.PortfolioRes;
+import com.gongjakso.server.domain.portfolio.dto.response.SimplePortfolioRes;
 import com.gongjakso.server.domain.portfolio.entity.Portfolio;
+import com.gongjakso.server.domain.portfolio.enumerate.DataType;
 import com.gongjakso.server.domain.portfolio.vo.PortfolioData;
 import com.gongjakso.server.domain.portfolio.repository.PortfolioRepository;
+import com.gongjakso.server.domain.team.repository.TeamRepository;
 import com.gongjakso.server.global.exception.ApplicationException;
 import com.gongjakso.server.global.exception.ErrorCode;
 import java.util.List;
+
+import com.gongjakso.server.global.util.s3.S3Client;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @Transactional(readOnly = true)
@@ -19,6 +26,19 @@ import org.springframework.transaction.annotation.Transactional;
 public class PortfolioService {
 
     private final PortfolioRepository portfolioRepository;
+    private final S3Client s3Client;
+    private final String S3_PORTFOLIO_DIR_NAME = "portfolio";
+    private final TeamRepository teamRepository;
+
+
+    // PortfolioName 생성 로직을 분리
+    private String generatePortfolioName(String portfolioName) {
+        if (portfolioName == null || portfolioName.isEmpty()) {
+            long existingPortfolioCount = portfolioRepository.countByDeletedAtIsNull();
+            return "포트폴리오 " + (existingPortfolioCount + 1);
+        }
+        return portfolioName;
+    }
 
     // PortfolioReq -> PortfolioData 변환
     private PortfolioData convertToPortfolioData(PortfolioReq portfolioReq) {
@@ -27,7 +47,7 @@ public class PortfolioService {
                 .map(education -> new PortfolioData.Education(
                         education.school(),
                         education.grade(),
-                        education.isActive()
+                        education.state()
                 ))
                 .toList()
                 : List.of();
@@ -90,11 +110,12 @@ public class PortfolioService {
         if (member == null) {
             throw new ApplicationException(ErrorCode.UNAUTHORIZED_EXCEPTION);
         }
+
+        String portfolioName = generatePortfolioName(portfolioReq.portfolioName());
         PortfolioData portfolioData = convertToPortfolioData(portfolioReq);
-        Portfolio portfolio = Portfolio.builder()
-                .member(member)
-                .portfolioData(portfolioData)
-                .build();
+
+        Portfolio portfolio = new Portfolio(member,portfolioName,portfolioData);
+
         Portfolio savedPortfolio = portfolioRepository.save(portfolio);
 
         return PortfolioRes.from(savedPortfolio);
@@ -103,7 +124,7 @@ public class PortfolioService {
     public PortfolioRes getPortfolio(Member member, Long portfolioId) {
         Portfolio portfolio = portfolioRepository.findByIdAndDeletedAtIsNull(portfolioId)
                 .orElseThrow(() -> new ApplicationException(ErrorCode.PORTFOLIO_NOT_FOUND_EXCEPTION));
-        if (!portfolio.getMember().getId().equals(member.getId())) {
+        if (!portfolio.getMember().getId().equals(member.getId()) && !teamRepository.equalsLeaderIdAndMember(portfolio, member)) {
             throw new ApplicationException(ErrorCode.FORBIDDEN_EXCEPTION);
         }
 
@@ -117,8 +138,15 @@ public class PortfolioService {
         if (!portfolio.getMember().getId().equals(member.getId())) {
             throw new ApplicationException(ErrorCode.FORBIDDEN_EXCEPTION);
         }
+
+        if (portfolioReq.portfolioName() != null) {
+            String portfolioName = generatePortfolioName(portfolioReq.portfolioName());
+            portfolio.updateName(portfolioName);
+        }
+
         PortfolioData updatedPortfolioData = convertToPortfolioData(portfolioReq);
-        portfolio.update(updatedPortfolioData);
+        portfolio.updateData(updatedPortfolioData);
+
         Portfolio updatedPortfolio = portfolioRepository.save(portfolio);
 
         return PortfolioRes.from(updatedPortfolio);
@@ -136,4 +164,111 @@ public class PortfolioService {
         }
         portfolioRepository.delete(portfolio);
     }
+
+    public List<SimplePortfolioRes> getMyPortfolios(Member member) {
+        List<Portfolio> portfolioList = portfolioRepository.findByMemberAndDeletedAtIsNull(member);
+
+        if (portfolioList.isEmpty()) {
+            return List.of(SimplePortfolioRes.of(null, false, null));
+        }
+
+        return portfolioList.stream()
+                .map(portfolio -> SimplePortfolioRes.of(portfolio, true, portfolio.getFileUri() != null || portfolio.getNotionUri() != null))
+                .toList();
+    }
+
+    @Transactional
+    public void saveExistPortfolio(Member member, MultipartFile file, String notionUri){
+        //등록된 파일이나 노션 링크 있는지 확인
+        //Validation
+        Boolean isExist = portfolioRepository.hasExistPortfolioByMember(member);
+        if (isExist){
+            throw new ApplicationException(ErrorCode.ALREADY_EXIST_EXCEPTION);
+        }
+        if (file == null && notionUri == null){
+            throw new ApplicationException(ErrorCode.PORTFOLIO_SAVE_FAILED_EXCEPTION);
+        }
+        //Business
+        String s3Url = null;
+        if ( file!=null ) {
+            s3Url = s3Client.upload(file, S3_PORTFOLIO_DIR_NAME);
+        }
+        Portfolio portfolio = new Portfolio(member,generatePortfolioName(null),s3Url,notionUri);
+        portfolioRepository.save(portfolio);
+    }
+
+    @Transactional
+    public void deleteExistPortfolio(Member member, Long id, String dataType){
+        Portfolio portfolio = portfolioRepository.findById(id).orElseThrow(()-> new ApplicationException(ErrorCode.NOT_FOUND_EXCEPTION));
+        if(!member.getId().equals(portfolio.getMember().getId())){
+            throw new ApplicationException(ErrorCode.UNAUTHORIZED_EXCEPTION);
+        }
+        DataType type = DataType.valueOf(dataType.toUpperCase());
+        if (type.equals(DataType.FILE)){
+            //file delete
+            if(portfolio.getFileUri()==null){
+                throw new ApplicationException(ErrorCode.FILE_NOT_FOUND_EXCEPTION);
+            }
+            s3Client.delete(portfolio.getFileUri());
+            portfolio.setFileUri(null);
+            //file,notion all null
+            if(portfolioRepository.hasExistPortfolioById(member,id)){
+                portfolioRepository.delete(portfolio);
+            }
+        }else if (type.equals(DataType.NOTION)) {
+            //notion delete
+            if(portfolio.getNotionUri()==null){
+                throw new ApplicationException(ErrorCode.NOTION_NOT_FOUND_EXCEPTION);
+            }
+            portfolio.setNotionUri(null);
+            //file,notion all null
+            if(portfolioRepository.hasExistPortfolioById(member,id)){
+                portfolioRepository.delete(portfolio);
+            }
+        }else if(type.equals(DataType.HYBRID)) {
+            //file,notion delete
+            if(portfolio.getFileUri()==null || portfolio.getNotionUri()==null){
+                throw new ApplicationException(ErrorCode.NOT_FOUND_EXCEPTION);
+            }
+            s3Client.delete(portfolio.getFileUri());
+            portfolioRepository.delete(portfolio);
+        }
+    }
+
+    @Transactional
+    public void updateExistPortfolio(Member member, Long id, MultipartFile file, String notionUri){
+        //등록된 파일이나 노션 링크 있는지 확인
+        //Validation
+        Portfolio portfolio = portfolioRepository.findById(id).orElseThrow(()-> new ApplicationException(ErrorCode.PORTFOLIO_NOT_FOUND_EXCEPTION));
+        if(!member.getId().equals(portfolio.getMember().getId())){
+            throw new ApplicationException(ErrorCode.UNAUTHORIZED_EXCEPTION);
+        }
+        //Business
+        String s3Url = null;
+        if ( file!=null ) {
+            if(portfolio.getFileUri()!=null && !portfolio.getFileUri().isEmpty()){
+                s3Client.delete(portfolio.getFileUri());
+            }
+            s3Url = s3Client.upload(file, S3_PORTFOLIO_DIR_NAME);
+        }
+        portfolio.updatePortfolioUri(s3Url,notionUri);
+        portfolioRepository.save(portfolio);
+    }
+
+    public ExistPortfolioRes findExistPortfolio(Member member, Long id, String dataType){
+        //Validation
+        Portfolio portfolio = portfolioRepository.findById(id).orElseThrow(()-> new ApplicationException(ErrorCode.NOT_FOUND_EXCEPTION));
+        if (!portfolio.getMember().getId().equals(member.getId()) && !teamRepository.equalsLeaderIdAndMember(portfolio, member)) {
+            throw new ApplicationException(ErrorCode.FORBIDDEN_EXCEPTION);
+        }
+        DataType type = DataType.valueOf(dataType.toUpperCase());
+        if (type.equals(DataType.FILE)){
+            return new ExistPortfolioRes(portfolio.getFileUri(),null);
+        } else if (type.equals(DataType.NOTION)) {
+            return new ExistPortfolioRes(null,portfolio.getNotionUri());
+        }else {
+            return new ExistPortfolioRes(portfolio.getFileUri(),portfolio.getNotionUri());
+        }
+    }
+
 }

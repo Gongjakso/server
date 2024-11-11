@@ -20,6 +20,7 @@ public enum ErrorCode {
     ALREADY_DELETE_EXCEPTION(HttpStatus.BAD_REQUEST, 2004, "이미 삭제된 리소스입니다."),
     FORBIDDEN_EXCEPTION(HttpStatus.FORBIDDEN, 2005, "인가되지 않는 요청입니다."),
     ALREADY_EXIST_EXCEPTION(HttpStatus.BAD_REQUEST, 2006, "이미 존재하는 리소스입니다."),
+    INVALID_SORT_EXCEPTION(HttpStatus.BAD_REQUEST, 2007, "올바르지 않은 정렬 값입니다."),
 
     // 3000: Auth Error
     KAKAO_TOKEN_EXCEPTION(HttpStatus.INTERNAL_SERVER_ERROR, 3000, "토큰 발급에서 오류가 발생했습니다."),
@@ -34,12 +35,22 @@ public enum ErrorCode {
     // 5000: Team Error
     TEAM_NOT_FOUND_EXCEPTION(HttpStatus.NOT_FOUND, 5000, "존재하지 않는 팀입니다."),
     INVALID_POSITION_EXCEPTION(HttpStatus.BAD_REQUEST, 5001, "올바르지 않은 포지션입니다."),
+    INVALID_TEAM_STATUS_EXCEPTION(HttpStatus.BAD_REQUEST, 5002, "올바르지 않은 팀 상태입니다."),
 
     // 6000: Portfolio Error
     PORTFOLIO_NOT_FOUND_EXCEPTION(HttpStatus.NOT_FOUND, 6000, "포트폴리오를 찾을 수 없습니다."),
     PORTFOLIO_SAVE_FAILED_EXCEPTION(HttpStatus.INTERNAL_SERVER_ERROR, 6001, "포트폴리오 저장에 실패했습니다."),
     PORTFOLIO_UPDATE_FAILED_EXCEPTION(HttpStatus.INTERNAL_SERVER_ERROR, 6002, "포트폴리오 수정에 실패했습니다."),
-    INVALID_PORTFOLIO_REQUEST_EXCEPTION(HttpStatus.BAD_REQUEST, 6003, "유효하지 않은 포트폴리오 요청입니다.");
+    INVALID_PORTFOLIO_REQUEST_EXCEPTION(HttpStatus.BAD_REQUEST, 6003, "유효하지 않은 포트폴리오 요청입니다."),
+    PORTFOLIO_UNAUTHORIZED_EXCEPTION(HttpStatus.UNAUTHORIZED, 6004, "포트폴리오에 대한 권한이 없습니다."),
+    FILE_NOT_FOUND_EXCEPTION(HttpStatus.NOT_FOUND, 6005, "존재하지 않는 파일 리소스입니다."),
+    NOTION_NOT_FOUND_EXCEPTION(HttpStatus.NOT_FOUND, 6005, "존재하지 않는 노션 링크 리소스입니다."),
+
+    //7000: Apply Error
+    APPLY_PERIOD_EXPIRED_EXCEPTION(HttpStatus.BAD_REQUEST,7000,"지원 기간이 지났습니다"),
+    APPLY_NOT_FOUND_EXCEPTION(HttpStatus.NOT_FOUND,7001,"존재하지 않는 지원서입니다."),
+    APPLY_ALREADY_EXISTS_EXCEPTION(HttpStatus.BAD_REQUEST, 7002, "이미 지원했습니다."),
+    APPLY_LEADER_NOT_ALLOWED_EXCEPTION(HttpStatus.BAD_REQUEST, 7003, "팀장은 지원할 수 없습니다.");
 
     private final HttpStatus httpStatus;
     private final Integer code;

@@ -43,7 +43,7 @@ public class ContestController {
     @Operation(description = "공모전 검색 API")
     @GetMapping("/search")
     public ApplicationResponse<ContestListRes> search(
-            @RequestParam(name = "word", defaultValue = "공모전") String word,
+            @RequestParam(name = "word", defaultValue = "") String word,
             @RequestParam(name = "sortAt", defaultValue = "createdAt") String sortAt,
             @PageableDefault(size = 12,page = 0) Pageable pageable){
         return ApplicationResponse.ok(contestService.search(word,sortAt,pageable));

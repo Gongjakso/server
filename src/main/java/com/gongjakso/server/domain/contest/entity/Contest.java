@@ -37,12 +37,12 @@ public class Contest extends BaseTimeEntity {
     private LocalDate finishedAt;
     @Column(name = "img_url",columnDefinition = "text")
     private String imgUrl;
-    @Column(name = "view",columnDefinition = "bigint")
-    private int view;
+    @Column(name = "view", nullable = false, columnDefinition = "bigint")
+    private Integer view;
 
     public void update(UpdateContestDto contest,String imgUrl){
         this.title= (contest.title()==null) ? this.title : contest.title();
-        this.body= (contest.body()==null) ? this.body : contest.body();
+        this.body= (contest.body()==null) ? this.body :  contest.body().replace("\n","<br/>").replace("\t","<t/>");;
         this.contestLink= (contest.contestLink()==null) ? this.contestLink : contest.contestLink();
         this.institution= (contest.institution()==null) ? this.institution : contest.institution();
         this.startedAt= (contest.startedAt()==null) ? this.startedAt : contest.startedAt();

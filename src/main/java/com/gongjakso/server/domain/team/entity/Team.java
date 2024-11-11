@@ -76,6 +76,9 @@ public class Team extends BaseTimeEntity {
     @Column(name = "finished_at", columnDefinition = "date")
     private LocalDate finishedAt;
 
+    @Column(name = "channel_method", columnDefinition = "varchar(20)", nullable = false)
+    private String channelMethod;
+
     @Column(name = "channel_link", columnDefinition = "text")
     private String channelLink;
 
@@ -83,7 +86,7 @@ public class Team extends BaseTimeEntity {
     private int scrapCount;
 
     @Column(name = "view_count", nullable = false, columnDefinition = "int")
-    private int viewCount;
+    private Integer viewCount;
 
     public void update(TeamReq teamReq) {
         this.title = (teamReq.title() != null) ? teamReq.title() : this.title;
@@ -106,6 +109,18 @@ public class Team extends BaseTimeEntity {
         this.status = teamStatus;
     }
 
+    public void updateScrapCount(int scrapCount) {
+        this.scrapCount = scrapCount;
+    }
+
+    public void updateViewCount(Team team){
+        this.viewCount = team.getViewCount() + 1;
+    }
+
+    public void updatePassCount(int passCount) {
+        this.passCount = passCount;
+    }
+
     @Builder
     public Team(Member member,
                 Contest contest,
@@ -119,12 +134,13 @@ public class Team extends BaseTimeEntity {
                 LocalDate recruitFinishedAt,
                 LocalDate startedAt,
                 LocalDate finishedAt,
+                Boolean channelMethod,
                 String channelLink) {
         this.member = member;
         this.contest = contest;
         this.title = title;
         this.body = body;
-        this.status = TeamStatus.ACTIVE;
+        this.status = TeamStatus.RECRUITING;
         this.totalCount = totalCount;
         this.passCount = 0;
         this.meetingMethod = meetingMethod;
@@ -134,6 +150,7 @@ public class Team extends BaseTimeEntity {
         this.recruitFinishedAt = recruitFinishedAt;
         this.startedAt = startedAt;
         this.finishedAt = finishedAt;
+        this.channelMethod = (channelMethod) ? "오픈카톡" : "구글폼";
         this.channelLink = channelLink;
         this.scrapCount = 0;
         this.viewCount = 0;

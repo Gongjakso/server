@@ -14,9 +14,10 @@ public record PortfolioData (
     public record Education (
             String school,
             String grade,
-            Boolean isActive
+            String state
     ) {
     }
+
     public record Work (
             String company,
             String partition,
@@ -26,23 +27,27 @@ public record PortfolioData (
             String detail
     ) {
     }
+
     public record Activity (
             String name,
             Boolean isActive
     ) {
     }
+
     public record Award (
             String contestName,
             String awardName,
             LocalDate awardDate
     ) {
     }
+
     public record Certificate (
             String name,
             String rating,
             LocalDate certificationDate
     ) {
     }
+
     public record Sns (
             String snsLink
     ) {
