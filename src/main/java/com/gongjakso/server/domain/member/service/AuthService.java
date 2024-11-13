@@ -35,15 +35,15 @@ public class AuthService {
         // Business Logic
         String loginTypeUpper = type.toUpperCase();
         LoginType loginType = LoginType.valueOf(loginTypeUpper);
-        Member member = null;
 
-        if(loginType.equals(LoginType.KAKAO)) {
-            member = kakaoMember(code, redirectUri);
-        }
+        Member member = switch (loginType) {
+            case KAKAO -> kakaoMember(code, redirectUri);
+            case GOOGLE -> googleMember(code, redirectUri);
 
-        if(loginType.equals(LoginType.GOOGLE)) {
-            member = googleMember(code, redirectUri);
-        }
+            default -> null;
+        };
+
+        assert member != null;
 
         TokenDto tokenDto = tokenProvider.createToken(member);
 
@@ -55,7 +55,7 @@ public class AuthService {
         return LoginRes.of(member, tokenDto);
     }
 
-    public Member kakaoMember(String code, String redirectUri) {
+    private Member kakaoMember(String code, String redirectUri) {
         // 카카오로 액세스 토큰 요청하기
         KakaoToken kakaoAccessToken = kakaoClient.getKakaoAccessToken(code, redirectUri);
 
@@ -79,7 +79,7 @@ public class AuthService {
         return member;
     }
 
-    public Member googleMember(String code, String redirectUri) {
+    private Member googleMember(String code, String redirectUri) {
         // 구글로 액세스 토큰 요청하기
         GoogleToken googleAccessToken = googleClient.getGoogleAccessToken(code, redirectUri);
 

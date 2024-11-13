@@ -14,19 +14,31 @@ import org.springframework.web.reactive.function.client.WebClient;
 @Component
 @RequiredArgsConstructor
 public class GoogleClient {
-    @Value("${spring.security.oauth2.client.registration.google.client-id}")
-    private String googleClientId;
+    @Value("${spring.security.oauth2.client.registration.google-local.redirect-uri}")
+    private String localGoogleRedirectUri;
 
-    @Value("${spring.security.oauth2.client.registration.google.client-secret}")
-    private String googleClientSecret;
+    @Value("${spring.security.oauth2.client.registration.google-local.client-id}")
+    private String localGoogleClientId;
 
-    @Value("${spring.security.oauth2.client.registration.google.authorization-grant-type}")
+    @Value("${spring.security.oauth2.client.registration.google-local.client-secret}")
+    private String localGoogleClientSecret;
+
+    @Value("${spring.security.oauth2.client.registration.google-dev.redirect-uri}")
+    private String devGoogleRedirectUri;
+
+    @Value("${spring.security.oauth2.client.registration.google-dev.client-id}")
+    private String devGoogleClientId;
+
+    @Value("${spring.security.oauth2.client.registration.google-dev.client-secret}")
+    private String devGoogleClientSecret;
+
+    @Value("${spring.security.oauth2.client.registration.google-dev.authorization-grant-type}")
     private String googleGrantType;
 
-    @Value("${spring.security.oauth2.client.provider.google.token-uri}")
+    @Value("${spring.security.oauth2.client.provider.google-dev.token-uri}")
     private String googleTokenUri;
 
-    @Value("${spring.security.oauth2.client.provider.google.user-info-uri}")
+    @Value("${spring.security.oauth2.client.provider.google-dev.user-info-uri}")
     private String googleUserInfoUri;
 
     /**
@@ -35,6 +47,18 @@ public class GoogleClient {
      * @return -
      */
     public GoogleToken getGoogleAccessToken(String code, String redirectUri) {
+        String googleClientId = null;
+        String googleClientSecret = null;
+        if(redirectUri.equals(devGoogleRedirectUri)){
+            googleClientId = devGoogleClientId;
+            googleClientSecret = devGoogleClientSecret;
+        }
+
+        if(redirectUri.equals(localGoogleRedirectUri)) {
+            googleClientId = localGoogleClientId;
+            googleClientSecret = localGoogleClientSecret;
+        }
+
         // 요청 보낼 객체 기본 생성
         WebClient webClient = WebClient.create(googleTokenUri);
 
