@@ -24,8 +24,9 @@ public class AuthController {
     @Operation(summary = "로그인 API", description = "카카오 로그인 페이지로 리다이렉트되어 카카오 로그인을 수행할 수 있도록 안내")
     @PostMapping("/sign-in")
     public ApplicationResponse<LoginRes> signIn(@RequestParam(name = "code") String code,
-                                                @RequestParam(name = "redirect-uri") String redirectUri) {
-        return ApplicationResponse.ok(authService.signIn(code, redirectUri));
+                                                @RequestParam(name = "redirect-uri") String redirectUri,
+                                                @RequestParam(name = "type") String type) {
+        return ApplicationResponse.ok(authService.signIn(code, redirectUri,type));
     }
 
     @Operation(summary = "로그아웃 API", description = "로그아웃된 JWT 블랙리스트 등록")

@@ -28,10 +28,10 @@ import org.springframework.transaction.annotation.Transactional;
 public class AuthService {
 
     private final KakaoClient kakaoClient;
+    private final GoogleClient googleClient;
     private final RedisClient redisClient;
     private final TokenProvider tokenProvider;
     private final MemberRepository memberRepository;
-    private final GoogleClient googleClient;
     private final NaverClient naverClient;
 
     @Transactional
@@ -39,19 +39,15 @@ public class AuthService {
         // Business Logic
         String loginTypeUpper = type.toUpperCase();
         LoginType loginType = LoginType.valueOf(loginTypeUpper);
-        Member member = null;
 
-        if (loginType.equals(LoginType.KAKAO)) {
-            member = kakaoMember(code, redirectUri);
-        }
+        Member member = switch (loginType) {
+            case KAKAO -> kakaoMember(code, redirectUri);
+            case GOOGLE -> googleMember(code, redirectUri);
+            case NAVER -> naverMember(code, redirectUri);
+            default -> null;
+        };
 
-        if (loginType.equals(LoginType.GOOGLE)) {
-            member = googleMember(code, redirectUri);
-        }
-
-        if(loginType.equals(LoginType.NAVER)){
-            member = naverMember(code, redirectUri);
-        }
+        assert member != null;
 
         TokenDto tokenDto = tokenProvider.createToken(member);
 
@@ -63,15 +59,17 @@ public class AuthService {
         return LoginRes.of(member, tokenDto);
     }
 
-    public Member kakaoMember(String code, String redirectUri) {
+    private Member kakaoMember(String code, String redirectUri) {
         // 카카오로 액세스 토큰 요청하기
         KakaoToken kakaoAccessToken = kakaoClient.getKakaoAccessToken(code, redirectUri);
 
         // 카카오톡에 있는 사용자 정보 반환
         KakaoProfile kakaoProfile = kakaoClient.getMemberInfo(kakaoAccessToken);
+
         // 반환된 정보의 이메일 기반으로 사용자 테이블에서 계정 정보 조회 진행
         // 이메일 존재 시 로그인 , 존재하지 않을 경우 회원가입 진행
         Member member = memberRepository.findMemberByEmailAndDeletedAtIsNull(kakaoProfile.kakao_account().email()).orElse(null);
+
         if(member == null) {
             Member newMember = Member.builder()
                     .email(kakaoProfile.kakao_account().email())
@@ -85,7 +83,7 @@ public class AuthService {
         return member;
     }
 
-    public Member googleMember(String code, String redirectUri) {
+    private Member googleMember(String code, String redirectUri) {
         // 구글로 액세스 토큰 요청하기
         GoogleToken googleAccessToken = googleClient.getGoogleAccessToken(code, redirectUri);
 
@@ -109,7 +107,7 @@ public class AuthService {
         return member;
     }
 
-    public Member naverMember(String code, String redirectUri){
+    private Member naverMember(String code, String redirectUri){
         // 네이버로 액세스 토큰 요청하기
         NaverToken naverAccessToken = naverClient.getNaverAccessToken(code, redirectUri);
 
