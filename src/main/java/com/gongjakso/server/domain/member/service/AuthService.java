@@ -2,9 +2,13 @@ package com.gongjakso.server.domain.member.service;
 
 import com.gongjakso.server.domain.member.dto.LoginRes;
 import com.gongjakso.server.domain.member.entity.Member;
+import com.gongjakso.server.domain.member.enumerate.LoginType;
 import com.gongjakso.server.domain.member.repository.MemberRepository;
 import com.gongjakso.server.global.exception.ApplicationException;
 import com.gongjakso.server.global.exception.ErrorCode;
+import com.gongjakso.server.global.security.google.GoogleClient;
+import com.gongjakso.server.global.security.google.dto.GoogleProfile;
+import com.gongjakso.server.global.security.google.dto.GoogleToken;
 import com.gongjakso.server.global.security.jwt.TokenProvider;
 import com.gongjakso.server.global.security.jwt.dto.TokenDto;
 import com.gongjakso.server.global.security.kakao.KakaoClient;
@@ -21,13 +25,37 @@ import org.springframework.transaction.annotation.Transactional;
 public class AuthService {
 
     private final KakaoClient kakaoClient;
+    private final GoogleClient googleClient;
     private final RedisClient redisClient;
     private final TokenProvider tokenProvider;
     private final MemberRepository memberRepository;
 
     @Transactional
-    public LoginRes signIn(String code, String redirectUri) {
+    public LoginRes signIn(String code, String redirectUri, String type) {
         // Business Logic
+        String loginTypeUpper = type.toUpperCase();
+        LoginType loginType = LoginType.valueOf(loginTypeUpper);
+
+        Member member = switch (loginType) {
+            case KAKAO -> kakaoMember(code, redirectUri);
+            case GOOGLE -> googleMember(code, redirectUri);
+
+            default -> null;
+        };
+
+        assert member != null;
+
+        TokenDto tokenDto = tokenProvider.createToken(member);
+
+        // Redis에 RefreshToken 저장
+        // TODO: timeout 관련되어 constant가 아닌 tokenProvider 내의 메소드로 관리할 수 있도록 수정 필요
+        redisClient.setValue(member.getEmail(), tokenDto.refreshToken(), 30 * 24 * 60 * 60 * 1000L);
+
+        // Response
+        return LoginRes.of(member, tokenDto);
+    }
+
+    private Member kakaoMember(String code, String redirectUri) {
         // 카카오로 액세스 토큰 요청하기
         KakaoToken kakaoAccessToken = kakaoClient.getKakaoAccessToken(code, redirectUri);
 
@@ -46,17 +74,33 @@ public class AuthService {
                     .loginType("KAKAO")
                     .build();
 
-            member = memberRepository.save(newMember);
+            return memberRepository.save(newMember);
         }
+        return member;
+    }
 
-        TokenDto tokenDto = tokenProvider.createToken(member);
+    private Member googleMember(String code, String redirectUri) {
+        // 구글로 액세스 토큰 요청하기
+        GoogleToken googleAccessToken = googleClient.getGoogleAccessToken(code, redirectUri);
 
-        // Redis에 RefreshToken 저장
-        // TODO: timeout 관련되어 constant가 아닌 tokenProvider 내의 메소드로 관리할 수 있도록 수정 필요
-        redisClient.setValue(member.getEmail(), tokenDto.refreshToken(), 30 * 24 * 60 * 60 * 1000L);
+        // 구글에 있는 사용자 정보 반환
+        GoogleProfile googleProfile = googleClient.getMemberInfo(googleAccessToken);
 
-        // Response
-        return LoginRes.of(member, tokenDto);
+        // 반환된 정보의 이메일 기반으로 사용자 테이블에서 계정 정보 조회 진행
+        // 이메일 존재 시 로그인 , 존재하지 않을 경우 회원가입 진행
+        Member member = memberRepository.findMemberByEmailAndDeletedAtIsNull(googleProfile.email()).orElse(null);
+
+        if(member == null) {
+            Member newMember = Member.builder()
+                    .email(googleProfile.email())
+                    .name(googleProfile.name())
+                    .memberType("GENERAL")
+                    .loginType("GOOGLE")
+                    .build();
+
+            return memberRepository.save(newMember);
+        }
+        return member;
     }
 
     public void signOut(String token, Member member) {
