@@ -24,10 +24,17 @@ public class ContestRepositoryImpl implements ContestRepositoryCustom{
 
     @Override
     public Page<Contest> searchList(String word, String sortAt, Pageable pageable) {
+        BooleanExpression filterCondition = wordEq(word);
+
+        if ("ACTIVE".equals(sortAt)) {
+            filterCondition = (filterCondition == null ? contest.finishedAt.goe(LocalDate.now())
+                    : filterCondition.and(contest.finishedAt.goe(LocalDate.now())));
+        }
+
         List<Contest> contestList = queryFactory
                 .selectDistinct(contest)
                 .from(contest)
-                .where(wordEq(word))
+                .where(filterCondition)
                 .orderBy(arg(sortAt))
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
@@ -35,7 +42,7 @@ public class ContestRepositoryImpl implements ContestRepositoryCustom{
         long total = queryFactory
                 .select(contest.count())
                 .from(contest)
-                .where(wordEq(word))  // Full-Text Search 조건 추가
+                .where(filterCondition)  // Full-Text Search 조건 추가
                 .fetchOne();
 
         return new PageImpl<>(contestList,pageable,total);
@@ -45,8 +52,8 @@ public class ContestRepositoryImpl implements ContestRepositoryCustom{
         if("VIEW".equals(sortAt)){
             return contest.view.desc();//조회순
         }
-        if("ACTIVE".equals(sortAt)){
-            return contest.finishedAt.after(LocalDate.now()).desc(); //활동 중인 공모전
+        if ("ACTIVE".equals(sortAt)) {
+            return contest.finishedAt.asc(); // 종료일 기준 오름차순
         }
         return contest.createdAt.desc(); //최신순
     }
