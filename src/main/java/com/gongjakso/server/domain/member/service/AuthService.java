@@ -14,6 +14,9 @@ import com.gongjakso.server.global.security.jwt.dto.TokenDto;
 import com.gongjakso.server.global.security.kakao.KakaoClient;
 import com.gongjakso.server.global.security.kakao.dto.KakaoProfile;
 import com.gongjakso.server.global.security.kakao.dto.KakaoToken;
+import com.gongjakso.server.global.security.naver.NaverClient;
+import com.gongjakso.server.global.security.naver.dto.NaverProfile;
+import com.gongjakso.server.global.security.naver.dto.NaverToken;
 import com.gongjakso.server.global.util.redis.RedisClient;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -29,6 +32,7 @@ public class AuthService {
     private final RedisClient redisClient;
     private final TokenProvider tokenProvider;
     private final MemberRepository memberRepository;
+    private final NaverClient naverClient;
 
     @Transactional
     public LoginRes signIn(String code, String redirectUri, String type) {
@@ -39,7 +43,7 @@ public class AuthService {
         Member member = switch (loginType) {
             case KAKAO -> kakaoMember(code, redirectUri);
             case GOOGLE -> googleMember(code, redirectUri);
-
+            case NAVER -> naverMember(code, redirectUri);
             default -> null;
         };
 
@@ -96,6 +100,30 @@ public class AuthService {
                     .name(googleProfile.name())
                     .memberType("GENERAL")
                     .loginType("GOOGLE")
+                    .build();
+
+            return memberRepository.save(newMember);
+        }
+        return member;
+    }
+
+    private Member naverMember(String code, String redirectUri){
+        // 네이버로 액세스 토큰 요청하기
+        NaverToken naverAccessToken = naverClient.getNaverAccessToken(code, redirectUri);
+
+        // 네이버에 있는 사용자 정보 반환
+        NaverProfile naverProfile = naverClient.getMemberInfo(naverAccessToken);
+
+        // 반환된 정보의 이메일 기반으로 사용자 테이블에서 계정 정보 조회 진행
+        // 이메일 존재 시 로그인 , 존재하지 않을 경우 회원가입 진행
+        Member member = memberRepository.findMemberByEmailAndDeletedAtIsNull(naverProfile.response().email()).orElse(null);
+
+        if(member == null) {
+            Member newMember = Member.builder()
+                    .email(naverProfile.response().email())
+                    .name(naverProfile.response().name())
+                    .memberType("GENERAL")
+                    .loginType("NAVER")
                     .build();
 
             return memberRepository.save(newMember);
