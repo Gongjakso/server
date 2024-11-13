@@ -1,9 +1,14 @@
 package com.gongjakso.server.domain.team.service;
 
+import com.gongjakso.server.domain.apply.dto.response.SimpleApplyRes;
+import com.gongjakso.server.domain.apply.entity.Apply;
+import com.gongjakso.server.domain.apply.enumerate.ApplyStatus;
+import com.gongjakso.server.domain.apply.repository.ApplyRepository;
 import com.gongjakso.server.domain.contest.entity.Contest;
 import com.gongjakso.server.domain.contest.repository.ContestRepository;
 import com.gongjakso.server.domain.member.entity.Member;
 import com.gongjakso.server.domain.team.dto.request.TeamReq;
+import com.gongjakso.server.domain.team.dto.response.ScrapRes;
 import com.gongjakso.server.domain.team.dto.response.SimpleTeamRes;
 import com.gongjakso.server.domain.team.dto.response.TeamRes;
 import com.gongjakso.server.domain.team.entity.Scrap;
@@ -13,6 +18,9 @@ import com.gongjakso.server.domain.team.repository.ScrapRepository;
 import com.gongjakso.server.domain.team.repository.TeamRepository;
 import com.gongjakso.server.global.exception.ApplicationException;
 import com.gongjakso.server.global.exception.ErrorCode;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -20,6 +28,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -29,6 +38,7 @@ public class TeamService {
     private final TeamRepository teamRepository;
     private final ContestRepository contestRepository;
     private final ScrapRepository scrapRepository;
+    private final ApplyRepository applyRepository;
 
     @Transactional
     public TeamRes createTeam(Member member, Long contestId, TeamReq teamReq) {
@@ -41,7 +51,7 @@ public class TeamService {
         Team savedTeam = teamRepository.save(team);
 
         // Response
-        return TeamRes.of(savedTeam);
+        return TeamRes.of(savedTeam, "LEADER");
     }
 
     @Transactional
@@ -63,7 +73,7 @@ public class TeamService {
         Team updatedTeam = teamRepository.save(team);
 
         // Response
-        return TeamRes.of(updatedTeam);
+        return TeamRes.of(updatedTeam, "LEADER");
     }
 
     @Transactional
@@ -86,7 +96,7 @@ public class TeamService {
         Team updatedTeam = teamRepository.save(team);
 
         // Response
-        return TeamRes.of(updatedTeam);
+        return TeamRes.of(updatedTeam, "LEADER");
     }
 
     @Transactional
@@ -108,7 +118,7 @@ public class TeamService {
         Team updatedTeam = teamRepository.save(team);
 
         // Response
-        return TeamRes.of(updatedTeam);
+        return TeamRes.of(updatedTeam, "LEADER");
     }
 
     @Transactional
@@ -130,7 +140,7 @@ public class TeamService {
         Team updatedTeam = teamRepository.save(team);
 
         // Response
-        return TeamRes.of(updatedTeam);
+        return TeamRes.of(updatedTeam, "LEADER");
     }
 
     @Transactional
@@ -151,16 +161,31 @@ public class TeamService {
         teamRepository.delete(team);
     }
 
-    // TODO: 조회수 관련 로직 도입 및 @Transactional 도입 필요
-    public TeamRes getTeam(Long contestId, Long teamId) {
+    @Transactional
+    public TeamRes getTeam(Member member, Long contestId, Long teamId, HttpServletRequest request, HttpServletResponse response) {
         // Validation
         contestRepository.findByIdAndDeletedAtIsNull(contestId)
                 .orElseThrow(() -> new ApplicationException(ErrorCode.CONTEST_NOT_FOUND_EXCEPTION));
         Team team = teamRepository.findByIdAndDeletedAtIsNull(teamId)
                 .orElseThrow(() -> new ApplicationException(ErrorCode.TEAM_NOT_FOUND_EXCEPTION));
+        if(!team.getContest().getId().equals(contestId)) {
+            throw new ApplicationException(ErrorCode.TEAM_NOT_FOUND_EXCEPTION);
+        }
+
+        updateView(team, request, response);
+
+        updatePassCount(team);
+
+        if(member != null && team.getMember().getId().equals(member.getId())){
+            return TeamRes.of(team, "LEADER");
+        }else if(member != null &&  applyRepository.findByTeamIdAndMemberIdAndDeletedAtIsNull(teamId, member.getId()).isPresent()){
+            Apply apply = applyRepository.findByTeamIdAndMemberIdAndDeletedAtIsNull(teamId, member.getId())
+                    .orElseThrow(() -> new ApplicationException(ErrorCode.APPLY_NOT_FOUND_EXCEPTION));
+            return TeamRes.of(team, "APPLIER", apply);
+        }
 
         // Business Logic
-        return TeamRes.of(team);
+        return TeamRes.of(team, "GENERAL");
     }
 
     public Page<SimpleTeamRes> getTeamListWithContest(Long contestId, String province, String district, Pageable pageable) {
@@ -183,14 +208,18 @@ public class TeamService {
         return teamRepository.findRecruitPagination(member.getId(), pageable);
     }
 
-    // TODO: 내가 참여한 팀 리스트 조회를 위해서는 Apply Entity 필요하므로 main branch merge 이후 추가 진행 예정
     public Page<SimpleTeamRes> getMyApplyTeamList(Member member, Pageable pageable) {
         // Business Logic & Response
         return teamRepository.findApplyPagination(member.getId(), pageable);
     }
 
+    public Page<SimpleTeamRes> getMyParticipateTeamList(Member member, Pageable pageable) {
+        // Business Logic & Response
+        return teamRepository.findParticipatePagination(member.getId(), pageable);
+    }
+
     @Transactional
-    public void scrapTeam(Member member, Long teamId) {
+    public ScrapRes scrapTeam(Member member, Long teamId) {
         // Validation
         Team team = teamRepository.findByIdAndDeletedAtIsNull(teamId)
                 .orElseThrow(() -> new ApplicationException(ErrorCode.TEAM_NOT_FOUND_EXCEPTION));
@@ -205,20 +234,137 @@ public class TeamService {
                     .team(team)
                     .build());
         }
+
+        team.updateScrapCount(team.getScrapCount() + 1);
+        Team updateTeam = teamRepository.save(team);
+
+        // Response
+        return ScrapRes.builder()
+                .scrapCount(updateTeam.getScrapCount())
+                .build();
     }
 
     @Transactional
-    public void cancelScrapTeam(Member member, Long teamId) {
+    public ScrapRes cancelScrapTeam(Member member, Long teamId) {
         // Validation
         Team team = teamRepository.findByIdAndDeletedAtIsNull(teamId)
                 .orElseThrow(() -> new ApplicationException(ErrorCode.TEAM_NOT_FOUND_EXCEPTION));
 
         // Business Logic
         scrapRepository.deleteScrapByMemberIdAndTeamId(member.getId(), team.getId());
+
+        team.updateScrapCount(team.getScrapCount() - 1);
+        Team updateTeam = teamRepository.save(team);
+
+        // Response
+        return ScrapRes.builder()
+                .scrapCount(updateTeam.getScrapCount())
+                .build();
     }
 
     public Page<SimpleTeamRes> getScrapTeamList(Member member, Pageable pageable) {
         // Business Logic & Response
         return teamRepository.findScrapPagination(member.getId(), pageable);
     }
+
+    public ScrapRes checkScrapTeam(Member member, Long teamId) {
+        // Validation
+        Team team = teamRepository.findByIdAndDeletedAtIsNull(teamId)
+                .orElseThrow(() -> new ApplicationException(ErrorCode.TEAM_NOT_FOUND_EXCEPTION));
+
+        // Business Logic
+        Scrap scrap = scrapRepository.findScrapByMemberIdAndTeamId(member.getId(), team.getId())
+                .orElse(null);
+
+        // Response
+        return (scrap != null)
+                ? ScrapRes.builder()
+                    .isScrap(true).build()
+                : ScrapRes.builder()
+                    .isScrap(false).build();
+    }
+
+    @Transactional
+    public TeamRes changeTeamStatus(Member member, Long contestId, Long teamId, String status) {
+        // Validation
+        contestRepository.findByIdAndDeletedAtIsNull(contestId)
+                .orElseThrow(() -> new ApplicationException(ErrorCode.CONTEST_NOT_FOUND_EXCEPTION));
+        Team team = teamRepository.findByIdAndDeletedAtIsNull(teamId)
+                .orElseThrow(() -> new ApplicationException(ErrorCode.TEAM_NOT_FOUND_EXCEPTION));
+        if (!team.getContest().getId().equals(contestId)) {
+            throw new ApplicationException(ErrorCode.INVALID_VALUE_EXCEPTION);
+        }
+        if (!team.getMember().getId().equals(member.getId())) {
+            throw new ApplicationException(ErrorCode.FORBIDDEN_EXCEPTION);
+        }
+        TeamStatus teamStatus = TeamStatus.checkActiveORFinished(status);
+
+        // Business Logic
+        team.updateTeamStatus(teamStatus);
+        Team updatedTeam = teamRepository.save(team);
+
+        // Response
+        return TeamRes.of(updatedTeam, "LEADER", null);
+    }
+
+    public List<SimpleApplyRes> getApplyList(Member member, Long teamId) {
+        // Validation
+        Team team = teamRepository.findByIdAndDeletedAtIsNull(teamId)
+                .orElseThrow(() -> new ApplicationException(ErrorCode.TEAM_NOT_FOUND_EXCEPTION));
+        if (!team.getMember().getId().equals(member.getId())) {
+            throw new ApplicationException(ErrorCode.FORBIDDEN_EXCEPTION);
+        }
+
+        // Business Logic & Response
+        return applyRepository.findAllByTeamIdAndDeletedAtIsNull(teamId).stream()
+                .map(SimpleApplyRes::of)
+                .toList();
+    }
+
+    public void updateView(Team team, HttpServletRequest request, HttpServletResponse response) {
+        boolean hasViewed = false;
+        Cookie[] cookies = request.getCookies();
+
+        String COOKIE_NAME = "team_view";
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if (cookie.getName().equals(COOKIE_NAME)) {
+                    hasViewed = true;
+                    break;
+                }
+            }
+        }
+
+        if (!hasViewed) {
+            team.updateViewCount(team);
+            // 세션 쿠키 설정
+            Cookie newCookie = new Cookie(COOKIE_NAME, "viewed");
+            newCookie.setMaxAge(-1); // 브라우저 세션이 끝날 때까지 유효
+            newCookie.setPath("/");
+            response.addCookie(newCookie);
+        }
+    }
+
+    public void updatePassCount(Team team) {
+        int passCount = applyRepository.countByTeamIdAndStatusAndDeletedAtIsNull(team.getId(), ApplyStatus.ACCEPTED);
+        team.updatePassCount(passCount);
+    }
+
+    @Transactional
+    public void updateTeamsToActiveStatus() {
+        List<Team> activeTeams = teamRepository.findAllByRecruitFinishedAtAndStartedAtBeforeAndFinishedAtAfter(LocalDate.now());
+
+        if (!activeTeams.isEmpty()) {
+            activeTeams.forEach(team -> team.updateTeamStatus(TeamStatus.ACTIVE));
+            teamRepository.saveAll(activeTeams);
+        }
+
+        List<Team> finishedTeams = teamRepository.findAllByTeamStatusAndFinishedAtBefore(LocalDate.now());
+
+        if (!finishedTeams.isEmpty()) {
+            finishedTeams.forEach(team -> team.updateTeamStatus(TeamStatus.FINISHED));
+            teamRepository.saveAll(finishedTeams);
+        }
+    }
+
 }

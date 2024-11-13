@@ -20,17 +20,13 @@ public class PortfolioInfo {
 
     private boolean isPrivate;
 
-    public static PortfolioInfo ofPortfolio(Portfolio portfolio) {
+    private String dataType;
+
+    public static PortfolioInfo ofPortfolio(Portfolio portfolio, boolean isPrivate, String dataType) {
         return PortfolioInfo.builder()
                 .portfolio(portfolio)
-                .isPrivate(false)
-                .build();
-    }
-    
-    public static PortfolioInfo ofPrivate() {
-        return PortfolioInfo.builder()
-                .portfolio(null)
-                .isPrivate(true)
+                .isPrivate(isPrivate)
+                .dataType(dataType)
                 .build();
     }
 }

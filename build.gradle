@@ -82,6 +82,9 @@ dependencies {
 
 	// Json Type Parsing
 	implementation 'com.fasterxml.jackson.module:jackson-module-jakarta-xmlbind-annotations'
+
+	// Quartz
+	implementation 'org.springframework.boot:spring-boot-starter-quartz:2.7.5'
 }
 
 

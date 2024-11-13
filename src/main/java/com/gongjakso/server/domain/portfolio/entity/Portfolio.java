@@ -1,5 +1,6 @@
 package com.gongjakso.server.domain.portfolio.entity;
 
+import com.gongjakso.server.domain.contest.dto.request.UpdateContestDto;
 import com.gongjakso.server.domain.member.entity.Member;
 import com.gongjakso.server.domain.portfolio.vo.PortfolioData;
 import com.gongjakso.server.global.common.BaseTimeEntity;
@@ -12,6 +13,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.type.SqlTypes;
+import org.springframework.data.redis.connection.ReactiveGeoCommands;
 
 @Getter
 @Entity
@@ -25,8 +27,8 @@ public class Portfolio extends BaseTimeEntity {
     @Column(name = "portfolio_id", nullable = false, columnDefinition = "bigint")
     private Long id;
 
-    @Column(name = "title", nullable = false, columnDefinition = "varchar(50)")
-    private String title;
+    @Column(name = "portfolio_name", nullable = false, columnDefinition = "varchar(50)")
+    private String portfolioName;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
@@ -36,13 +38,43 @@ public class Portfolio extends BaseTimeEntity {
     @JdbcTypeCode(SqlTypes.JSON)
     private PortfolioData portfolioData;
 
-    @Builder
-    public Portfolio(Member member, PortfolioData portfolioData) {
+    @Column(name = "file_uri",columnDefinition = "text")
+    private String fileUri;
+
+    @Column(name = "notion_uri",columnDefinition = "text")
+    private String notionUri;
+
+    @Builder(builderMethodName = "portfolioBuilder")
+    public Portfolio(Member member, String portfolioName, PortfolioData portfolioData) {
         this.member = member;
+        this.portfolioName = portfolioName;
         this.portfolioData = portfolioData;
     }
 
-    public void update(PortfolioData updatedData) {
+    @Builder(builderMethodName = "existPortfolioBuilder")
+    public Portfolio(Member member, String portfolioName, String fileUri, String notionUri){
+        this.member = member;
+        this.portfolioName = portfolioName;
+        this.fileUri = fileUri;
+        this.notionUri = notionUri;
+    }
+    public void updatePortfolioUri(String fileUri, String notionUri) {
+        this.fileUri = (fileUri == null) ? this.fileUri : fileUri;
+        this.notionUri = (notionUri == null) ? this.notionUri : notionUri;
+    }
+
+    public void updateName(String updatedName) {
+        this.portfolioName = updatedName;
+    }
+
+    public void updateData(PortfolioData updatedData) {
         this.portfolioData = updatedData;
+    }
+
+    public void setFileUri(String fileUri){
+        this.fileUri=fileUri;
+    }
+    public void setNotionUri(String notionUri){
+        this.notionUri=notionUri;
     }
 }

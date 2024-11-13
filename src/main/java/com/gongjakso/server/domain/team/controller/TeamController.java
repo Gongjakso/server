@@ -1,13 +1,18 @@
 package com.gongjakso.server.domain.team.controller;
 
+import com.gongjakso.server.domain.apply.dto.response.SimpleApplyRes;
 import com.gongjakso.server.domain.team.dto.request.TeamReq;
+import com.gongjakso.server.domain.team.dto.response.ScrapRes;
 import com.gongjakso.server.domain.team.dto.response.SimpleTeamRes;
 import com.gongjakso.server.domain.team.dto.response.TeamRes;
 import com.gongjakso.server.domain.team.service.TeamService;
 import com.gongjakso.server.global.common.ApplicationResponse;
 import com.gongjakso.server.global.security.PrincipalDetails;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -18,6 +23,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.util.List;
 
 
 @RestController
@@ -80,12 +86,19 @@ public class TeamController {
 
     @Operation(summary = "팀 조회 API", description = "특정 공모전에 해당하는 팀을 조회하는 API")
     @GetMapping("/contest/{contest_id}/team/{team_id}")
-    public ApplicationResponse<TeamRes> getTeam(@PathVariable(value = "contest_id") Long contestId,
-                                                @PathVariable(value = "team_id") Long teamId) {
-        return ApplicationResponse.ok(teamService.getTeam(contestId, teamId));
+    public ApplicationResponse<TeamRes> getTeam(@AuthenticationPrincipal PrincipalDetails principalDetails,
+                                                @PathVariable(value = "contest_id") Long contestId,
+                                                @PathVariable(value = "team_id") Long teamId,
+                                                HttpServletRequest request,
+                                                HttpServletResponse response) {
+        return ApplicationResponse.ok(teamService.getTeam(principalDetails == null ? null : principalDetails.getMember(), contestId, teamId, request, response));
     }
 
-    @Operation(summary = "팀 리스트 조회 API", description = "특정 공모전에 해당하는 팀 리스트를 조회하는 API (오프셋 기반 페이지네이션)")
+    @Operation(summary = "팀 리스트 조회 API",
+            description = "특정 공모전에 해당하는 팀 리스트를 조회하는 API (오프셋 기반 페이지네이션)",
+            parameters = {
+                @Parameter(name = "sort", description = "정렬 기준 (예시- 생성 시각 내림차순 createdAt,desc / 인기순 스크랩 수 내림차순 scrap,desc", required = false),
+            })
     @GetMapping("/contest/{contest_id}/team/list")
     public ApplicationResponse<Page<SimpleTeamRes>> getTeamList(@PathVariable(value = "contest_id") Long contestId,
                                                                 @RequestParam(value = "province", required = false) String province,
@@ -94,7 +107,12 @@ public class TeamController {
         return ApplicationResponse.ok(teamService.getTeamListWithContest(contestId, province, district, pageable));
     }
 
-    @Operation(summary = "팀 리스트 조회 API", description = "공모전에 상관없이 팀 리스트를 조회하는 API (검색 기능 존재 / 오프셋 기반 페이지네이션)")
+    @Operation(summary = "팀 리스트 조회 API",
+            method = "GET",
+            description = "공모전에 상관없이 팀 리스트를 조회하는 API (검색 기능 존재 / 오프셋 기반 페이지네이션)",
+            parameters = {
+                @Parameter(name = "sort", description = "정렬 기준 (예시- 생성 시각 내림차순 createdAt,desc / 인기순 스크랩 수 내림차순 scrap,desc", required = false),
+            })
     @GetMapping("/team/list")
     public ApplicationResponse<Page<SimpleTeamRes>> getTeamList(@RequestParam(value = "province", required = false) String province,
                                               @RequestParam(value = "district", required = false) String district,
@@ -106,31 +124,36 @@ public class TeamController {
     @Operation(summary = "내가 모집 중인 팀 리스트 조회 API", description = "공모전에 상관없이 내가 모집 중인 팀 리스트를 조회하는 API (오프셋 기반 페이지네이션)")
     @GetMapping("/team/my-recruit")
     public ApplicationResponse<Page<SimpleTeamRes>> getMyRecruitTeamList(@AuthenticationPrincipal PrincipalDetails principalDetails,
-                                                      @PageableDefault(size = 8) Pageable pageable) {
+                                                                         @PageableDefault(size = 8) Pageable pageable) {
         return ApplicationResponse.ok(teamService.getMyRecruitTeamList(principalDetails.getMember(), pageable));
     }
 
-    @Operation(summary = "내가 참여한 팀 리스트 조회 API", description = "공모전에 상관없이 내가 참여한 팀 리스트를 조회하는 API (오프셋 기반 페이지네이션)")
+    @Operation(summary = "내가 지원한 팀 리스트 조회 API", description = "공모전에 상관없이 내가 참여한 팀 리스트를 조회하는 API (오프셋 기반 페이지네이션)")
     @GetMapping("/team/my-apply")
     public ApplicationResponse<Page<SimpleTeamRes>> getMyApplyTeamList(@AuthenticationPrincipal PrincipalDetails principalDetails,
-                                                    @PageableDefault(size = 8) Pageable pageable) {
+                                                                       @PageableDefault(size = 8) Pageable pageable) {
         return ApplicationResponse.ok(teamService.getMyApplyTeamList(principalDetails.getMember(), pageable));
+    }
+
+    @Operation(summary = "내가 참여한 팀 리스트 조회 API", description = "공모전에 상관없이 내가 참여한 팀 리스트를 조회하는 API (오프셋 기반 페이지네이션)")
+    @GetMapping("/team/my-participate")
+    public ApplicationResponse<Page<SimpleTeamRes>> getMyParticipateTeamList(@AuthenticationPrincipal PrincipalDetails principalDetails,
+                                                    @PageableDefault(size = 8) Pageable pageable) {
+        return ApplicationResponse.ok(teamService.getMyParticipateTeamList(principalDetails.getMember(), pageable));
     }
 
     @Operation(summary = "특정 팀 스크랩하기", description = "특정 팀을 스크랩하는 API")
     @PostMapping("/team/{team_id}/scrap")
-    public ApplicationResponse<Void> scrapTeam(@AuthenticationPrincipal PrincipalDetails principalDetails,
+    public ApplicationResponse<ScrapRes> scrapTeam(@AuthenticationPrincipal PrincipalDetails principalDetails,
                                            @PathVariable(value = "team_id") Long teamId) {
-        teamService.scrapTeam(principalDetails.getMember(), teamId);
-        return ApplicationResponse.ok();
+        return ApplicationResponse.ok(teamService.scrapTeam(principalDetails.getMember(), teamId));
     }
 
     @Operation(summary = "특정 팀 스크랩 취소하기", description = "특정 팀 스크랩을 취소하는 API")
     @DeleteMapping("/team/{team_id}/scrap")
-    public ApplicationResponse<Void> cancelScrapTeam(@AuthenticationPrincipal PrincipalDetails principalDetails,
+    public ApplicationResponse<ScrapRes> cancelScrapTeam(@AuthenticationPrincipal PrincipalDetails principalDetails,
                                                  @PathVariable(value = "team_id") Long teamId) {
-        teamService.cancelScrapTeam(principalDetails.getMember(), teamId);
-        return ApplicationResponse.ok();
+        return ApplicationResponse.ok(teamService.cancelScrapTeam(principalDetails.getMember(), teamId));
     }
 
     @Operation(summary = "스크랩한 팀 리스트 조회 API", description = "스크랩한 팀 리스트를 조회하는 API (오프셋 기반 페이지네이션)")
@@ -138,5 +161,28 @@ public class TeamController {
     public ApplicationResponse<Page<SimpleTeamRes>> getScrapTeamList(@AuthenticationPrincipal PrincipalDetails principalDetails,
                                                   @PageableDefault(size = 8) Pageable pageable) {
         return ApplicationResponse.ok(teamService.getScrapTeamList(principalDetails.getMember(), pageable));
+    }
+
+    @Operation(summary = "팀 스크랩 여부 조회 API", description = "해당 팀을 스크랩했는지 여부를 확인하는 API")
+    @GetMapping("/team/{team_id}/scrap/check")
+    public ApplicationResponse<ScrapRes> checkScrapTeam(@AuthenticationPrincipal PrincipalDetails principalDetails,
+                                                        @PathVariable(value = "team_id") Long teamId) {
+        return ApplicationResponse.ok(teamService.checkScrapTeam(principalDetails.getMember(), teamId));
+    }
+
+    @Operation(summary = "팀 활동 상태 변경 API", description = "팀의 활동 상태를 변경한다.")
+    @PatchMapping("/contest/{contest_id}/team/{team_id}/change-status")
+    public ApplicationResponse<TeamRes> changeTeamStatus(@AuthenticationPrincipal PrincipalDetails principalDetails,
+                                                      @PathVariable(value = "contest_id") Long contestId,
+                                                      @PathVariable(value = "team_id") Long teamId,
+                                                      @RequestParam(value = "status") String status) {
+        return ApplicationResponse.ok(teamService.changeTeamStatus(principalDetails.getMember(), contestId, teamId, status));
+    }
+
+    @Operation(summary = "특정 팀의 지원자 리스트 조회", description = "특정 팀의 지원자 리스트를 조회하는 API")
+    @GetMapping("/team/{team_id}")
+    public ApplicationResponse<List<SimpleApplyRes>> getAppliesByTeam(@AuthenticationPrincipal PrincipalDetails principalDetails,
+                                                                               @PathVariable("team_id") Long teamId) {
+        return ApplicationResponse.ok(teamService.getApplyList(principalDetails.getMember(), teamId));
     }
 }

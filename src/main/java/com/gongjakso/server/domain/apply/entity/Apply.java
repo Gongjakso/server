@@ -34,7 +34,7 @@ public class Apply extends BaseTimeEntity {
         @Embedded
         private PortfolioInfo portfolioInfo;
 
-        @Column(nullable = false, columnDefinition = "varchar(500)")
+        @Column(nullable = false, columnDefinition = "text")
         private String body;
 
         @Column(nullable = false, columnDefinition = "varchar(20)")
