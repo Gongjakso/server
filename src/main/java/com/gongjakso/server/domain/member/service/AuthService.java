@@ -44,7 +44,7 @@ public class AuthService {
             case KAKAO -> kakaoMember(code, redirectUri);
             case GOOGLE -> googleMember(code, redirectUri);
             case NAVER -> naverMember(code, redirectUri);
-            default -> null;
+            default -> kakaoMember(code, redirectUri);
         };
 
         assert member != null;
