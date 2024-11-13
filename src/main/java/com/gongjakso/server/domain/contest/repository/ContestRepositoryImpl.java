@@ -10,6 +10,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import static com.gongjakso.server.domain.contest.entity.QContest.contest;
@@ -23,10 +24,17 @@ public class ContestRepositoryImpl implements ContestRepositoryCustom{
 
     @Override
     public Page<Contest> searchList(String word, String sortAt, Pageable pageable) {
+        BooleanExpression filterCondition = wordEq(word);
+
+        if ("ACTIVE".equals(sortAt)) {
+            filterCondition = (filterCondition == null ? contest.finishedAt.goe(LocalDate.now())
+                    : filterCondition.and(contest.finishedAt.goe(LocalDate.now())));
+        }
+
         List<Contest> contestList = queryFactory
                 .selectDistinct(contest)
                 .from(contest)
-                .where(wordEq(word))
+                .where(filterCondition)
                 .orderBy(arg(sortAt))
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
@@ -34,7 +42,7 @@ public class ContestRepositoryImpl implements ContestRepositoryCustom{
         long total = queryFactory
                 .select(contest.count())
                 .from(contest)
-                .where(wordEq(word))  // Full-Text Search 조건 추가
+                .where(filterCondition)  // Full-Text Search 조건 추가
                 .fetchOne();
 
         return new PageImpl<>(contestList,pageable,total);
@@ -43,6 +51,9 @@ public class ContestRepositoryImpl implements ContestRepositoryCustom{
     private OrderSpecifier<?> arg(String sortAt){
         if("VIEW".equals(sortAt)){
             return contest.view.desc();//조회순
+        }
+        if ("ACTIVE".equals(sortAt)) {
+            return contest.finishedAt.asc(); // 종료일 기준 오름차순
         }
         return contest.createdAt.desc(); //최신순
     }
