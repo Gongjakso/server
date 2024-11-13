@@ -78,6 +78,7 @@ public class TeamRepositoryImpl implements TeamRepositoryCustom {
                 .from(team)
                 .where(
                         team.contest.id.eq(contestId),
+                        team.status.in(teamStatusList),
                         team.deletedAt.isNull(),
                         builder
                 )
@@ -118,9 +119,9 @@ public class TeamRepositoryImpl implements TeamRepositoryCustom {
 
         Long total = queryFactory.select(team.count())
                 .from(team)
-                .where(
-                        team.deletedAt.isNull(),
-                        builder
+                .where(team.deletedAt.isNull()
+                        .and(team.status.in(teamStatusList))
+                        .and(builder)
                 )
                 .fetchOne();
 
@@ -151,6 +152,7 @@ public class TeamRepositoryImpl implements TeamRepositoryCustom {
                 .from(team)
                 .where(
                         team.member.id.eq(memberId),
+                        team.status.in(teamStatusList),
                         team.deletedAt.isNull()
                 )
                 .fetchOne();
@@ -230,8 +232,17 @@ public class TeamRepositoryImpl implements TeamRepositoryCustom {
         Long total = queryFactory.select(team.count())
                 .from(team)
                 .where(
-                        team.status.in(teamStatusList),
-                        team.deletedAt.isNull()
+                        (
+                                team.member.id.eq(memberId)
+                                        .and(team.status.in(teamStatusList))
+                                        .and(team.deletedAt.isNull())
+                        )
+                                .or(
+                                        apply.member.id.eq(memberId)
+                                                .and(apply.status.eq(ApplyStatus.ACCEPTED))
+                                                .and(apply.team.status.in(teamStatusList))
+                                                .and(apply.team.deletedAt.isNull())
+                                )
                 )
                 .fetchOne();
 
