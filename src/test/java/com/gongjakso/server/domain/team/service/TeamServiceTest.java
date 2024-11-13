@@ -48,7 +48,7 @@ class TeamServiceTest {
 
         Contest contest = ContestUtilTest.buildContest();
 
-        TeamReq teamReq;
+        TeamReq teamReq = null;
         Team team = TeamUtilTest.buildteam();
 
         when(contestRepository.findByIdAndDeletedAtIsNull(1L)).thenReturn(java.util.Optional.of(contest));
@@ -59,7 +59,7 @@ class TeamServiceTest {
 
         // then
         assertNotNull(result);
-        assertEquals(1L, result.getId());
+        assertEquals(1L, result.id());
         verify(contestRepository, times(1)).findByIdAndDeletedAtIsNull(1L);
         verify(teamRepository, times(1)).save(any(Team.class));
     }

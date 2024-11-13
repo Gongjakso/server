@@ -10,6 +10,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import static com.gongjakso.server.domain.contest.entity.QContest.contest;
@@ -43,6 +44,9 @@ public class ContestRepositoryImpl implements ContestRepositoryCustom{
     private OrderSpecifier<?> arg(String sortAt){
         if("VIEW".equals(sortAt)){
             return contest.view.desc();//조회순
+        }
+        if("ACTIVE".equals(sortAt)){
+            return contest.finishedAt.after(LocalDate.now()).desc(); //활동 중인 공모전
         }
         return contest.createdAt.desc(); //최신순
     }
