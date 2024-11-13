@@ -25,7 +25,7 @@ public class AuthController {
     @PostMapping("/sign-in")
     public ApplicationResponse<LoginRes> signIn(@RequestParam(name = "code") String code,
                                                 @RequestParam(name = "redirect-uri") String redirectUri,
-                                                @RequestParam(name = "type") String type) {
+                                                @RequestParam(name = "type", required = false, defaultValue = "KAKAO") String type) {
         return ApplicationResponse.ok(authService.signIn(code, redirectUri,type));
     }
 
