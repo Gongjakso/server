@@ -61,6 +61,7 @@ jobs:
           host: ${{ secrets.EC2_SERVER_IP }}
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
             sudo docker login -u ${{ secrets.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_PASSWORD }}
             sudo docker-compose stop ${{ secrets.DOCKER_SERVICE_NAME }}
             sudo docker-compose rm -f ${{ secrets.DOCKER_SERVICE_NAME }}
