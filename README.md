@@ -14,10 +14,11 @@
 - AWS EC2, AWS RDS, AWS S3
 
 ### ERD
-![123 1](https://github.com/Gongjakso/server/assets/76556999/3abee2ce-628b-4d1a-ae3a-2b1a438d8b97)
+![Image](https://github.com/user-attachments/assets/2469469c-60f7-4a4e-87a9-75cd5d9607a8)
 
 ### Infra Architecture
-![infra](https://github.com/Gongjakso/server/assets/76556999/e1172ec4-4120-4250-9cd8-a8512ddb7ef2)
+![Image](https://github.com/user-attachments/assets/a935e910-a48b-4d27-91fc-490da3fd21db)
+
 
 ## 팀 구성
 - 이정진 [@dl-00-e8](https://github.com/dl-00-e8)
